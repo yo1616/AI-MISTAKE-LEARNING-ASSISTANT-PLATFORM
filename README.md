@@ -654,7 +654,7 @@ Response:
 
 ## 功能群七：學生端學習分析
 
-### 14學生端學習分析摘要
+### 14. 學生端學習分析摘要
 
 `GET /api/students/:studentId/analytics/summary`
 
@@ -694,7 +694,7 @@ Response:
 
 ## 功能群八：老師端學生學習分析
 
-### 14. 全班每週常錯觀念統計
+### 15. 全班每週常錯觀念統計
 
 `GET /api/dashboard/summary?range=7d`
 
@@ -724,7 +724,7 @@ Response:
 }
 ```
 
-### 15. 單一學生常錯觀念分析
+### 16. 單一學生常錯觀念分析
 
 `GET /api/dashboard/students/:studentId/concepts`
 

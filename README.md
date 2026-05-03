@@ -1,6 +1,4 @@
-# mistakeLearningSystem
-
-## 共用規則
+## 1. 共用規則
 
 - request 是前端送給後端的格式；response 是後端回傳給前端的格式
 - 先用 JSON API，全部回傳 UTF-8 JSON。
@@ -9,15 +7,9 @@
 - 失敗：`{ "success": false, "error": { "code": "STRING", "message": "說明" } }`
 - 時間格式統一用 ISO 8601，例如 `2026-05-03T14:30:00+08:00`
 
-## 詢問AI錯題之輸入規則
+## 2. 分類方式定義
 
-學生提問方式可能是「純文字」、「純圖片」、「圖片加文字」
-- `text`：學生直接打字
-- `photo`：學生只上傳照片
-- `photo_text`：學生上傳照片也打字
-- `questionImageUrl` 和 `questionText` 至少要有一個
-
-## 「非」歷史對話紀錄之排序與分類規則（如：觀念筆記等）
+### 「非」歷史對話紀錄之排序與分類規則（如：知識點筆記、錯題等）
 
 簡述流程： 科目 >> 單元 >> 觀念標籤 >> 內容（先排星號，再依時間新到舊往下排）
 - `subjectId`：固定科目
@@ -27,39 +19,11 @@
 - 只有真的沒有適合觀念時，才允許新建 `concept`
 - 被分到對應 `concept`後，先排星號 `starred`，其餘沒星號用 `createdAt` 「由新到舊」排序
 
+### 分類的觀念標籤（分類方式）
 
-## 歷史對話排序規則
+`GET /api/concepts?subjectId=subject_bio&unitId=unit_bio_02`
 
-歷史對話列表是指像GPT的聊天記錄「列表」
-單一對話是指點開列表的其中一項會顯示的「對話本身」，我是想要一點開就顯示他問的第一句話（即最頂部），而不是最底部
-
-學生體感會是可以接著問很多題（以下指的`session`），但系統背後實際會把不同題切開
-
-- 歷史對話列表 `chat-sessions`：依照 `updatedAt` 「由新到舊」排序
-- 單一對話內的 `messages`：依照 `createdAt` 「由舊到新」排序
-- 歷史對話主軸是時間，不是分類
-- `session` 是聊天容器，不代表只有一題
-- 同一個 `session` 內可以有很多不同題目
-- 真正切分每一題的是 `messageType` 與 `questionGroupId`
-
-## 權限規則
-
-- 學生端可查看自己的完整歷史對話
-- 老師端不可查看學生完整對話內容
-- 老師端只查看觀念統計分析
-
-## 星號與排序規則
-
-- 錯題紀錄、觀念筆記、生成相似題都可加星號
-- 每筆資料可有 `starred` 與 `starredAt`
-- 這三種列表都固定先顯示 `starred = true`
-- 星號資料內部再依 `createdAt` 由新到舊排序
-
-## 功能群一：學生基本資料
-
-### 1. 學生列表
-
-`GET /api/students`
+是指「科目>>單元>>觀念標題」這部分分類方式的「觀念標籤」的部分
 
 Response:
 
@@ -68,17 +32,80 @@ Response:
   "success": true,
   "data": [
     {
-      "id": "student_001",
-      "name": "王小明",
-      "grade": "8"
+      "id": "concept_bio_002",
+      "subjectId": "subject_bio",
+      "unitId": "unit_bio_02",
+      "name": "呼吸系統",
+      "keywords": ["鼻腔", "氣管", "支氣管", "肺"],
+      "createdBy": "seed"
+    },
+    {
+      "id": "concept_bio_003",
+      "subjectId": "subject_bio",
+      "unitId": "unit_bio_02",
+      "name": "氣體交換",
+      "keywords": ["肺泡", "氧氣", "二氧化碳", "微血管"],
+      "createdBy": "seed"
+    }
+  ]
+}
+```
+### AI 觀念分類
+
+判斷要分到哪個「觀念標籤」
+
+`POST /api/ai/concept-classification`
+
+Request:
+
+```json
+{
+  "subjectId": "subject_bio",
+  "unitId": "unit_bio_03",
+  "inputType": "photo_text",
+  "questionImageUrl": "/uploads/energy-question-1.jpg",
+  "questionText": "這題在問 ATP 和能量型態轉換",
+  "availableConcepts": [
+    {
+      "id": "concept_bio_005",
+      "name": "光合作用"
+    },
+    {
+      "id": "concept_bio_006",
+      "name": "葉綠體功能"
     }
   ]
 }
 ```
 
-## 功能群二：歷史對話
+Response:
 
-### 2. 建立歷史對話
+```json
+{
+  "success": true,
+  "data": {
+    "ocrText": "這題在問 ATP 和能量型態轉換",
+    "matchedConceptId": "concept_bio_007",
+    "matchedConceptName": "能量轉換",
+    "isNewConcept": true,
+    "confidence": 0.62,
+    "candidateConceptIds": ["concept_bio_004", "concept_bio_005", "concept_bio_006"],
+    "newConceptReason": "現有觀念無法完整涵蓋 ATP 與能量型態轉換的題型。"
+  }
+}
+```
+
+## 3. 問答功能
+
+### 詢問AI錯題之輸入規則
+
+學生提問方式可能是「純文字」、「純圖片」、「圖片加文字」
+- `text`：學生直接打字
+- `photo`：學生只上傳照片
+- `photo_text`：學生上傳照片也打字
+- `questionImageUrl` 和 `questionText` 至少要有一個
+
+### 建立歷史對話
 
 `POST /api/chat-sessions`
 
@@ -118,7 +145,7 @@ Response:
 }
 ```
 
-### 3. 繼續對話
+### 繼續對話
 
 `POST /api/chat-sessions/:sessionId/messages`
 
@@ -154,7 +181,23 @@ Response:
 }
 ```
 
-### 4. 歷史對話「列表」
+## 4. 基礎功能
+
+### 歷史對話排序規則
+
+歷史對話列表是指像GPT的聊天記錄「列表」
+單一對話是指點開列表的其中一項會顯示的「對話本身」，我是想要一點開就顯示他問的第一句話（即最頂部），而不是最底部
+
+學生體感會是可以接著問很多題（以下指的`session`），但系統背後實際會把不同題切開
+
+- 歷史對話列表 `chat-sessions`：依照 `updatedAt` 「由新到舊」排序
+- 單一對話內的 `messages`：依照 `createdAt` 「由舊到新」排序
+- 歷史對話主軸是時間，不是分類
+- `session` 是聊天容器，不代表只有一題
+- 同一個 `session` 內可以有很多不同題目
+- 真正切分每一題的是 `messageType` 與 `questionGroupId`
+
+### 歷史對話「列表」
 
 `GET /api/students/:studentId/chat-sessions?sort=updatedAt_desc`
 
@@ -187,7 +230,7 @@ Response:
 }
 ```
 
-### 5. 單一對話完整「內容」
+### 單一對話完整「內容」
 
 `GET /api/chat-sessions/:sessionId/messages`
 
@@ -251,87 +294,9 @@ Response:
 }
 ```
 
-## 功能群三：分類方式定義
+### 紀錄錯題
 
-### 6. 分類的觀念標籤（分類方式）
-
-`GET /api/concepts?subjectId=subject_bio&unitId=unit_bio_02`
-
-是指「科目>>單元>>觀念標題」這部分分類方式的「觀念標籤」的部分
-
-Response:
-
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": "concept_bio_002",
-      "subjectId": "subject_bio",
-      "unitId": "unit_bio_02",
-      "name": "呼吸系統",
-      "keywords": ["鼻腔", "氣管", "支氣管", "肺"],
-      "createdBy": "seed"
-    },
-    {
-      "id": "concept_bio_003",
-      "subjectId": "subject_bio",
-      "unitId": "unit_bio_02",
-      "name": "氣體交換",
-      "keywords": ["肺泡", "氧氣", "二氧化碳", "微血管"],
-      "createdBy": "seed"
-    }
-  ]
-}
-```
-### 6-1. AI 觀念分類
-
-判斷要分到哪個「觀念標籤」
-
-`POST /api/ai/concept-classification`
-
-Request:
-
-```json
-{
-  "subjectId": "subject_bio",
-  "unitId": "unit_bio_03",
-  "inputType": "photo_text",
-  "questionImageUrl": "/uploads/energy-question-1.jpg",
-  "questionText": "這題在問 ATP 和能量型態轉換",
-  "availableConcepts": [
-    {
-      "id": "concept_bio_005",
-      "name": "光合作用"
-    },
-    {
-      "id": "concept_bio_006",
-      "name": "葉綠體功能"
-    }
-  ]
-}
-```
-
-Response:
-
-```json
-{
-  "success": true,
-  "data": {
-    "ocrText": "這題在問 ATP 和能量型態轉換",
-    "matchedConceptId": "concept_bio_007",
-    "matchedConceptName": "能量轉換",
-    "isNewConcept": true,
-    "confidence": 0.62,
-    "candidateConceptIds": ["concept_bio_004", "concept_bio_005", "concept_bio_006"],
-    "newConceptReason": "現有觀念無法完整涵蓋 ATP 與能量型態轉換的題型。"
-  }
-}
-```
-
-## 功能群四：錯題紀錄
-
-### 7. 新增錯題
+### 新增錯題
 
 `POST /api/mistakes`
 
@@ -381,7 +346,7 @@ Response:
 }
 ```
 
-### 8. 單一學生錯題「列表」
+### 單一學生錯題「列表」
 
 `GET /api/students/:studentId/mistakes`
 
@@ -412,7 +377,7 @@ Response:
 }
 ```
 
-### 8-1. 錯題切換星號
+### 錯題切換星號
 
 `PATCH /api/mistakes/:mistakeId/star`
 
@@ -439,7 +404,7 @@ Response:
 }
 ```
 
-### 9. 單一錯題詳細「內容」
+### 單一錯題詳細「內容」
 
 `GET /api/mistakes/:mistakeId`
 
@@ -463,9 +428,9 @@ Response:
   }
 }
 ```
-## 功能群五：觀念筆記
+### 知識點筆記
 
-### 10. 觀念筆記「列表」
+### 知識點筆記「列表」
 
 `GET /api/students/:studentId/concept-notes`
 
@@ -495,7 +460,7 @@ Response:
 }
 ```
 
-### 10-1. 觀念筆記切換星號
+### 知識點筆記切換星號
 
 `PATCH /api/concept-notes/:noteId/star`
 
@@ -522,11 +487,11 @@ Response:
 }
 ```
 
-### 10-2. 單一觀念筆記詳細「內容」
+### 單一知識點筆記詳細「內容」
 
 `GET /api/concept-notes/:noteId`
 
-點開某一則觀念筆記時，查看它對應的錯題與生成相似題來源
+點開某一則知識點筆記時，查看它對應的錯題與生成相似題來源
 
 Response:
 
@@ -562,9 +527,9 @@ Response:
 }
 ```
 
-## 功能群六：生成相似題（素養題）
+### 生成相似題
 
-### 12. AI 生成素養題
+### AI 生成素養題
 
 `POST /api/ai/practice-question`
 
@@ -597,7 +562,7 @@ Response:
 }
 ```
 
-### 13. 生成相似題「列表」
+### 生成相似題「列表」
 
 `GET /api/students/:studentId/practice-questions`
 
@@ -627,7 +592,7 @@ Response:
 }
 ```
 
-### 13-1. 生成相似題切換星號
+### 生成相似題切換星號
 
 `PATCH /api/practice-questions/:practiceId/star`
 
@@ -652,15 +617,23 @@ Response:
 }
 ```
 
-## 功能群七：學生端學習分析
+## 5. 我的最愛
 
-### 14. 學生端學習分析摘要
+### 星號與排序規則
 
-`GET /api/students/:studentId/analytics/summary`
+- 錯題紀錄、知識點筆記、生成相似題都可加星號
+- 每筆資料可有 `starred` 與 `starredAt`
+- 這三種列表都固定先顯示 `starred = true`
+- 星號資料內部再依 `createdAt` 由新到舊排序
+- 除了原本各自的列表頁之外，另外再獨立提供一個「我的最愛」入口
+- 「我的最愛」底下再分成 `mistakes`、`concept-notes`、`practice-questions`
+- 「我的最愛」只顯示 `starred = true` 的資料
 
-用途：
+### 我的最愛分類首頁
 
-- 學生查看自己的整體學習摘要
+`GET /api/students/:studentId/favorites`
+
+進入「我的最愛」後，先看到三個分類：相似題、錯題、知識點筆記
 
 Response:
 
@@ -668,6 +641,138 @@ Response:
 {
   "success": true,
   "data": {
+    "mistakes": 3,
+    "conceptNotes": 2,
+    "practiceQuestions": 4
+  }
+}
+```
+
+### 我的最愛：「錯題列表」
+
+`GET /api/students/:studentId/favorites/mistakes`
+
+只顯示有加星號的錯題
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "mistake_record_001",
+      "subjectId": "subject_bio",
+      "unitId": "unit_bio_02",
+      "conceptId": "concept_bio_003",
+      "questionText": "肺泡與微血管之間進行何種作用？",
+      "aiSummary": "這題重點是肺泡的功能。肺泡和微血管之間進行的是氣體交換，不是消化作用。",
+      "starred": true,
+      "starredAt": "2026-05-03T20:00:00+08:00",
+      "createdAt": "2026-05-03T14:30:00+08:00"
+    }
+  ]
+}
+```
+
+### 我的最愛：「知識點筆記列表」
+
+`GET /api/students/:studentId/favorites/concept-notes`
+
+只顯示有加星號的知識點筆記
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "note_001",
+      "subjectId": "subject_bio",
+      "unitId": "unit_bio_02",
+      "conceptId": "concept_bio_003",
+      "noteTitle": "氣體交換重點",
+      "noteContent": "肺泡是進行氣體交換的主要場所，氧氣進入血液，二氧化碳離開血液進入肺泡。",
+      "starred": true,
+      "starredAt": "2026-05-03T20:05:00+08:00",
+      "createdAt": "2026-05-03T09:02:10+08:00"
+    }
+  ]
+}
+```
+
+### 我的最愛：「生成相似題列表」
+
+`GET /api/students/:studentId/favorites/practice-questions`
+
+只顯示有加星號的生成相似題
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "practice_001",
+      "subjectId": "subject_bio",
+      "unitId": "unit_bio_02",
+      "conceptId": "concept_bio_003",
+      "questionStyle": "literacy",
+      "title": "登山時的呼吸變化",
+      "questionText": "根據上文，肺泡在這段情境中最主要的功能是什麼？",
+      "starred": true,
+      "starredAt": "2026-05-03T20:10:00+08:00",
+      "createdAt": "2026-05-03T09:04:10+08:00"
+    }
+  ]
+}
+```
+
+## 6. 學生個人資料
+
+### 學生列表
+
+`GET /api/students`
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "student_001",
+      "name": "王小明",
+      "grade": "8"
+    }
+  ]
+}
+```
+
+## 7. 學生端分析
+
+### 分析期間規則
+
+- 學生端分析、老師端分析都要能選擇統計期間`range`
+- 可先支援：`7d`、`30d`、`custom`
+- 若 `range = custom`，則另外傳 `from` 與 `to`
+- 排名前幾名統一用 `limit`
+
+### 學生端學習分析摘要
+
+`GET /api/students/:studentId/analytics/summary?range=30d&limit=5`
+
+學生查看自己的整體學習摘要，並選擇統計期間。`limit` 用來控制「前幾常錯的知識點」
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": {
+    "range": "30d",
     "totalMistakes": 12,
     "starredMistakes": 4,
     "starredNotes": 2,
@@ -676,7 +781,8 @@ Response:
       {
         "conceptId": "concept_bio_003",
         "conceptName": "氣體交換",
-        "mistakeCount": 3
+        "mistakeCount": 3,
+        "rank": 1
       }
     ],
     "conceptDistribution": [
@@ -691,14 +797,11 @@ Response:
 }
 ```
 
+### 學生端學習分析圖表
 
-## 功能群八：老師端學生學習分析
+`GET /api/students/:studentId/analytics/charts?range=30d`
 
-### 15. 全班每週常錯觀念統計
-
-`GET /api/dashboard/summary?range=7d`
-
-老師查看全班這一週整體較常錯的幾個觀念（一週一次）
+查看自己在指定期間內的圖表資料
 
 Response:
 
@@ -706,29 +809,63 @@ Response:
 {
   "success": true,
   "data": {
+    "range": "30d",
+    "mistakeTrend": [
+      { "date": "2026-05-01", "count": 1 },
+      { "date": "2026-05-03", "count": 2 }
+    ],
+    "conceptDistribution": [
+      { "conceptName": "氣體交換", "count": 3 },
+      { "conceptName": "血液循環方向", "count": 2 }
+    ],
+    "unitDistribution": [
+      { "unitName": "單元二 呼吸作用", "count": 4 },
+      { "unitName": "單元一 人體的運輸與防禦", "count": 2 }
+    ]
+  }
+}
+```
+
+## 8. 老師端分析
+
+### 全班每週常錯觀念統計
+
+`GET /api/dashboard/summary?range=30d&limit=5`
+
+老師查看全班在指定期間內整體較常錯的幾個觀念，並依錯誤次數排序
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": {
+    "range": "30d",
     "weeklyMistakeCount": 12,
     "studentCount": 3,
     "topWeakConcepts": [
       {
         "conceptId": "concept_bio_003",
         "conceptName": "氣體交換",
-        "mistakeCount": 4
+        "mistakeCount": 4,
+        "rank": 1
       },
       {
         "conceptId": "concept_bio_001",
         "conceptName": "血液循環方向",
-        "mistakeCount": 3
+        "mistakeCount": 3,
+        "rank": 2
       }
     ]
   }
 }
 ```
 
-### 16. 單一學生常錯觀念分析
+### 單一學生常錯觀念分析
 
-`GET /api/dashboard/students/:studentId/concepts`
+`GET /api/dashboard/students/:studentId/concepts?range=30d&limit=5`
 
-查看單一學生最常錯的幾個觀念
+查看單一學生在指定期間內最常錯的幾個觀念，並依錯誤次數排序
 
 Response:
 
@@ -736,9 +873,24 @@ Response:
 {
   "success": true,
   "data": {
+    "range": "30d",
+    "topWeakConcepts": [
+      {
+        "conceptId": "concept_bio_003",
+        "conceptName": "氣體交換",
+        "mistakeCount": 3,
+        "rank": 1
+      },
+      {
+        "conceptId": "concept_bio_001",
+        "conceptName": "血液循環方向",
+        "mistakeCount": 2,
+        "rank": 2
+      }
+    ],
     "conceptDistribution": [
-      { "conceptName": "氣體交換", "count": 3 },
-      { "conceptName": "血液循環方向", "count": 2 }
+      { "conceptId": "concept_bio_003", "conceptName": "氣體交換", "count": 3 },
+      { "conceptId": "concept_bio_001", "conceptName": "血液循環方向", "count": 2 }
     ],
     "unitDistribution": [
       { "unitName": "單元二 呼吸作用", "count": 4 },
@@ -748,4 +900,31 @@ Response:
 }
 ```
 
+### 老師端單一學生分析圖表
 
+`GET /api/dashboard/students/:studentId/charts?range=30d`
+
+查看單一學生在指定期間內的圖表資料
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": {
+    "range": "30d",
+    "mistakeTrend": [
+      { "date": "2026-05-01", "count": 1 },
+      { "date": "2026-05-03", "count": 2 }
+    ],
+    "conceptDistribution": [
+      { "conceptId": "concept_bio_003", "conceptName": "氣體交換", "count": 3 },
+      { "conceptId": "concept_bio_001", "conceptName": "血液循環方向", "count": 2 }
+    ],
+    "unitDistribution": [
+      { "unitName": "單元二 呼吸作用", "count": 4 },
+      { "unitName": "單元一 人體的運輸與防禦", "count": 2 }
+    ]
+  }
+}
+```

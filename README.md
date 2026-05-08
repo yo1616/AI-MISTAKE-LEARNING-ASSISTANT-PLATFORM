@@ -182,7 +182,7 @@ Response:
 ```
 
 ## 4. 基礎功能
-
+## 4-1. 歷史對話功能
 ### 歷史對話排序規則
 
 歷史對話列表是指像GPT的聊天記錄「列表」
@@ -294,7 +294,7 @@ Response:
 }
 ```
 
-### 紀錄錯題
+## 4-2. 紀錄錯題
 
 ### 新增錯題
 
@@ -428,7 +428,8 @@ Response:
   }
 }
 ```
-### 知識點筆記
+
+## 4-3. 知識點筆記
 
 ### 知識點筆記「列表」
 
@@ -491,7 +492,7 @@ Response:
 
 `GET /api/concept-notes/:noteId`
 
-點開某一則知識點筆記時，查看它對應的錯題與生成相似題來源
+點開某一則知識點筆記時，查看它對應的錯題來源
 
 Response:
 
@@ -516,31 +517,86 @@ Response:
         "questionText": "肺泡與微血管之間進行何種作用？"
       }
     ],
-    "linkedPracticeQuestions": [
-      {
-        "id": "practice_001",
-        "title": "登山時的呼吸變化"
-      }
-    ],
     "createdAt": "2026-05-03T09:02:10+08:00"
   }
 }
 ```
 
-### 生成相似題
 
-### AI 生成素養題
+## 4-4. 生成考題
 
-`POST /api/ai/practice-question`
+### 建立生成考題條件選單
 
-根據某一筆錯題或某一個題目群組生成一題素養題，前端只需要告訴後端要針對哪一題生成
+`GET /api/students/:studentId/exam-generator/options?subjectId=subject_bio&unitId=unit_bio_02&conceptId=concept_bio_003`
+
+使用者點進「生成考題」後，先看到可以選擇的科目、單元、觀念標籤與錯題。錯題可複選，系統會依照目前篩選條件回傳可用的錯題清單。
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": {
+    "subjects": [
+      {
+        "id": "subject_bio",
+        "name": "生物"
+      }
+    ],
+    "units": [
+      {
+        "id": "unit_bio_02",
+        "subjectId": "subject_bio",
+        "name": "單元二 呼吸作用"
+      }
+    ],
+    "concepts": [
+      {
+        "id": "concept_bio_003",
+        "unitId": "unit_bio_02",
+        "name": "氣體交換"
+      }
+    ],
+    "mistakes": [
+      {
+        "id": "mistake_record_001",
+        "questionText": "肺泡與微血管之間進行何種作用？",
+        "subjectId": "subject_bio",
+        "unitId": "unit_bio_02",
+        "conceptId": "concept_bio_003"
+      },
+      {
+        "id": "mistake_record_004",
+        "questionText": "氧氣進入血液主要發生在哪裡？",
+        "subjectId": "subject_bio",
+        "unitId": "unit_bio_02",
+        "conceptId": "concept_bio_003"
+      }
+    ],
+    "difficultyOptions": ["easy", "medium", "hard"],
+    "questionTypeOptions": ["multiple_choice", "short_answer"]
+  }
+}
+```
+
+### 生成考題
+
+`POST /api/exams/generate`
+
+使用者可自行選擇這次要用哪些「之前的錯題」來生成考題。錯題可複選，系統會以這些錯題的範圍與相關知識生成新題目。使用者還可以指定題數、難度與題型。
 
 Request:
 
 ```json
 {
   "studentId": "student_001",
-  "sourceMistakeId": "mistake_record_001"
+  "subjectId": "subject_bio",
+  "unitId": "unit_bio_02",
+  "conceptId": "concept_bio_003",
+  "selectedMistakeIds": ["mistake_record_001", "mistake_record_004"],
+  "questionCount": 3,
+  "difficulty": "medium",
+  "questionType": "multiple_choice"
 }
 ```
 
@@ -550,57 +606,44 @@ Response:
 {
   "success": true,
   "data": {
-    "practiceId": "practice_001",
-    "questionStyle": "literacy",
-    "title": "登山時的呼吸變化",
-    "passage": "小明和家人去爬山，走到半山腰時發現自己呼吸變快，爸爸說這是因為身體需要更多氧氣來維持活動。此時肺部中的肺泡會和周圍微血管進行作用，讓氧氣進入血液。",
-    "questionText": "根據上文，肺泡在這段情境中最主要的功能是什麼？",
-    "options": ["過濾空氣中的灰塵", "幫助食物消化", "進行氣體交換", "製造血液"],
-    "answer": "進行氣體交換",
-    "explanation": "題幹描述的是氧氣進入血液的過程，肺泡最主要功能是進行氣體交換。"
+    "examId": "exam_001",
+    "studentId": "student_001",
+    "subjectId": "subject_bio",
+    "unitId": "unit_bio_02",
+    "conceptId": "concept_bio_003",
+    "selectedMistakeIds": ["mistake_record_001", "mistake_record_004"],
+    "questionCount": 3,
+    "difficulty": "medium",
+    "questionType": "multiple_choice",
+    "questions": [
+      {
+        "id": "exam_question_001",
+        "questionType": "multiple_choice",
+        "questionText": "根據題意，肺泡最主要的功能是下列哪一項？",
+        "options": ["過濾空氣", "進行氣體交換", "儲存養分", "控制心跳"]
+      }
+    ],
+    "createdAt": "2026-05-08T14:30:00+08:00"
   }
 }
 ```
 
-### 生成相似題「列表」
+### 送出考題答案
 
-`GET /api/students/:studentId/practice-questions`
+`POST /api/exams/:examId/submissions`
 
-老樣子，列表
-
-Response:
-
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": "practice_001",
-      "studentId": "student_001",
-      "subjectId": "subject_bio",
-      "unitId": "unit_bio_02",
-      "conceptId": "concept_bio_003",
-      "questionStyle": "literacy",
-      "title": "登山時的呼吸變化",
-      "passage": "小明和家人去爬山，走到半山腰時發現自己呼吸變快......",
-      "questionText": "根據上文，肺泡在這段情境中最主要的功能是什麼？",
-      "starred": true,
-      "starredAt": "2026-05-03T20:10:00+08:00",
-      "createdAt": "2026-05-03T09:04:10+08:00"
-    }
-  ]
-}
-```
-
-### 生成相似題切換星號
-
-`PATCH /api/practice-questions/:practiceId/star`
+作答後，不論答對或答錯，都要回傳正解與詳解。
 
 Request:
 
 ```json
 {
-  "starred": true
+  "answers": [
+    {
+      "questionId": "exam_question_001",
+      "answer": "過濾空氣"
+    }
+  ]
 }
 ```
 
@@ -610,9 +653,46 @@ Response:
 {
   "success": true,
   "data": {
-    "id": "practice_001",
-    "starred": true,
-    "starredAt": "2026-05-03T20:10:00+08:00"
+    "examId": "exam_001",
+    "results": [
+      {
+        "questionId": "exam_question_001",
+        "isCorrect": false,
+        "correctAnswer": "進行氣體交換",
+        "explanation": "肺泡的主要功能是進行氣體交換，不是過濾空氣。",
+        "canSaveToMistakes": true
+      }
+    ],
+    "submittedAt": "2026-05-08T14:45:00+08:00"
+  }
+}
+```
+
+### 將考題加入錯題列表
+
+`POST /api/exams/:examId/questions/:questionId/save-to-mistakes`
+
+使用者在看完正解與詳解後，可手動把某一題丟到錯題列表中儲存。
+
+Request:
+
+```json
+{
+  "studentId": "student_001",
+  "starred": false
+}
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": {
+    "mistakeId": "mistake_record_010",
+    "sourceExamId": "exam_001",
+    "sourceQuestionId": "exam_question_001",
+    "createdAt": "2026-05-08T14:46:00+08:00"
   }
 }
 ```
@@ -621,19 +701,19 @@ Response:
 
 ### 星號與排序規則
 
-- 錯題紀錄、知識點筆記、生成相似題都可加星號
+- 錯題紀錄、知識點筆記可加星號
 - 每筆資料可有 `starred` 與 `starredAt`
-- 這三種列表都固定先顯示 `starred = true`
+- 這兩種列表都固定先顯示 `starred = true`
 - 星號資料內部再依 `createdAt` 由新到舊排序
 - 除了原本各自的列表頁之外，另外再獨立提供一個「我的最愛」入口
-- 「我的最愛」底下再分成 `mistakes`、`concept-notes`、`practice-questions`
+- 「我的最愛」底下再分成 `mistakes`、`concept-notes`
 - 「我的最愛」只顯示 `starred = true` 的資料
 
 ### 我的最愛分類首頁
 
 `GET /api/students/:studentId/favorites`
 
-進入「我的最愛」後，先看到三個分類：相似題、錯題、知識點筆記
+進入「我的最愛」後，先看到兩個分類：錯題、知識點筆記
 
 Response:
 
@@ -642,8 +722,7 @@ Response:
   "success": true,
   "data": {
     "mistakes": 3,
-    "conceptNotes": 2,
-    "practiceQuestions": 4
+    "conceptNotes": 2
   }
 }
 ```
@@ -702,39 +781,13 @@ Response:
 }
 ```
 
-### 我的最愛：「生成相似題列表」
-
-`GET /api/students/:studentId/favorites/practice-questions`
-
-只顯示有加星號的生成相似題
-
-Response:
-
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": "practice_001",
-      "subjectId": "subject_bio",
-      "unitId": "unit_bio_02",
-      "conceptId": "concept_bio_003",
-      "questionStyle": "literacy",
-      "title": "登山時的呼吸變化",
-      "questionText": "根據上文，肺泡在這段情境中最主要的功能是什麼？",
-      "starred": true,
-      "starredAt": "2026-05-03T20:10:00+08:00",
-      "createdAt": "2026-05-03T09:04:10+08:00"
-    }
-  ]
-}
-```
-
 ## 6. 學生個人資料
 
 ### 學生列表
 
 `GET /api/students`
+
+學生資料需包含班級欄位，之後老師端也會用班級來切換查看範圍。
 
 Response:
 
@@ -745,7 +798,8 @@ Response:
     {
       "id": "student_001",
       "name": "王小明",
-      "grade": "8"
+      "grade": "8",
+      "className": "國二忠"
     }
   ]
 }
@@ -828,9 +882,75 @@ Response:
 
 ## 8. 老師端分析
 
-### 全班每週常錯觀念統計
+### 班級範圍與排序規則
 
-`GET /api/dashboard/summary?range=30d&limit=5`
+- 老師登入畫面可先選擇要查看的 `classId`
+- 一旦進入系統後，老師端看到的學生列表、統計、分析都以該班級為範圍
+- 老師端分析要支援自訂統計期間：
+  - `range=7d`
+  - `range=30d`
+  - `range=custom&from=2026-05-01&to=2026-05-08`
+- 全班學生列表可依兩種方式排序：
+  - `sortBy=mistakeCount`
+  - `sortBy=weakConceptCount`
+
+### 老師可查看班級列表
+
+`GET /api/teacher/classes`
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "class_201",
+      "name": "國二化學"
+    },
+    {
+      "id": "class_202",
+      "name": "國二數學"
+    }
+  ]
+}
+```
+
+### 全班學生列表
+
+`GET /api/dashboard/students?classId=class_201&range=30d&sortBy=mistakeCount`
+
+查看某個班級底下的學生，並依錯題數或出錯知識點數排序。
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "studentId": "student_001",
+      "name": "王小明",
+      "grade": "8",
+      "className": "國二生物",
+      "mistakeCount": 12,
+      "weakConceptCount": 4
+    },
+    {
+      "studentId": "student_002",
+      "name": "林采萱",
+      "grade": "8",
+      "className": "國二生物",
+      "mistakeCount": 9,
+      "weakConceptCount": 3
+    }
+  ]
+}
+```
+
+### 全班常錯觀念統計
+
+`GET /api/dashboard/summary?classId=class_201&range=30d&limit=5`
 
 老師查看全班在指定期間內整體較常錯的幾個觀念，並依錯誤次數排序
 
@@ -863,7 +983,7 @@ Response:
 
 ### 單一學生常錯觀念分析
 
-`GET /api/dashboard/students/:studentId/concepts?range=30d&limit=5`
+`GET /api/dashboard/students/:studentId/concepts?classId=class_201&range=30d&limit=5`
 
 查看單一學生在指定期間內最常錯的幾個觀念，並依錯誤次數排序
 
@@ -902,7 +1022,7 @@ Response:
 
 ### 老師端單一學生分析圖表
 
-`GET /api/dashboard/students/:studentId/charts?range=30d`
+`GET /api/dashboard/students/:studentId/charts?classId=class_201&range=30d`
 
 查看單一學生在指定期間內的圖表資料
 

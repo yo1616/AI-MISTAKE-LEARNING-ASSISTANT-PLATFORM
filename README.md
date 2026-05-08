@@ -916,7 +916,7 @@ Response:
 }
 ```
 
-### 全班學生列表
+### 全班學生排序列表
 
 `GET /api/dashboard/students?classId=class_201&range=30d&sortBy=mistakeCount`
 

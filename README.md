@@ -12,18 +12,38 @@
 ### 「非」歷史對話紀錄之排序與分類規則（如：知識點筆記、錯題等）
 
 簡述流程： 科目 >> 單元 >> 觀念標籤 >> 內容（先排星號，再依時間新到舊往下排）
-- `subjectId`：固定科目
+- `subjectId`：學科本身，例如 `生物`、`數學`
 - `unitId`：固定單元
 - `conceptId`：AI 分類出的觀念
-- AI 必須優先匹配既有 `concept`
-- 只有真的沒有適合觀念時，才允許新建 `concept`
+- AI 必須優先匹配既有 `concept`，只有真的沒有適合觀念時，才允許新建 `concept`
 - 被分到對應 `concept`後，先排星號 `starred`，其餘沒星號用 `createdAt` 「由新到舊」排序
+
+### 學生端與老師端的主分類規則
+
+學生端在複習錯題、知識點筆記、生成考題時，主要是按「學習內容」找資料  
+老師端在看班級統計與學生分析時，主要是按「課程班級」看資料
+
+- 學生端內容主分類：`subjectId >> unitId >> conceptId`
+- 學生端輔助資訊：`classId`、`className`
+- 老師端主分類：`classId`、`className`
+- 老師端輔助資訊：`subjectId`、`subjectName`、`gradeYear`
+
+
+### 科目與班級命名規則
+
+`subject`是科目名稱，`class`是班級名稱，雖然都有學科名，但主要分類應該是按照`subject`。`class`只是輔助以及老師端分析。
+
+- `subjectId`：代表學科本身，格式 `subject_<subject>`（例如 `subject_bio`）
+- `subjectName`：直接顯示給使用者看的學科名稱（例如 `生物`）
+- `classId`：代表老師端查看的課程班級，格式 `class_<grade>_<subject>_<index>`（例如 `class_hs2_bio_01`）
+- `className`：直接顯示給老師看的班級名稱，由「年級＋學科名＋班」（例如 `高二生物班`）
+
 
 ### 分類的觀念標籤（分類方式）
 
 `GET /api/concepts?subjectId=subject_bio&unitId=unit_bio_02`
 
-是指「科目>>單元>>觀念標題」這部分分類方式的「觀念標籤」的部分
+是指「科目>>單元>>觀念標題」這部分分類方式的「觀念標籤」的部分。
 
 Response:
 
@@ -149,7 +169,7 @@ Response:
 
 `POST /api/chat-sessions/:sessionId/messages`
 
-在既有聊天容器 `session` 中新增訊息，這則訊息可以是「新題目」也可以是「追問」
+在既有聊天容器 `session` 中新增訊息，這則訊息可以是新題目或追問
 
 Request:
 
@@ -435,7 +455,7 @@ Response:
 
 `GET /api/students/:studentId/concept-notes`
 
-列表頁直接顯示標題與展開內容（就是超大大抄的感覺）。但點開單一筆記時，再透過詳細API查看來源錯題與來源相似題（點開的部分定義在功能10-2）
+列表頁直接顯示標題與展開內容（就是超大大抄的感覺）。但點開單一筆記時，再透過詳細API查看來源錯題與來源相似題
 
 Response:
 
@@ -539,8 +559,10 @@ Response:
   "data": {
     "subjects": [
       {
-        "id": "subject_bio",
-        "name": "生物"
+        "subjectId": "subject_bio",
+        "subjectName": "生物",
+        "classId": "class_hs2_bio_01",
+        "className": "高二生物班"
       }
     ],
     "units": [
@@ -787,7 +809,7 @@ Response:
 
 `GET /api/students`
 
-學生資料需包含班級欄位，之後老師端也會用班級來切換查看範圍。
+學生資料需包含 `gradeYear` 與 `subjects`。同一個學生可以同時修多個學科，而老師端看到的 `class` 則是實際課程班級，例如 `高二數學班`、`高三生物班`。為了讓學生修課和老師端班級直接聯動，`subjects` 內同時帶 `subjectId / subjectName / classId / className`。
 
 Response:
 
@@ -798,8 +820,21 @@ Response:
     {
       "id": "student_001",
       "name": "王小明",
-      "grade": "8",
-      "className": "國二忠"
+      "gradeYear": "高二",
+      "subjects": [
+        {
+          "subjectId": "subject_bio",
+          "subjectName": "生物",
+          "classId": "class_hs2_bio_01",
+          "className": "高二生物班"
+        },
+        {
+          "subjectId": "subject_math",
+          "subjectName": "數學",
+          "classId": "class_hs2_math_01",
+          "className": "高二數學班"
+        }
+      ]
     }
   ]
 }
@@ -809,8 +844,7 @@ Response:
 
 ### 分析期間規則
 
-- 學生端分析、老師端分析都要能選擇統計期間`range`
-- 可先支援：`7d`、`30d`、`custom`
+- 要能選擇統計期間`range`，有`7d`、`30d`、`custom`
 - 若 `range = custom`，則另外傳 `from` 與 `to`
 - 排名前幾名統一用 `limit`
 
@@ -830,7 +864,7 @@ Response:
     "totalMistakes": 12,
     "starredMistakes": 4,
     "starredNotes": 2,
-    "starredPracticeQuestions": 3,
+    "generatedExamCount": 3,
     "topWeakConcepts": [
       {
         "conceptId": "concept_bio_003",
@@ -884,15 +918,16 @@ Response:
 
 ### 班級範圍與排序規則
 
-- 老師登入畫面可先選擇要查看的 `classId`
+- 老師登入畫面可先選擇要查看的 `classId`，`className`用「年級 + 科目 + 班」表示（例如 `高二數學班`）
 - 一旦進入系統後，老師端看到的學生列表、統計、分析都以該班級為範圍
-- 老師端分析要支援自訂統計期間：
-  - `range=7d`
-  - `range=30d`
-  - `range=custom&from=2026-05-01&to=2026-05-08`
 - 全班學生列表可依兩種方式排序：
-  - `sortBy=mistakeCount`
-  - `sortBy=weakConceptCount`
+  - 錯題數 `sortBy=mistakeCount`
+  - 不熟悉知識點數 `sortBy=weakConceptCount`
+
+### 分析期間規則
+
+- 要能選擇統計期間`range`，有`7d`、`30d`、`custom`
+- 若 `range = custom`，則另外傳 `from` 與 `to`
 
 ### 老師可查看班級列表
 
@@ -905,20 +940,20 @@ Response:
   "success": true,
   "data": [
     {
-      "id": "class_201",
-      "name": "國二化學"
+      "id": "class_hs2_math_01",
+      "name": "高二數學班"
     },
     {
-      "id": "class_202",
-      "name": "國二數學"
+      "id": "class_hs3_bio_01",
+      "name": "高三生物班"
     }
   ]
 }
 ```
 
-### 全班學生排序列表
+### 全班學生列表
 
-`GET /api/dashboard/students?classId=class_201&range=30d&sortBy=mistakeCount`
+`GET /api/dashboard/students?classId=class_hs2_math_01&range=30d&sortBy=mistakeCount`
 
 查看某個班級底下的學生，並依錯題數或出錯知識點數排序。
 
@@ -930,17 +965,17 @@ Response:
   "data": [
     {
       "studentId": "student_001",
-      "name": "王小明",
-      "grade": "8",
-      "className": "國二生物",
+      "name": "王哈哈",
+      "gradeYear": "高二",
+      "className": "高二數學班",
       "mistakeCount": 12,
       "weakConceptCount": 4
     },
     {
       "studentId": "student_002",
-      "name": "林采萱",
-      "grade": "8",
-      "className": "國二生物",
+      "name": "林沃沃",
+      "gradeYear": "高二",
+      "className": "高二數學班",
       "mistakeCount": 9,
       "weakConceptCount": 3
     }
@@ -950,7 +985,7 @@ Response:
 
 ### 全班常錯觀念統計
 
-`GET /api/dashboard/summary?classId=class_201&range=30d&limit=5`
+`GET /api/dashboard/summary?classId=class_hs2_math_01&range=30d&limit=5`
 
 老師查看全班在指定期間內整體較常錯的幾個觀念，並依錯誤次數排序
 
@@ -983,7 +1018,7 @@ Response:
 
 ### 單一學生常錯觀念分析
 
-`GET /api/dashboard/students/:studentId/concepts?classId=class_201&range=30d&limit=5`
+`GET /api/dashboard/students/:studentId/concepts?classId=class_hs2_math_01&range=30d&limit=5`
 
 查看單一學生在指定期間內最常錯的幾個觀念，並依錯誤次數排序
 
@@ -1022,7 +1057,7 @@ Response:
 
 ### 老師端單一學生分析圖表
 
-`GET /api/dashboard/students/:studentId/charts?classId=class_201&range=30d`
+`GET /api/dashboard/students/:studentId/charts?classId=class_hs2_math_01&range=30d`
 
 查看單一學生在指定期間內的圖表資料
 

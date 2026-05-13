@@ -1,26 +1,112 @@
-
 {
   "students": [
     {
       "id": "student_001",
-      "name": "王小明",
-      "grade": "8"
+      "name": "王哈哈",
+      "gradeYear": "高二",
+      "subjects": [
+        {
+          "subjectId": "subject_bio",
+          "subjectName": "生物",
+          "classId": "class_hs2_bio_01",
+          "className": "高二生物班"
+        },
+        {
+          "subjectId": "subject_math",
+          "subjectName": "數學",
+          "classId": "class_hs2_math_01",
+          "className": "高二數學班"
+        }
+      ]
     },
     {
       "id": "student_002",
-      "name": "林采萱",
-      "grade": "8"
+      "name": "林沃沃",
+      "gradeYear": "高二",
+      "subjects": [
+        {
+          "subjectId": "subject_bio",
+          "subjectName": "生物",
+          "classId": "class_hs2_bio_01",
+          "className": "高二生物班"
+        },
+        {
+          "subjectId": "subject_phys",
+          "subjectName": "物理",
+          "classId": "class_hs2_phys_01",
+          "className": "高二物理班"
+        }
+      ]
     },
     {
       "id": "student_003",
-      "name": "張宇恩",
-      "grade": "8"
+      "name": "張開",
+      "gradeYear": "高三",
+      "subjects": [
+        {
+          "subjectId": "subject_bio",
+          "subjectName": "生物",
+          "classId": "class_hs3_bio_01",
+          "className": "高三生物班"
+        },
+        {
+          "subjectId": "subject_math",
+          "subjectName": "數學",
+          "classId": "class_hs3_math_01",
+          "className": "高三數學班"
+        }
+      ]
     }
   ],
   "subjects": [
     {
       "id": "subject_bio",
       "name": "生物"
+    },
+    {
+      "id": "subject_math",
+      "name": "數學"
+    },
+    {
+      "id": "subject_phys",
+      "name": "物理"
+    }
+  ],
+  "classes": [
+    {
+      "id": "class_hs2_bio_01",
+      "name": "高二生物班",
+      "gradeYear": "高二",
+      "subjectId": "subject_bio",
+      "subjectName": "生物"
+    },
+    {
+      "id": "class_hs2_math_01",
+      "name": "高二數學班",
+      "gradeYear": "高二",
+      "subjectId": "subject_math",
+      "subjectName": "數學"
+    },
+    {
+      "id": "class_hs2_phys_01",
+      "name": "高二物理班",
+      "gradeYear": "高二",
+      "subjectId": "subject_phys",
+      "subjectName": "物理"
+    },
+    {
+      "id": "class_hs3_bio_01",
+      "name": "高三生物班",
+      "gradeYear": "高三",
+      "subjectId": "subject_bio",
+      "subjectName": "生物"
+    },
+    {
+      "id": "class_hs3_math_01",
+      "name": "高三數學班",
+      "gradeYear": "高三",
+      "subjectId": "subject_math",
+      "subjectName": "數學"
     }
   ],
   "units": [
@@ -118,6 +204,8 @@
       "id": "chat_001",
       "studentId": "student_001",
       "subjectId": "subject_bio",
+      "classId": "class_hs2_bio_01",
+      "className": "高二生物班",
       "unitId": "unit_bio_02",
       "title": "肺泡和微血管的作用",
       "inputType": "text",
@@ -136,6 +224,8 @@
       "id": "chat_002",
       "studentId": "student_001",
       "subjectId": "subject_bio",
+      "classId": "class_hs2_bio_01",
+      "className": "高二生物班",
       "unitId": "unit_bio_01",
       "title": "體循環和肺循環怎麼分",
       "inputType": "photo",
@@ -154,6 +244,8 @@
       "id": "chat_003",
       "studentId": "student_002",
       "subjectId": "subject_bio",
+      "classId": "class_hs2_bio_01",
+      "className": "高二生物班",
       "unitId": "unit_bio_03",
       "title": "光合作用和呼吸作用差異",
       "inputType": "text",
@@ -173,6 +265,8 @@
       "id": "chat_004",
       "studentId": "student_002",
       "subjectId": "subject_bio",
+      "classId": "class_hs2_bio_01",
+      "className": "高二生物班",
       "unitId": "unit_bio_02",
       "title": "氧氣進入血液的地方",
       "inputType": "photo_text",
@@ -193,6 +287,8 @@
       "id": "chat_005",
       "studentId": "student_003",
       "subjectId": "subject_bio",
+      "classId": "class_hs3_bio_01",
+      "className": "高三生物班",
       "unitId": "unit_bio_03",
       "title": "ATP 和能量轉換怎麼分類",
       "inputType": "photo_text",
@@ -214,6 +310,8 @@
       "id": "chat_006",
       "studentId": "student_003",
       "subjectId": "subject_bio",
+      "classId": "class_hs3_bio_01",
+      "className": "高三生物班",
       "unitId": "unit_bio_01",
       "title": "運動後血液會去哪裡",
       "inputType": "text",
@@ -506,6 +604,8 @@
       "sourceSessionId": "chat_001",
       "questionGroupId": "qg_001",
       "subjectId": "subject_bio",
+      "classId": "class_hs2_bio_01",
+      "className": "高二生物班",
       "unitId": "unit_bio_02",
       "conceptId": "concept_bio_003",
       "inputType": "text",
@@ -533,6 +633,8 @@
       "sourceSessionId": "chat_002",
       "questionGroupId": "qg_003",
       "subjectId": "subject_bio",
+      "classId": "class_hs2_bio_01",
+      "className": "高二生物班",
       "unitId": "unit_bio_01",
       "conceptId": "concept_bio_001",
       "inputType": "photo",
@@ -560,6 +662,8 @@
       "sourceSessionId": "chat_003",
       "questionGroupId": "qg_004",
       "subjectId": "subject_bio",
+      "classId": "class_hs2_bio_01",
+      "className": "高二生物班",
       "unitId": "unit_bio_03",
       "conceptId": "concept_bio_005",
       "inputType": "text",
@@ -587,6 +691,8 @@
       "sourceSessionId": "chat_004",
       "questionGroupId": "qg_005",
       "subjectId": "subject_bio",
+      "classId": "class_hs2_bio_01",
+      "className": "高二生物班",
       "unitId": "unit_bio_02",
       "conceptId": "concept_bio_003",
       "inputType": "photo_text",
@@ -614,6 +720,8 @@
       "sourceSessionId": "chat_005",
       "questionGroupId": "qg_006",
       "subjectId": "subject_bio",
+      "classId": "class_hs3_bio_01",
+      "className": "高三生物班",
       "unitId": "unit_bio_03",
       "conceptId": "concept_bio_007",
       "inputType": "photo_text",
@@ -641,6 +749,8 @@
       "sourceSessionId": "chat_006",
       "questionGroupId": "qg_007",
       "subjectId": "subject_bio",
+      "classId": "class_hs3_bio_01",
+      "className": "高三生物班",
       "unitId": "unit_bio_01",
       "conceptId": "concept_bio_001",
       "inputType": "text",
@@ -670,6 +780,8 @@
       "sourceSessionId": "chat_001",
       "questionGroupId": "qg_001",
       "subjectId": "subject_bio",
+      "classId": "class_hs2_bio_01",
+      "className": "高二生物班",
       "unitId": "unit_bio_02",
       "conceptId": "concept_bio_003",
       "noteTitle": "氣體交換重點",
@@ -686,6 +798,8 @@
       "sourceSessionId": "chat_002",
       "questionGroupId": "qg_003",
       "subjectId": "subject_bio",
+      "classId": "class_hs2_bio_01",
+      "className": "高二生物班",
       "unitId": "unit_bio_01",
       "conceptId": "concept_bio_001",
       "noteTitle": "體循環與肺循環記法",
@@ -702,6 +816,8 @@
       "sourceSessionId": "chat_003",
       "questionGroupId": "qg_004",
       "subjectId": "subject_bio",
+      "classId": "class_hs2_bio_01",
+      "className": "高二生物班",
       "unitId": "unit_bio_03",
       "conceptId": "concept_bio_005",
       "noteTitle": "光合作用與呼吸作用差異",
@@ -718,6 +834,8 @@
       "sourceSessionId": "chat_004",
       "questionGroupId": "qg_005",
       "subjectId": "subject_bio",
+      "classId": "class_hs2_bio_01",
+      "className": "高二生物班",
       "unitId": "unit_bio_02",
       "conceptId": "concept_bio_003",
       "noteTitle": "氧氣進入血液的位置",
@@ -734,6 +852,8 @@
       "sourceSessionId": "chat_005",
       "questionGroupId": "qg_006",
       "subjectId": "subject_bio",
+      "classId": "class_hs3_bio_01",
+      "className": "高三生物班",
       "unitId": "unit_bio_03",
       "conceptId": "concept_bio_007",
       "noteTitle": "能量轉換與 ATP",
@@ -750,6 +870,8 @@
       "sourceSessionId": "chat_006",
       "questionGroupId": "qg_007",
       "subjectId": "subject_bio",
+      "classId": "class_hs3_bio_01",
+      "className": "高三生物班",
       "unitId": "unit_bio_01",
       "conceptId": "concept_bio_001",
       "noteTitle": "體循環判斷方式",
@@ -769,10 +891,12 @@
       "questionGroupId": "qg_001",
       "sourceMistakeId": "mistake_record_001",
       "subjectId": "subject_bio",
+      "classId": "class_hs2_bio_01",
+      "className": "高二生物班",
       "unitId": "unit_bio_02",
       "conceptId": "concept_bio_003",
       "questionStyle": "literacy",
-      "questionTitle": "題目一：登山時的呼吸變化",
+      "title": "登山時的呼吸變化",
       "passage": "小明和家人一起去爬山，走到半山腰時覺得呼吸變快。爸爸告訴他，身體活動量變大時，需要更多氧氣進入血液，這時肺部中的某些構造會和周圍微血管進行作用，幫助氧氣被運送到全身。",
       "questionText": "根據上文，最符合題意的構造功能是下列哪一項？",
       "options": ["過濾空氣中的灰塵", "進行氣體交換", "將養分分解成葡萄糖", "控制心跳速度"],
@@ -789,10 +913,12 @@
       "questionGroupId": "qg_003",
       "sourceMistakeId": "mistake_record_002",
       "subjectId": "subject_bio",
+      "classId": "class_hs2_bio_01",
+      "className": "高二生物班",
       "unitId": "unit_bio_01",
       "conceptId": "concept_bio_001",
       "questionStyle": "literacy",
-      "questionTitle": "題目一：運動後的循環路徑",
+      "title": "運動後的循環路徑",
       "passage": "體育課後，小華覺得心跳加快。老師說，這時心臟會更快速地把血液送到肺部和全身，讓身體能獲得足夠氧氣並帶走代謝後的廢物。",
       "questionText": "若題目特別強調血液從心臟送往肺部完成氣體交換，最適合歸類為哪一種循環？",
       "options": ["體循環", "肺循環", "消化循環", "淋巴循環"],
@@ -809,10 +935,12 @@
       "questionGroupId": "qg_004",
       "sourceMistakeId": "mistake_record_003",
       "subjectId": "subject_bio",
+      "classId": "class_hs2_bio_01",
+      "className": "高二生物班",
       "unitId": "unit_bio_03",
       "conceptId": "concept_bio_005",
       "questionStyle": "literacy",
-      "questionTitle": "題目一：植物白天的生存策略",
+      "title": "植物白天的生存策略",
       "passage": "阿哲觀察到家中的盆栽白天放在窗邊時生長較好。老師說，植物在有陽光時可以利用特定構造，把外界物質轉換成自己所需的養分，並產生氧氣。",
       "questionText": "根據上文，最符合這段描述的生物作用是下列哪一項？",
       "options": ["分解養分釋放能量", "製造葡萄糖並釋放氧氣", "吸收氧氣後直接產生血液", "只在夜晚進行的作用"],
@@ -829,10 +957,12 @@
       "questionGroupId": "qg_005",
       "sourceMistakeId": "mistake_record_004",
       "subjectId": "subject_bio",
+      "classId": "class_hs2_bio_01",
+      "className": "高二生物班",
       "unitId": "unit_bio_02",
       "conceptId": "concept_bio_003",
       "questionStyle": "literacy",
-      "questionTitle": "題目一：校慶接力賽的呼吸需求",
+      "title": "校慶接力賽的呼吸需求",
       "passage": "校慶接力賽時，小晴跑完一圈後氣喘吁吁。保健老師提醒她，劇烈運動時身體更需要把氧氣送到各個細胞，因此肺部中的某些構造會和血液快速進行作用。",
       "questionText": "根據上文，最符合題意的構造主要功能是什麼？",
       "options": ["將養分儲存在肝臟", "進行氣體交換", "把血液變成養分", "控制神經反應"],
@@ -849,10 +979,12 @@
       "questionGroupId": "qg_006",
       "sourceMistakeId": "mistake_record_005",
       "subjectId": "subject_bio",
+      "classId": "class_hs3_bio_01",
+      "className": "高三生物班",
       "unitId": "unit_bio_03",
       "conceptId": "concept_bio_007",
       "questionStyle": "literacy",
-      "questionTitle": "題目一：太陽能與細胞能量",
+      "title": "太陽能與細胞能量",
       "passage": "自然課時，老師提到植物可先把太陽能轉成儲存在養分中的化學能，之後細胞再利用這些能量形成 ATP，供生長與修補組織使用。小安發現這類題目不只是問光合作用名稱，而是更重視能量在不同階段的轉變。",
       "questionText": "根據上文，這類題目最適合歸在哪個觀念？",
       "options": ["葉綠體功能", "光合作用", "能量轉換", "氣體交換"],
@@ -869,10 +1001,12 @@
       "questionGroupId": "qg_007",
       "sourceMistakeId": "mistake_record_006",
       "subjectId": "subject_bio",
+      "classId": "class_hs3_bio_01",
+      "className": "高三生物班",
       "unitId": "unit_bio_01",
       "conceptId": "concept_bio_001",
       "questionStyle": "literacy",
-      "questionTitle": "題目一：跑步後的血液流向",
+      "title": "跑步後的血液流向",
       "passage": "運動會跑完 800 公尺後，阿誠覺得心跳明顯加快。老師說，這時心臟會更快地把含氧血送往全身各部位，讓肌肉得到足夠氧氣與養分。",
       "questionText": "根據上文，血液由心臟送往全身各部位主要屬於哪一種循環？",
       "options": ["體循環", "肺循環", "淋巴循環", "消化循環"],
@@ -886,10 +1020,13 @@
   "studentAnalyticsSummary": [
     {
       "studentId": "student_001",
+      "gradeYear": "高二",
+      "classId": "class_hs2_bio_01",
+      "className": "高二生物班",
       "totalMistakes": 2,
       "starredMistakes": 1,
       "starredNotes": 1,
-      "starredPracticeQuestions": 1,
+      "generatedExamCount": 1,
       "topWeakConcepts": [
         {
           "conceptId": "concept_bio_001",
@@ -901,14 +1038,25 @@
           "conceptName": "氣體交換",
           "mistakeCount": 1
         }
+      ],
+      "conceptDistribution": [
+        { "conceptName": "氣體交換", "count": 1 },
+        { "conceptName": "血液循環方向", "count": 1 }
+      ],
+      "unitDistribution": [
+        { "unitName": "單元二 呼吸作用", "count": 1 },
+        { "unitName": "單元一 人體的運輸與防禦", "count": 1 }
       ]
     },
     {
       "studentId": "student_002",
+      "gradeYear": "高二",
+      "classId": "class_hs2_bio_01",
+      "className": "高二生物班",
       "totalMistakes": 2,
       "starredMistakes": 1,
       "starredNotes": 1,
-      "starredPracticeQuestions": 1,
+      "generatedExamCount": 1,
       "topWeakConcepts": [
         {
           "conceptId": "concept_bio_003",
@@ -920,14 +1068,25 @@
           "conceptName": "光合作用",
           "mistakeCount": 1
         }
+      ],
+      "conceptDistribution": [
+        { "conceptName": "氣體交換", "count": 1 },
+        { "conceptName": "光合作用", "count": 1 }
+      ],
+      "unitDistribution": [
+        { "unitName": "單元二 呼吸作用", "count": 1 },
+        { "unitName": "單元三 光合作用", "count": 1 }
       ]
     },
     {
       "studentId": "student_003",
+      "gradeYear": "高三",
+      "classId": "class_hs3_bio_01",
+      "className": "高三生物班",
       "totalMistakes": 2,
       "starredMistakes": 1,
       "starredNotes": 1,
-      "starredPracticeQuestions": 1,
+      "generatedExamCount": 1,
       "topWeakConcepts": [
         {
           "conceptId": "concept_bio_001",
@@ -939,12 +1098,23 @@
           "conceptName": "能量轉換",
           "mistakeCount": 1
         }
+      ],
+      "conceptDistribution": [
+        { "conceptName": "血液循環方向", "count": 1 },
+        { "conceptName": "能量轉換", "count": 1 }
+      ],
+      "unitDistribution": [
+        { "unitName": "單元一 人體的運輸與防禦", "count": 1 },
+        { "unitName": "單元三 光合作用", "count": 1 }
       ]
     }
   ],
   "studentAnalyticsCharts": [
     {
       "studentId": "student_001",
+      "gradeYear": "高二",
+      "classId": "class_hs2_bio_01",
+      "className": "高二生物班",
       "mistakeTrend": [
         { "date": "2026-05-03", "count": 2 }
       ],
@@ -959,6 +1129,9 @@
     },
     {
       "studentId": "student_002",
+      "gradeYear": "高二",
+      "classId": "class_hs2_bio_01",
+      "className": "高二生物班",
       "mistakeTrend": [
         { "date": "2026-05-03", "count": 2 }
       ],
@@ -973,6 +1146,9 @@
     },
     {
       "studentId": "student_003",
+      "gradeYear": "高三",
+      "classId": "class_hs3_bio_01",
+      "className": "高三生物班",
       "mistakeTrend": [
         { "date": "2026-05-03", "count": 2 }
       ],
@@ -987,6 +1163,8 @@
     }
   ],
   "teacherDashboardSummary": {
+    "classId": "class_hs2_bio_01",
+    "className": "高二生物班",
     "range": "7d",
     "weeklyMistakeCount": 6,
     "studentCount": 3,
@@ -1016,6 +1194,17 @@
   "teacherStudentConceptStats": [
     {
       "studentId": "student_001",
+      "gradeYear": "高二",
+      "classId": "class_hs2_bio_01",
+      "className": "高二生物班",
+      "conceptDistribution": [
+        { "conceptName": "氣體交換", "count": 1 },
+        { "conceptName": "血液循環方向", "count": 1 }
+      ],
+      "unitDistribution": [
+        { "unitName": "單元二 呼吸作用", "count": 1 },
+        { "unitName": "單元一 人體的運輸與防禦", "count": 1 }
+      ],
       "concepts": [
         {
           "conceptId": "concept_bio_003",
@@ -1037,6 +1226,17 @@
     },
     {
       "studentId": "student_002",
+      "gradeYear": "高二",
+      "classId": "class_hs2_bio_01",
+      "className": "高二生物班",
+      "conceptDistribution": [
+        { "conceptName": "光合作用", "count": 1 },
+        { "conceptName": "氣體交換", "count": 1 }
+      ],
+      "unitDistribution": [
+        { "unitName": "單元三 光合作用", "count": 1 },
+        { "unitName": "單元二 呼吸作用", "count": 1 }
+      ],
       "concepts": [
         {
           "conceptId": "concept_bio_005",
@@ -1058,6 +1258,17 @@
     },
     {
       "studentId": "student_003",
+      "gradeYear": "高三",
+      "classId": "class_hs3_bio_01",
+      "className": "高三生物班",
+      "conceptDistribution": [
+        { "conceptName": "能量轉換", "count": 1 },
+        { "conceptName": "血液循環方向", "count": 1 }
+      ],
+      "unitDistribution": [
+        { "unitName": "單元三 光合作用", "count": 1 },
+        { "unitName": "單元一 人體的運輸與防禦", "count": 1 }
+      ],
       "concepts": [
         {
           "conceptId": "concept_bio_007",
@@ -1081,6 +1292,9 @@
   "teacherStudentCharts": [
     {
       "studentId": "student_001",
+      "gradeYear": "高二",
+      "classId": "class_hs2_bio_01",
+      "className": "高二生物班",
       "mistakeTrend": [
         { "date": "2026-05-03", "count": 2 }
       ],
@@ -1095,6 +1309,9 @@
     },
     {
       "studentId": "student_002",
+      "gradeYear": "高二",
+      "classId": "class_hs2_bio_01",
+      "className": "高二生物班",
       "mistakeTrend": [
         { "date": "2026-05-03", "count": 2 }
       ],
@@ -1109,6 +1326,9 @@
     },
     {
       "studentId": "student_003",
+      "gradeYear": "高三",
+      "classId": "class_hs3_bio_01",
+      "className": "高三生物班",
       "mistakeTrend": [
         { "date": "2026-05-03", "count": 2 }
       ],

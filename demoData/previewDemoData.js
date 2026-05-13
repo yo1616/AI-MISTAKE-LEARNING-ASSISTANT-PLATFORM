@@ -29,11 +29,27 @@ function formatClassification(classification) {
 
 printSection("Counts");
 console.log(`students: ${data.students.length}`);
+console.log(`classes: ${data.classes ? data.classes.length : 0}`);
 console.log(`chatSessions: ${data.chatSessions.length}`);
 console.log(`chatMessages: ${data.chatMessages.length}`);
 console.log(`mistakeRecords: ${data.mistakeRecords.length}`);
 console.log(`conceptNotes: ${data.conceptNotes.length}`);
 console.log(`generatedPracticeQuestions: ${data.generatedPracticeQuestions.length}`);
+
+printSection("學生與修課");
+data.students.forEach((student) => {
+  console.log(`- ${student.name} / ${student.gradeYear || "未知年級"}`);
+  (student.subjects || []).forEach((subject) => {
+    console.log(`  科目: ${subject.subjectName} / 班級: ${subject.className}`);
+  });
+});
+
+if (data.classes && data.classes.length > 0) {
+  printSection("課程班級");
+  data.classes.forEach((courseClass) => {
+    console.log(`- ${courseClass.name} (${courseClass.gradeYear || courseClass.gradeLabel || "未知年級"} / ${courseClass.subjectName})`);
+  });
+}
 
 printSection("分類規則");
 if (data.classificationPolicy) {
@@ -49,6 +65,9 @@ printSection("歷史對話紀錄");
 data.chatSessions.forEach((session) => {
   console.log(`- ${session.title} (${session.startedAt})`);
   console.log(`  分類: ${formatPath(session.subjectId, session.unitId, session.conceptClassification.matchedConceptId)}`);
+  if (session.className) {
+    console.log(`  班級: ${session.className}`);
+  }
   console.log(`  規則: ${formatClassification(session.conceptClassification)}`);
   const messages = data.chatMessages
     .filter((message) => message.sessionId === session.id)
@@ -61,6 +80,9 @@ data.chatSessions.forEach((session) => {
 printSection("錯題紀錄分類");
 data.mistakeRecords.forEach((record) => {
   console.log(`- ${formatPath(record.subjectId, record.unitId, record.conceptId)}`);
+  if (record.className) {
+    console.log(`  班級: ${record.className}`);
+  }
   console.log(`  ${record.questionText}`);
   console.log(`  規則: ${formatClassification(record.conceptClassification)}`);
   console.log(`  AI 摘要: ${record.aiSummary}`);
@@ -69,15 +91,50 @@ data.mistakeRecords.forEach((record) => {
 printSection("觀念筆記");
 data.conceptNotes.forEach((note) => {
   console.log(`- ${formatPath(note.subjectId, note.unitId, note.conceptId)}`);
+  if (note.className) {
+    console.log(`  班級: ${note.className}`);
+  }
   console.log(`  ${note.noteTitle}: ${note.noteContent}`);
 });
 
-printSection("生成相似題");
+printSection("生成考題題庫來源");
 data.generatedPracticeQuestions.forEach((question) => {
   console.log(`- ${formatPath(question.subjectId, question.unitId, question.conceptId)}`);
+  if (question.className) {
+    console.log(`  班級: ${question.className}`);
+  }
   console.log(`  ${question.title}`);
   console.log(`  題型: ${question.questionStyle}`);
   console.log(`  情境: ${question.passage}`);
   console.log(`  Q: ${question.questionText}`);
   console.log(`  A: ${question.answer}`);
 });
+
+if (data.studentAnalyticsSummary && data.studentAnalyticsSummary.length > 0) {
+  printSection("學生分析摘要");
+  data.studentAnalyticsSummary.forEach((summary) => {
+    const student = findById(data.students, summary.studentId);
+    console.log(`- ${(student && student.name) || summary.studentId} / ${summary.gradeYear || "未知年級"}`);
+    if (summary.className) {
+      console.log(`  班級: ${summary.className}`);
+    }
+    console.log(`  錯題數: ${summary.totalMistakes}`);
+    console.log(`  星號錯題: ${summary.starredMistakes}`);
+    console.log(`  星號筆記: ${summary.starredNotes}`);
+    console.log(`  生成考題次數: ${summary.generatedExamCount || 0}`);
+    (summary.topWeakConcepts || []).forEach((concept, index) => {
+      console.log(`  常錯觀念 ${index + 1}: ${concept.conceptName} (${concept.mistakeCount})`);
+    });
+  });
+}
+
+if (data.teacherDashboardSummary) {
+  printSection("老師端班級分析");
+  console.log(`班級: ${data.teacherDashboardSummary.className || "未指定班級"}`);
+  console.log(`期間: ${data.teacherDashboardSummary.range}`);
+  console.log(`學生數: ${data.teacherDashboardSummary.studentCount}`);
+  console.log(`錯題總數: ${data.teacherDashboardSummary.weeklyMistakeCount}`);
+  (data.teacherDashboardSummary.topWeakConcepts || []).forEach((concept, index) => {
+    console.log(`常錯觀念 ${index + 1}: ${concept.conceptName} (${concept.mistakeCount})`);
+  });
+}

@@ -16,7 +16,6 @@
 - `unitId`：固定單元
 - `conceptId`：AI 分類出的觀念
 - AI 必須優先匹配既有 `concept`，只有真的沒有適合觀念時，才允許新建 `concept`
-- 被分到對應 `concept`後，先排星號 `starred`，其餘沒星號用 `createdAt` 「由新到舊」排序
 
 ### 學生端與老師端的主分類規則
 

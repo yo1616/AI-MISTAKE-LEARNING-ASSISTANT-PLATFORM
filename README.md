@@ -809,7 +809,7 @@ Response:
 
 `GET /api/students`
 
-學生資料需包含 `gradeYear` 與 `subjects`。同一個學生可以同時修多個學科，而老師端看到的 `class` 則是實際課程班級，例如 `高二數學班`、`高三生物班`。為了讓學生修課和老師端班級直接聯動，`subjects` 內同時帶 `subjectId / subjectName / classId / className`。
+學生資料需包含 `gradeYear`、`email`、`phone` 與 `subjects`。同一個學生可以同時修多個學科，而老師端看到的 `class` 則是實際課程班級，例如 `高二數學班`、`高三生物班`。為了讓學生修課和老師端班級直接聯動，`subjects` 內同時帶 `subjectId / subjectName / classId / className`。
 
 Response:
 
@@ -821,6 +821,8 @@ Response:
       "id": "student_001",
       "name": "王小明",
       "gradeYear": "高二",
+      "email": "student001@example.com",
+      "phone": "0912-345-678",
       "subjects": [
         {
           "subjectId": "subject_bio",
@@ -865,6 +867,11 @@ Response:
     "starredMistakes": 4,
     "starredNotes": 2,
     "generatedExamCount": 3,
+    "generatedExamAccuracy": {
+      "correctCount": 8,
+      "totalAnswered": 10,
+      "accuracyRate": 0.8
+    },
     "topWeakConcepts": [
       {
         "conceptId": "concept_bio_003",
@@ -901,6 +908,10 @@ Response:
     "mistakeTrend": [
       { "date": "2026-05-01", "count": 1 },
       { "date": "2026-05-03", "count": 2 }
+    ],
+    "generatedExamAccuracyTrend": [
+      { "date": "2026-05-01", "accuracyRate": 0.5 },
+      { "date": "2026-05-03", "accuracyRate": 1.0 }
     ],
     "conceptDistribution": [
       { "conceptName": "氣體交換", "count": 3 },
@@ -969,7 +980,8 @@ Response:
       "gradeYear": "高二",
       "className": "高二數學班",
       "mistakeCount": 12,
-      "weakConceptCount": 4
+      "weakConceptCount": 4,
+      "generatedExamAccuracyRate": 0.8
     },
     {
       "studentId": "student_002",
@@ -977,7 +989,8 @@ Response:
       "gradeYear": "高二",
       "className": "高二數學班",
       "mistakeCount": 9,
-      "weakConceptCount": 3
+      "weakConceptCount": 3,
+      "generatedExamAccuracyRate": 0.67
     }
   ]
 }
@@ -998,6 +1011,11 @@ Response:
     "range": "30d",
     "weeklyMistakeCount": 12,
     "studentCount": 3,
+    "generatedExamAccuracy": {
+      "correctCount": 16,
+      "totalAnswered": 22,
+      "accuracyRate": 0.73
+    },
     "topWeakConcepts": [
       {
         "conceptId": "concept_bio_003",
@@ -1029,6 +1047,11 @@ Response:
   "success": true,
   "data": {
     "range": "30d",
+    "generatedExamAccuracy": {
+      "correctCount": 8,
+      "totalAnswered": 10,
+      "accuracyRate": 0.8
+    },
     "topWeakConcepts": [
       {
         "conceptId": "concept_bio_003",
@@ -1071,6 +1094,10 @@ Response:
     "mistakeTrend": [
       { "date": "2026-05-01", "count": 1 },
       { "date": "2026-05-03", "count": 2 }
+    ],
+    "generatedExamAccuracyTrend": [
+      { "date": "2026-05-01", "accuracyRate": 0.5 },
+      { "date": "2026-05-03", "accuracyRate": 1.0 }
     ],
     "conceptDistribution": [
       { "conceptId": "concept_bio_003", "conceptName": "氣體交換", "count": 3 },

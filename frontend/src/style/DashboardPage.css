@@ -1,0 +1,505 @@
+/* ==========================================================================
+   Dashboard 頁面樣式 (符合 Figma 設計)
+   ========================================================================== */
+
+/* 歡迎語区域 */
+.welcome-section { 
+  padding: 0 18px; 
+  margin-top: 20px; 
+}
+
+.greeting { 
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 36px; 
+  font-weight: 400; 
+  line-height: 44px; 
+  color: var(--color-text-main); 
+}
+
+.insights-label { 
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 16px; 
+  font-weight: 400; 
+  line-height: 19px; 
+  color: var(--color-text-main); 
+  margin-top: 8px; 
+}
+
+/* 日期時間 */
+.datetime-section { 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+  padding: 0 18px; 
+  margin-top: 16px; 
+}
+
+/* 日期範圍區域 */
+.date-range-section {
+  padding: 0 18px;
+  margin: 16px 0;
+}
+
+/* iOS 風格日期選擇器容器 */
+.date-range-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 14px;
+  padding: 4px 0;
+}
+
+/* iOS 風格日期輸入框 */
+.date-picker-input {
+  flex: 1;
+  background: #F2F2F7;
+  border-radius: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.date-picker-input:active {
+  background: #E5E5EA;
+  transform: scale(0.98);
+}
+
+.date-label {
+  font-family: -apple-system, 'SF Pro', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  color: #8E8E93;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.date-value {
+  font-family: -apple-system, 'SF Pro', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: #1C1C1C;
+  letter-spacing: -0.3px;
+}
+
+/* iOS 風格分隔符 */
+.date-separator {
+  font-family: -apple-system, 'SF Pro', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #8E8E93;
+  padding: 0 4px;
+}
+
+/* iOS 風格套用按鈕 */
+.date-apply-btn {
+  background: #0088FF;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-family: -apple-system, 'SF Pro', sans-serif;
+  font-size: 15px;
+  font-weight: 590;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: -0.3px;
+}
+
+.date-apply-btn:active {
+  background: #0077EE;
+  transform: scale(0.97);
+}
+
+/* 三個卡片均分寬度 */
+.stats-cards {
+  display: flex;
+  gap: 12px;
+  padding: 0 18px;
+  margin-top: 16px;
+}
+
+.stat-card {
+  flex: 1;
+  padding: 16px 12px;
+  border-radius: 16px;
+  text-align: center;
+}
+.stat-card.blue-card { 
+  background: #E3F5FF; 
+}
+.stat-card.gray-card { 
+  background: #E5ECF6; 
+}
+.stat-card.green-card {
+  background: #BAEDBD;
+}
+
+.stat-title { 
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-weight: 600; 
+  font-size: 14px; 
+  line-height: 20px;
+  color: #1C1C1C; 
+  margin-bottom: 8px; 
+}
+
+.stat-number { 
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-weight: 600; 
+  font-size: 24px; 
+  line-height: 36px;
+  color: #1C1C1C; 
+}
+
+/* 漲幅標籤 */
+.trend-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 20px;
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  background: #E8F5E9;
+}
+
+.trend-arrow {
+  font-size: 10px;
+}
+.trend-arrow.up { color: #006E2C; }
+.trend-arrow.down { color: #BA1A1A; }
+
+.trend-value {
+  font-size: 11px;
+  color: #006E2C;
+}
+
+/* 指標區域 */
+.progress-indicators { 
+  display: flex; 
+  justify-content: space-between; 
+  padding: 0 18px; 
+  margin-top: 16px; 
+}
+
+.indicator { 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+}
+
+.indicator-label, .indicator-value { 
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 12px; 
+  line-height: 18px;
+  color: #1C1C1C; 
+}
+
+.indicator-icon {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+.indicator-icon.up { 
+  background: #BAEDBD; 
+  color: #006E2C; 
+}
+
+.indicator-icon.down { 
+  background: #FEF2F2; 
+  color: var(--color-danger); 
+}
+
+/* 分割線 */
+.divider-line {
+  border: 0.5px solid #D9D9D9;
+  margin: 20px 18px;
+}
+
+/* 錯誤分佈標題 */
+.error-distribution-title {
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 21px;
+  color: #000000;
+  padding: 0 18px;
+  margin: 20px 0 12px;
+}
+
+/* 錯誤分佈卡片 */
+.error-distribution-card {
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 20px;
+  margin: 0 18px 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+/* 圓餅圖與標籤並排 */
+.error-distribution-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+/* 圓環圖區域 */
+.chart-area {
+  flex-shrink: 0;
+  width: 120px;
+  height: 120px;
+}
+
+.donut-chart {
+  width: 120px;
+  height: 120px;
+}
+
+/* 錯誤標籤列表 - 垂直排列 */
+.error-tags-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 單個錯誤標籤 */
+.error-tag-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 標籤圓點 */
+.error-tag-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+/* 標籤名稱 */
+.error-tag-name {
+  flex: 1;
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 18px;
+  color: #1C1C1C;
+}
+
+/* 錯誤次數 */
+.error-tag-count {
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 18px;
+  color: #0088FF;
+}
+
+/* 章節標題 */
+.section-title { 
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-weight: 700; 
+  font-size: 16px; 
+  line-height: 19px;
+  color: var(--color-text-main); 
+  padding: 0 18px; 
+  margin: 20px 0 12px;
+}
+
+/* 知識點圖表排版 - 三欄對齊 */
+.topics-section { 
+  display: flex; 
+  padding: 0 18px; 
+  gap: 12px; 
+  margin-bottom: 20px; 
+  align-items: flex-start;
+}
+
+/* 左側：知識點名稱 */
+.topics-list { 
+  flex: 2; 
+}
+
+.topic-item { 
+  display: flex; 
+  align-items: center; 
+  height: 33px;
+}
+
+.topic-name { 
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 14px; 
+  line-height: 33px; 
+  color: var(--color-text-main); 
+}
+
+/* 中間：進度條 */
+.progress-bars { 
+  flex: 3; 
+  padding-top: 8px; 
+}
+
+.progress-bar-container { 
+  width: 100%; 
+  height: 7px; 
+  background: rgba(168, 197, 218, 0.3); 
+  border-radius: 80px; 
+  margin-bottom: 27px; 
+  overflow: hidden; 
+}
+
+.progress-bar-fill { 
+  height: 100%; 
+  background: #A8C5DA; 
+  border-radius: 80px; 
+}
+
+/* 右側：錯誤數字 */
+.topic-counts { 
+  flex: 1; 
+  text-align: right;
+  padding-top: 8px;
+}
+
+.topic-count-item { 
+  display: flex; 
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 27px;
+  height: 6px;
+  gap: 2px;
+}
+
+.topic-count-number { 
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-weight: 600; 
+  font-size: 12px; 
+  color: #1C1C1C; 
+}
+
+.topic-count-total { 
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-weight: 400; 
+  font-size: 12px; 
+  color: #8E8E93; 
+}
+
+/* ==========================================================================
+   iOS 風格彈窗
+   ========================================================================== */
+
+/* iOS 風格彈窗遮罩 */
+.date-picker-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 320px;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  border-radius: 14px;
+  padding: 20px;
+  z-index: 200;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.04);
+  animation: modalFadeIn 0.2s ease;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.96); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+/* iOS 風格彈窗標題 */
+.date-picker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  font-family: -apple-system, 'SF Pro', sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: #1C1C1C;
+  letter-spacing: -0.4px;
+}
+
+.date-picker-header button {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #8E8E93;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.date-picker-header button:active {
+  background: #E5E5EA;
+}
+
+/* iOS 風格日期輸入 */
+.date-input {
+  width: 100%;
+  padding: 14px 12px;
+  background: #F2F2F7;
+  border: none;
+  border-radius: 10px;
+  font-family: -apple-system, 'SF Pro', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: #1C1C1C;
+  margin-bottom: 20px;
+  outline: none;
+}
+
+.date-input:focus {
+  background: #FFFFFF;
+  box-shadow: 0 0 0 2px #0088FF;
+}
+
+/* iOS 風格確認按鈕 */
+.date-confirm-btn {
+  width: 100%;
+  background: #0088FF;
+  border: none;
+  border-radius: 10px;
+  padding: 14px;
+  font-family: -apple-system, 'SF Pro', sans-serif;
+  font-size: 16px;
+  font-weight: 590;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.date-confirm-btn:active {
+  background: #0077EE;
+  transform: scale(0.98);
+}
+
+/* iOS 風格遮罩層 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
+  z-index: 199;
+  animation: overlayFadeIn 0.2s ease;
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

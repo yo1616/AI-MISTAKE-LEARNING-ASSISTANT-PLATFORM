@@ -1,0 +1,46 @@
+.filter-tabs { display: flex; gap: 12px; margin-bottom: 20px; }
+.filter-tab {
+  flex: 1;
+  padding: 10px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-light);
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+.filter-tab.active { background: var(--color-primary); border-color: var(--color-primary); color: white; }
+
+.date-group {
+  background: var(--color-bg-card);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  margin-bottom: 20px;
+}
+.date-header {
+  padding: 12px 16px;
+  background: var(--color-bg-header);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  border-bottom: 0.5px solid var(--color-border-light);
+}
+.history-item { padding: 16px; border-bottom: 0.5px solid var(--color-border-light); }
+.history-item:last-child { border-bottom: none; }
+.history-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; cursor: pointer; }
+.item-type { font-size: 13px; font-weight: 590; color: var(--color-primary); }
+.item-actions { display: flex; align-items: center; gap: 8px; }
+.history-item-time { font-size: 10px; color: var(--color-text-muted); }
+
+.session-messages { margin-top: 12px; padding-top: 12px; border-top: 0.5px solid var(--color-border-light); }
+.session-message { margin-bottom: 12px; }
+.session-message .message-bubble { background: #F2F2F7; padding: 10px 14px; border-radius: 16px; }
+.session-message.student .message-bubble { background: var(--color-primary); color: white; }
+.session-message .message-time { font-size: 10px; color: var(--color-text-muted); margin-top: 4px; }
+
+.empty-history { text-align: center; padding: 60px 20px; background: var(--color-bg-card); border-radius: 16px; }
+.empty-icon { font-size: 48px; margin-bottom: 16px; }
+.empty-text { font-size: 17px; font-weight: 500; margin-bottom: 8px; }
+.empty-hint { font-size: 13px; color: var(--color-text-muted); }

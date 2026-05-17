@@ -1,0 +1,577 @@
+/* ==========================================================================
+   1. 設計系統變數 & 基礎重置
+   ========================================================================== */
+:root {
+  --color-primary: #0088FF;
+  --color-primary-active: #0077EE;
+  --color-secondary: #4C5484;
+  --color-secondary-bg: #6E7084;
+  --color-success: #34C759;
+  --color-danger: #BA1A1A;
+  --color-warning: #FFCC00;
+  
+  --color-bg-main: #F6F6F6;
+  --color-bg-card: #FFFFFF;
+  --color-bg-header: #F6F6F6;
+  --color-text-main: #000000;
+  --color-text-muted: #8E8E93;
+  --color-text-dark: #1A1A1C;
+  --color-border: #D9D9D9;
+  --color-border-light: #E5E5EA;
+
+  --transition-fast: all 0.2s ease;
+  --transition-normal: all 0.3s ease;
+  
+  --shadow-sm: 0px 2px 4px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0px 2px 8px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0px 8px 40px rgba(0, 0, 0, 0.12);
+  --shadow-quiz: 0px 0px 16px rgba(0, 0, 0, 0.25);
+  
+  --font-family-main: 'Inter', -apple-system, 'SF Pro', 'Helvetica Neue', sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+body {
+  font-family: var(--font-family-main);
+  background-color: #F6F6F6;
+  color: var(--color-text-main);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 內容容器左右留白 */
+.home-container, .menu, .chapter-container,
+.mistake-detail-container, .important-mistake-container,
+.concept-container, .important-concept-container, .quiz-container,
+.dashboard-container, .account-container, .chat-history-container {
+  padding-left: 18px;
+  padding-right: 18px;
+}
+
+/* ==========================================================================
+   2. 共用頭部組件
+   ========================================================================== */
+.page-header, .home-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px;
+  background: var(--color-bg-header);
+  min-height: 56px;
+  margin-top: 50px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  z-index: 10;
+  width: 60px;
+}
+
+.header-right, .header-placeholder { width: 60px; }
+
+.page-title, .home-title {
+  font-weight: 600;
+  font-size: 17px;
+  line-height: 22px;
+  color: var(--color-text-main);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+}
+
+.hamburger-icon {
+  width: 24px;
+  height: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  z-index: 10;
+}
+.hamburger-icon span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: var(--color-text-dark);
+  border-radius: 2px;
+}
+
+.back-home {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+.back-text {
+  font-size: 17px;
+  color: var(--color-primary);
+}
+.back-home:active, .hamburger-icon:active { opacity: 0.6; }
+
+/* ==========================================================================
+   3. 對話氣泡
+   ========================================================================== */
+.message { display: flex; flex-direction: column; }
+.message.user { align-items: flex-end; }
+.message.ai { align-items: flex-start; }
+
+.message-bubble {
+  max-width: 85%;
+  padding: 12px 16px;
+  border-radius: 20px;
+  background: var(--color-bg-card);
+  box-shadow: var(--shadow-md);
+  position: relative;
+}
+.message.user .message-bubble {
+  background: var(--color-primary);
+  color: white;
+}
+.message.ai .message-bubble {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-light);
+}
+
+.message-text {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-text-main);
+  white-space: pre-wrap;
+}
+.message.user .message-text { color: white; }
+
+.message-time {
+  font-size: 10px;
+  color: var(--color-text-muted);
+  margin-top: 4px;
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+.message-footer {
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid #F0F0F0;
+}
+.related-info { font-size: 12px; color: var(--color-text-muted); margin-bottom: 8px; }
+.related-label { font-weight: 500; }
+.related-concept { color: var(--color-primary); cursor: pointer; text-decoration: underline; }
+
+/* ==========================================================================
+   4. 選單與卡片
+   ========================================================================== */
+.favorites-section, .studytools-section {
+  background: var(--color-bg-card);
+  box-shadow: var(--shadow-sm);
+  border-radius: 12px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.section-header {
+  padding: 10px 16px;
+  font-weight: 400;
+  font-size: 15px;
+  color: rgba(0, 0, 0, 0.57);
+  background: var(--color-bg-card);
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  border-bottom: 0.5px solid #D9D9D9;
+  background: #FFFFFF;
+}
+.menu-item:last-child { border-bottom: none; }
+.menu-item.selected { background: #ededed; }
+.menu-item.selected .item-label {
+  font-weight: 500;
+  color: var(--color-primary);
+}
+.item-label { flex: 1; font-size: 15px; color: var(--color-text-main); }
+
+/* ==========================================================================
+   5. 章節列表
+   ========================================================================== */
+.chapter-card {
+  background: var(--color-bg-card);
+  box-shadow: var(--shadow-sm);
+  border-radius: 12px;
+  overflow: hidden;
+  width: 100%;
+}
+.chapter-title { padding: 16px 0 0 16px; font-size: 17px; color: var(--color-text-dark); }
+.unit-list { display: flex; flex-direction: column; gap: 13px; padding: 16px 0 24px 0; }
+
+.unit-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  margin: 0 8px;
+}
+.unit-item.selected {
+  background: #ededed;
+  border-radius: 12px;
+}
+.unit-name { color: rgba(60, 60, 67, 0.60); font-size: 17px; }
+.unit-item.selected .unit-name {
+  font-weight: 500;
+  color: var(--color-primary);
+}
+.unit-arrow { font-size: 14px; color: var(--color-text-muted); transition: var(--transition-fast); }
+.unit-arrow.expanded { transform: rotate(90deg); }
+
+.sub-lesson-list {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 16px 8px 32px;
+}
+.sub-lesson-list.show { display: flex; }
+
+.sub-lesson-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 10px;
+  margin: 0 4px;
+}
+.sub-lesson-item.selected {
+  background: #ededed;
+  border-radius: 10px;
+}
+.sub-lesson-name { font-size: 15px; color: var(--color-text-main); }
+.sub-lesson-item.selected .sub-lesson-name {
+  font-weight: 500;
+  color: var(--color-primary);
+}
+.sub-lesson-arrow { font-size: 15px; color: #8E8E93; }
+
+/* ==========================================================================
+   6. 錯題列表
+   ========================================================================== */
+.mistake-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 18px 20px 18px;
+}
+
+.mistake-card {
+  background: #FFFFFF;
+  border-radius: 12px;
+  padding: 16px;
+  position: relative;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: none !important;
+}
+.mistake-card.expanded { background: #F0F4EC; }
+
+.mistake-chapter-tag {
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--color-primary);
+  background: #E8F0E2;
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 20px;
+  margin-bottom: 10px;
+}
+
+.mistake-title {
+  font-weight: 590;
+  font-size: 17px;
+  line-height: 22px;
+  margin-bottom: 8px;
+}
+.mistake-tags { margin-bottom: 12px; }
+.tag { font-size: 13px; color: rgba(0, 0, 0, 0.6); margin-right: 8px; }
+.divider { border: 0.5px solid var(--color-border); margin: 12px 0; }
+.mistake-description {
+  font-size: 13px;
+  line-height: 18px;
+  color: rgba(0, 0, 0, 0.8);
+}
+
+.expand-hint {
+  text-align: center;
+  margin-top: 12px;
+  padding-top: 8px;
+  cursor: pointer;
+}
+
+.options { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+
+.option {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--color-bg-card);
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid var(--color-border-light);
+}
+.option.selected { background: #EDEDED; }
+.option-letter {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--color-text-main);
+  min-width: 32px;
+}
+.option-text {
+  font-size: 14px;
+  color: var(--color-text-main);
+  flex: 1;
+}
+.option.selected .option-letter,
+.option.selected .option-text { color: var(--color-primary); }
+
+.answer-section { margin-top: 12px; }
+.answer-text, .explanation-text {
+  font-size: 13px;
+  line-height: 18px;
+  color: rgba(0, 0, 0, 0.8);
+  margin-bottom: 8px;
+}
+.answer-label, .explanation-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-main);
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* ==========================================================================
+   7. 概念列表
+   ========================================================================== */
+.concept-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 18px 20px 18px;
+}
+
+.concept-card {
+  background: #FFFFFF;
+  box-shadow: var(--shadow-sm);
+  border-radius: 12px;
+  padding: 16px 18px 13px 18px;
+  position: relative;
+  cursor: pointer;
+  transition: none !important;
+}
+.concept-card.expanded { background: #F0F4EC; }
+
+.concept-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.concept-title {
+  font-weight: 590;
+  font-size: 17px;
+  line-height: 22px;
+  letter-spacing: -0.43px;
+  color: #000000;
+  flex: 1;
+}
+
+.concept-location {
+  font-size: 13px;
+  line-height: 18px;
+  letter-spacing: -0.08px;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.6);
+  margin-bottom: 12px;
+  display: inline-block;
+}
+.concept-divider { border: 0.5px solid var(--color-border); margin: 12px 0; }
+.concept-content {
+  font-size: 13px;
+  line-height: 18px;
+  letter-spacing: -0.08px;
+  color: rgba(0, 0, 0, 0.8);
+  white-space: pre-line;
+}
+
+.concept-card .card-star {
+  position: static;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* ==========================================================================
+   8. 星標按鈕
+   ========================================================================== */
+.card-star {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  cursor: pointer;
+  z-index: 10;
+}
+.star-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.star-button:hover { transform: scale(1.1); }
+.star-button:active { transform: scale(0.95); }
+
+/* ==========================================================================
+   9. 返回按鈕
+   ========================================================================== */
+.back-to-chapters-btn-container {
+  position: fixed;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  z-index: 100;
+}
+
+.back-to-chapters-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 6px 20px;
+  width: 207px;
+  height: 48px;
+  background: linear-gradient(0deg, #F7F7F7, #F7F7F7), 
+              linear-gradient(0deg, #DDDDDD, #DDDDDD), 
+              rgba(255, 255, 255, 0.65);
+  background-blend-mode: darken, color-burn, normal;
+  border-radius: 296px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.44), 0px 8px 40px rgba(0, 0, 0, 0.12);
+  transition: transform 0.12s ease;
+}
+.back-to-chapters-btn:active { transform: scale(0.96); }
+.btn-text {
+  font-size: 17px;
+  line-height: 20px;
+  text-align: center;
+  color: #1A1A1A;
+}
+
+/* ==========================================================================
+   10. 下拉選單
+   ========================================================================== */
+.dropdown { position: relative; display: inline-block; }
+
+.dropdown-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(118, 128, 128, 0.12);
+  box-shadow: var(--shadow-sm);
+  border-radius: 8px;
+  min-width: 100px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+.dropdown-trigger .dropdown-icon {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.54);
+  transition: transform 0.2s;
+}
+.dropdown-trigger.open .dropdown-icon { transform: rotate(180deg); }
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 100%;
+  background: #FFFFFF;
+  box-shadow: 0px 3px 14px 2px rgba(0, 0, 0, 0.12), 
+              0px 8px 10px 1px rgba(0, 0, 0, 0.14), 
+              0px 5px 5px -3px rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  z-index: 100;
+  overflow: hidden;
+  animation: dropdownFadeIn 0.2s ease;
+}
+@keyframes dropdownFadeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-list {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+  margin: 0;
+  list-style: none;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  padding: 6px 16px;
+  min-height: 36px;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 16px;
+  line-height: 150%;
+  letter-spacing: 0.15px;
+  color: rgba(0, 0, 0, 0.87);
+}
+.dropdown-item:hover { background: rgba(0, 0, 0, 0.04); }
+.dropdown-item.selected {
+  background: rgba(0, 136, 255, 0.08);
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   11. 空狀態 & 工具類
+   ========================================================================== */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  background: #FFFFFF;
+  border-radius: 16px;
+  margin: 20px 18px;
+}
+.empty-icon { font-size: 48px; margin-bottom: 16px; }
+.empty-text {
+  font-size: 17px;
+  font-weight: 500;
+  color: #1A1A1A;
+  margin-bottom: 8px;
+}
+.empty-hint { font-size: 13px; color: #8E8E93; }
+
+.text-center { text-align: center; }
+.p-40 { padding: 40px; }
+.color-gray { color: var(--color-text-muted); }

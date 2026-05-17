@@ -12,11 +12,12 @@ function printSection(title) {
   console.log(`\n=== ${title} ===`);
 }
 
-function formatPath(subjectId, unitId, conceptId) {
+function formatPath(subjectId, unitId, subUnitId, conceptId) {
   const subject = findById(data.subjects, subjectId);
   const unit = findById(data.units, unitId);
+  const subUnit = findById(data.subUnits || [], subUnitId);
   const concept = findById(data.concepts, conceptId);
-  return [subject && subject.name, unit && unit.name, concept && concept.name].filter(Boolean).join(" >> ");
+  return [subject && subject.name, unit && unit.name, subUnit && `${subUnit.code} ${subUnit.name}`, concept && concept.name].filter(Boolean).join(" >> ");
 }
 
 function formatClassification(classification) {
@@ -70,7 +71,7 @@ if (data.classificationPolicy) {
 printSection("歷史對話紀錄");
 data.chatSessions.forEach((session) => {
   console.log(`- ${session.title} (${session.startedAt})`);
-  console.log(`  分類: ${formatPath(session.subjectId, session.unitId, session.conceptClassification.matchedConceptId)}`);
+  console.log(`  分類: ${formatPath(session.subjectId, session.unitId, session.subUnitId, session.conceptClassification.matchedConceptId)}`);
   if (session.className) {
     console.log(`  班級: ${session.className}`);
   }
@@ -85,7 +86,7 @@ data.chatSessions.forEach((session) => {
 
 printSection("錯題紀錄分類");
 data.mistakeRecords.forEach((record) => {
-  console.log(`- ${formatPath(record.subjectId, record.unitId, record.conceptId)}`);
+  console.log(`- ${formatPath(record.subjectId, record.unitId, record.subUnitId, record.conceptId)}`);
   if (record.className) {
     console.log(`  班級: ${record.className}`);
   }
@@ -96,7 +97,7 @@ data.mistakeRecords.forEach((record) => {
 
 printSection("觀念筆記");
 data.conceptNotes.forEach((note) => {
-  console.log(`- ${formatPath(note.subjectId, note.unitId, note.conceptId)}`);
+  console.log(`- ${formatPath(note.subjectId, note.unitId, note.subUnitId, note.conceptId)}`);
   if (note.className) {
     console.log(`  班級: ${note.className}`);
   }
@@ -105,7 +106,7 @@ data.conceptNotes.forEach((note) => {
 
 printSection("生成考題題庫來源");
 data.generatedPracticeQuestions.forEach((question) => {
-  console.log(`- ${formatPath(question.subjectId, question.unitId, question.conceptId)}`);
+  console.log(`- ${formatPath(question.subjectId, question.unitId, question.subUnitId, question.conceptId)}`);
   if (question.className) {
     console.log(`  班級: ${question.className}`);
   }

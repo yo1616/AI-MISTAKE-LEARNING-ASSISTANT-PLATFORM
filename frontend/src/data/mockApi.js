@@ -141,28 +141,45 @@ export const getStudentAnalyticsSummary = async () => {
 };
 
 // 生成考題
-export const generateQuestions = async (params) => {
-  const { unitIds, conceptIds, questionCount, difficulty } = params;
-  const allQuestions = JSON.parse(localStorage.getItem('generatedExams') || '[]');
+export const generateQuestions = async (params = {}) => {
+  const { unitIds, conceptIds, questionCount = 5, difficulty = '中等' } = params;
   
-  // 根據條件篩選
-  let filtered = allQuestions;
+  // 直接從 seedData 獲取練習題
+  let questions = [...seedData.generatedPracticeQuestions];
+  
+  // 如果指定了 unitIds，則過濾
   if (unitIds && unitIds.length > 0) {
-    filtered = filtered.filter(q => unitIds.includes(q.unitId));
-  }
-  if (conceptIds && conceptIds.length > 0) {
-    filtered = filtered.filter(q => conceptIds.includes(q.conceptId));
+    questions = questions.filter(q => unitIds.includes(q.unitId));
   }
   
-  // 隨機選取指定數量
-  const shuffled = [...filtered];
+  // 如果指定了 conceptIds，則過濾
+  if (conceptIds && conceptIds.length > 0) {
+    questions = questions.filter(q => conceptIds.includes(q.conceptId));
+  }
+  
+  // 隨機選取指定數量的題目
+  const shuffled = [...questions];
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
+  
   const selected = shuffled.slice(0, parseInt(questionCount) || 5);
   
-  return { success: true, data: selected };
+  // 轉換格式給前端使用
+  const formattedQuestions = selected.map(q => ({
+    id: q.id,
+    text: q.questionText,
+    options: q.options,
+    correct: q.options.findIndex(opt => opt === q.answer),
+    explanation: q.explanation,
+    title: q.title,
+    passage: q.passage,
+    conceptId: q.conceptId,
+    unitId: q.unitId
+  }));
+  
+  return { success: true, data: formattedQuestions };
 };
 
 // 獲取單元列表

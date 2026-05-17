@@ -27,16 +27,7 @@ function ConceptPage() {
     <div className="concept-page">
       <div className="concept-container">
         <PageHeader title="Concept" />
-        
-        <div className="section-title">觀念標籤</div>
-        <ConceptList
-          items={conceptTags}
-          type="concept-tag"
-          onStarToggle={() => {}}
-          emptyMessage="暫無觀念標籤"
-        />
-        
-        <div className="section-title">知識點筆記</div>
+
         <ConceptList
           items={conceptNotes}
           type="concept-note"

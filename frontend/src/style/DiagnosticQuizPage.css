@@ -66,14 +66,21 @@
 .stat-label { font-size: 12px; color: #727785; }
 .stat-value { font-size: 16px; color: #191C23; }
 
-.result-question-card { background: #FFFFFF; border-radius: 12px; margin-bottom: 16px; overflow: hidden; border-left: 4px solid; }
+.result-question-card {
+  position: relative;  /* 確保星星絕對定位相對於卡片 */
+  background: #FFFFFF;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  overflow: visible;
+  border-left: 4px solid;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);
+}
 .result-question-card.correct { border-left-color: #006E2C; }
 .result-question-card.incorrect { border-left-color: #BA1A1A; }
 .result-question-card .question-header { display: flex; justify-content: space-between; padding: 24px 24px 0 24px; }
 .question-number { font-size: 18px; font-weight: 600; }
 .status-badge { padding: 2px 8px; border-radius: 9999px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
-.correct-badge { background: #F0FDF4; color: #006E2C; }
-.incorrect-badge { background: #FEF2F2; color: #BA1A1A; }
+
 .question-text { padding: 8px 24px; font-size: 16px; }
 
 .review-options { padding: 0 24px; }
@@ -102,3 +109,48 @@
   text-align: center;
 }
 .quiz-again-btn { margin-top: 20px; }
+
+/* 題目導航按鈕區域 - 橫向滑動 */
+.question-nav-chips {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 8px;
+  margin: 16px 0;
+  padding: 8px 0;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+
+.nav-chip {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.nav-chip.correct {
+  background: #006E2C;
+  color: rgb(170, 253, 198);
+}
+
+.nav-chip.incorrect {
+  background: #BA1A1A;
+  color: rgb(249, 166, 166);
+}
+
+.nav-chip.current {
+  border: 2px solid #000402;
+}
+
+.nav-chip.unanswered {
+  background: #E6E8F2;
+  color: #414754;
+}

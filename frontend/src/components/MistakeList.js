@@ -3,22 +3,9 @@ import StarButton from './StarButton';
 
 function MistakeList({ mistakes, onStarToggle, emptyMessage, emptyHint }) {
   const [expandedId, setExpandedId] = useState(null);
-  const [selectedAnswers, setSelectedAnswers] = useState({});
-  const [showResults, setShowResults] = useState({});
 
   const handleCardClick = (id) => {
     setExpandedId(expandedId === id ? null : id);
-  };
-
-  const handleOptionClick = (e, mistakeId, letter, isCorrect) => {
-    e.stopPropagation();
-    setSelectedAnswers({ ...selectedAnswers, [mistakeId]: letter });
-    setShowResults({ ...showResults, [mistakeId]: true });
-  };
-
-  const getCorrectAnswer = (options) => {
-    const correct = options?.find(opt => opt.isCorrect);
-    return correct ? `(${correct.letter}) ${correct.text}` : '';
   };
 
   if (!mistakes || mistakes.length === 0) {
@@ -35,7 +22,6 @@ function MistakeList({ mistakes, onStarToggle, emptyMessage, emptyHint }) {
     <div className="mistake-list-container">
       {mistakes.map((mistake) => {
         const isExpanded = expandedId === mistake.id;
-        const correctAnswer = getCorrectAnswer(mistake.options);
         
         return (
           <div 
@@ -46,18 +32,14 @@ function MistakeList({ mistakes, onStarToggle, emptyMessage, emptyHint }) {
             <div className="card-star">
               <StarButton 
                 starred={mistake.starred || false} 
-                onToggle={(state) => onStarToggle(mistake.id, state, mistake)}
+                onToggle={(state) => onStarToggle(mistake.id, state)}
               />
             </div>
 
-            <div className="mistake-chapter-tag">
-              {mistake.subjectId} / {mistake.unitId}
-            </div>
+           
 
             <div className="mistake-content">
-              <div className="mistake-header">
-                <span className="mistake-icon">📝</span>
-              </div>
+              
               
               <div className="mistake-title">{mistake.questionText || '錯題'}</div>
               
@@ -81,36 +63,22 @@ function MistakeList({ mistakes, onStarToggle, emptyMessage, emptyHint }) {
                   <p className="stem-content">{mistake.studentQuestion || mistake.questionText}</p>
                 </div>
                 
-                <div className="options">
-                  {mistake.options?.map((option) => (
-                    <div 
-                      key={option.letter}
-                      className={`option ${selectedAnswers[mistake.id] === option.letter ? 'selected' : ''}`}
-                      onClick={(e) => handleOptionClick(e, mistake.id, option.letter, option.isCorrect)}
-                    >
-                      <span className="option-letter">({option.letter})</span>
-                      <span className="option-text">{option.text}</span>
-                    </div>
-                  ))}
-                </div>
-                
-                {showResults[mistake.id] && (
-                  <div className="answer-section">
-                    <div className="answer">
-                      <span className="answer-label">答案</span>
-                      <span className="answer-text">{correctAnswer}</span>
-                    </div>
-                    <div className="explanation">
-                      <span className="explanation-label">解析</span>
-                      <p className="explanation-text">{mistake.fullExplanation || mistake.aiSummary}</p>
-                    </div>
+                {/* 直接顯示答案和解析，沒有選項 */}
+                <div className="answer-section">
+                  <div className="answer">
+                    <span className="answer-label">答案</span>
+                    <span className="answer-text">{mistake.correctAnswer || '無答案'}</span>
                   </div>
-                )}
+                  <div className="explanation">
+                    <span className="explanation-label">解析</span>
+                    <p className="explanation-text">{mistake.fullExplanation || mistake.aiSummary || '無解析'}</p>
+                  </div>
+                </div>
               </div>
             )}
             
             <div className="expand-hint" onClick={(e) => e.stopPropagation()}>
-              <span>{isExpanded ? '點擊收合 ▲' : '點擊展開 ▼'}</span>
+              <span>{isExpanded ? '▲' : '▼'}</span>
             </div>
           </div>
         );

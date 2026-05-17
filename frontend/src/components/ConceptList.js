@@ -11,7 +11,6 @@ function ConceptList({ items, type, onStarToggle, emptyMessage, emptyHint }) {
   if (!items || items.length === 0) {
     return (
       <div className="empty-state">
-        <span className="empty-icon">📚</span>
         <p className="empty-text">{emptyMessage || '暫無資料'}</p>
         {emptyHint && <p className="empty-hint">{emptyHint}</p>}
       </div>

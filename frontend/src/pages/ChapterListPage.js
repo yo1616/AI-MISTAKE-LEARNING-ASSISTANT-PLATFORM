@@ -14,44 +14,40 @@ function ChapterListPage() {
   }, []);
 
   const loadUnits = async () => {
-    const [unitsResult, conceptsResult] = await Promise.all([
-      getUnits(),
-      getConcepts()
-    ]);
-    
-    if (unitsResult.success && conceptsResult.success) {
-      // 將 concepts 按 unitId 分組，作為 lessons
-      const unitsWithLessons = unitsResult.data.map(unit => ({
-        id: unit.id,
-        name: unit.name,
-        lessons: conceptsResult.data
-          .filter(c => c.unitId === unit.id)
-          .map(c => ({ id: c.id, name: c.name }))
-      }));
-      setUnits(unitsWithLessons);
-    }
-  };
-
-const handleSelectConcept = (conceptId, conceptName) => {
-  setSelectedConceptId(conceptId);
-  setTimeout(() => {
-    navigate(`/mistake/${conceptId}`);  // 確保 conceptId 有值
-  }, 150);
+  const [unitsResult, conceptsResult] = await Promise.all([
+    getUnits(),
+    getConcepts()
+  ]);
+  
+  if (unitsResult.success && conceptsResult.success) {
+    const unitsWithConcepts = unitsResult.data.map(unit => ({
+      id: unit.id,
+      name: unit.name,           // 確保有 name
+      concepts: conceptsResult.data.filter(c => c.unitId === unit.id)
+    }));
+    setUnits(unitsWithConcepts);
+  }
 };
 
+  const handleSelectConcept = (conceptId, conceptName, unitName) => {
+  setSelectedConceptId(conceptId);
+  setTimeout(() => {
+    navigate(`/mistake/${conceptId}`, { state: { conceptName, unitName } });
+  }, 150);
+};
 
   return (
     <div className="chapter-page">
       <div className="chapter-container">
         <PageHeader title="Mistake Notebook" />
         <div className="chapter-card">
-          <div className="chapter-title">章節</div>
+          <div className="chapter-title">章節列表</div>
           <div className="unit-list">
             {units.map(unit => (
               <UnitSection
                 key={unit.id}
                 unit={unit}
-                concepts={unit.lessons}
+                concepts={unit.concepts}
                 selectedConceptId={selectedConceptId}
                 onSelectConcept={handleSelectConcept}
               />

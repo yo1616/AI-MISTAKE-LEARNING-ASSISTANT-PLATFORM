@@ -11,18 +11,20 @@
 
 ### 「非」歷史對話紀錄之排序與分類規則（如：知識點筆記、錯題等）
 
-簡述流程： 科目 >> 單元 >> 觀念標籤 >> 內容（依時間新到舊往下排）
+簡述流程： 科目 >> 單元 >> 子單元 >> 觀念標籤 >> 內容（先排星號，再依時間新到舊往下排）
 - `subjectId`：學科本身，例如 `生物`、`數學`
 - `unitId`：固定單元
+- `subUnitId`：固定子單元，例如 `1-1`、`1-2`
 - `conceptId`：AI 分類出的觀念
 - AI 必須優先匹配既有 `concept`，只有真的沒有適合觀念時，才允許新建 `concept`
+- 被分到對應 `concept`後，先排星號 `starred`，其餘沒星號用 `createdAt` 「由新到舊」排序
 
 ### 學生端與老師端的主分類規則
 
 學生端在複習錯題、知識點筆記、生成考題時，主要是按「學習內容」找資料  
 老師端在看班級統計與學生分析時，主要是按「課程班級」看資料
 
-- 學生端內容主分類：`subjectId >> unitId >> conceptId`
+- 學生端內容主分類：`subjectId >> unitId >> subUnitId >> conceptId`
 - 學生端輔助資訊：`classId`、`className`
 - 老師端主分類：`classId`、`className`
 - 老師端輔助資訊：`subjectId`、`subjectName`、`gradeYear`
@@ -40,9 +42,9 @@
 
 ### 分類的觀念標籤（分類方式）
 
-`GET /api/concepts?subjectId=subject_bio&unitId=unit_bio_02`
+`GET /api/concepts?subjectId=subject_bio&unitId=unit_bio_02&subUnitId=subunit_bio_02_02`
 
-是指「科目>>單元>>觀念標題」這部分分類方式的「觀念標籤」的部分。
+是指「科目>>單元>>子單元>>觀念標題」這部分分類方式的「觀念標籤」的部分。
 
 Response:
 
@@ -54,6 +56,7 @@ Response:
       "id": "concept_bio_002",
       "subjectId": "subject_bio",
       "unitId": "unit_bio_02",
+      "subUnitId": "subunit_bio_02_01",
       "name": "呼吸系統",
       "keywords": ["鼻腔", "氣管", "支氣管", "肺"],
       "createdBy": "seed"
@@ -62,6 +65,7 @@ Response:
       "id": "concept_bio_003",
       "subjectId": "subject_bio",
       "unitId": "unit_bio_02",
+      "subUnitId": "subunit_bio_02_02",
       "name": "氣體交換",
       "keywords": ["肺泡", "氧氣", "二氧化碳", "微血管"],
       "createdBy": "seed"
@@ -81,6 +85,7 @@ Request:
 {
   "subjectId": "subject_bio",
   "unitId": "unit_bio_03",
+  "subUnitId": "subunit_bio_03_02",
   "inputType": "photo_text",
   "questionImageUrl": "/uploads/energy-question-1.jpg",
   "questionText": "這題在問 ATP 和能量型態轉換",
@@ -137,6 +142,7 @@ Request:
   "studentId": "student_001",
   "subjectId": "subject_bio",
   "unitId": "unit_bio_02",
+  "subUnitId": "subunit_bio_02_02",
   "inputType": "photo_text",
   "questionImageUrl": "/uploads/q1.jpg",
   "questionText": "這題在問肺泡功能嗎？"
@@ -233,6 +239,7 @@ Response:
       "studentId": "student_001",
       "subjectId": "subject_bio",
       "unitId": "unit_bio_03",
+      "subUnitId": "subunit_bio_03_02",
       "inputType": "photo_text",
       "title": "ATP 和能量轉換怎麼分類",
       "startedAt": "2026-05-03T20:10:00+08:00",
@@ -342,6 +349,7 @@ Response:
     "questionGroupId": "qg_001",
     "subjectId": "subject_bio",
     "unitId": "unit_bio_02",
+    "subUnitId": "subunit_bio_02_02",
     "conceptId": "concept_bio_003",
     "inputType": "text",
     "questionImageUrl": null,
@@ -383,6 +391,7 @@ Response:
       "questionGroupId": "qg_001",
       "subjectId": "subject_bio",
       "unitId": "unit_bio_02",
+      "subUnitId": "subunit_bio_02_02",
       "conceptId": "concept_bio_003",
       "inputType": "text",
       "questionImageUrl": null,
@@ -438,6 +447,7 @@ Response:
     "questionGroupId": "qg_001",
     "subjectId": "subject_bio",
     "unitId": "unit_bio_02",
+    "subUnitId": "subunit_bio_02_02",
     "conceptId": "concept_bio_003",
     "questionText": "肺泡與微血管之間進行何種作用？",
     "studentAnswer": null,
@@ -467,6 +477,7 @@ Response:
       "studentId": "student_001",
       "subjectId": "subject_bio",
       "unitId": "unit_bio_02",
+      "subUnitId": "subunit_bio_02_02",
       "conceptId": "concept_bio_003",
       "noteTitle": "氣體交換重點",
       "noteContent": "肺泡是進行氣體交換的主要場所，氧氣進入血液，二氧化碳離開血液進入肺泡。",
@@ -523,6 +534,7 @@ Response:
     "studentId": "student_001",
     "subjectId": "subject_bio",
     "unitId": "unit_bio_02",
+    "subUnitId": "subunit_bio_02_02",
     "conceptId": "concept_bio_003",
     "noteTitle": "氣體交換重點",
     "noteContent": "肺泡是進行氣體交換的主要場所，氧氣進入血液，二氧化碳離開血液進入肺泡。",
@@ -546,9 +558,9 @@ Response:
 
 ### 建立生成考題條件選單
 
-`GET /api/students/:studentId/exam-generator/options?subjectId=subject_bio&unitId=unit_bio_02&conceptId=concept_bio_003`
+`GET /api/students/:studentId/exam-generator/options?subjectId=subject_bio&unitId=unit_bio_02&subUnitId=subunit_bio_02_02&conceptId=concept_bio_003`
 
-使用者點進「生成考題」後，先看到可以選擇的科目、單元、觀念標籤與錯題。錯題可複選，系統會依照目前篩選條件回傳可用的錯題清單。
+使用者點進「生成考題」後，先看到可以選擇的科目、單元、子單元、觀念標籤與錯題。錯題可複選，系統會依照目前篩選條件回傳可用的錯題清單。
 
 Response:
 
@@ -571,10 +583,19 @@ Response:
         "name": "單元二 呼吸作用"
       }
     ],
+    "subUnits": [
+      {
+        "id": "subunit_bio_02_02",
+        "unitId": "unit_bio_02",
+        "code": "2-2",
+        "name": "肺泡與氣體交換"
+      }
+    ],
     "concepts": [
       {
         "id": "concept_bio_003",
         "unitId": "unit_bio_02",
+        "subUnitId": "subunit_bio_02_02",
         "name": "氣體交換"
       }
     ],
@@ -584,6 +605,7 @@ Response:
         "questionText": "肺泡與微血管之間進行何種作用？",
         "subjectId": "subject_bio",
         "unitId": "unit_bio_02",
+        "subUnitId": "subunit_bio_02_02",
         "conceptId": "concept_bio_003"
       },
       {
@@ -591,6 +613,7 @@ Response:
         "questionText": "氧氣進入血液主要發生在哪裡？",
         "subjectId": "subject_bio",
         "unitId": "unit_bio_02",
+        "subUnitId": "subunit_bio_02_02",
         "conceptId": "concept_bio_003"
       }
     ],
@@ -613,6 +636,7 @@ Request:
   "studentId": "student_001",
   "subjectId": "subject_bio",
   "unitId": "unit_bio_02",
+  "subUnitId": "subunit_bio_02_02",
   "conceptId": "concept_bio_003",
   "selectedMistakeIds": ["mistake_record_001", "mistake_record_004"],
   "questionCount": 3,
@@ -631,6 +655,7 @@ Response:
     "studentId": "student_001",
     "subjectId": "subject_bio",
     "unitId": "unit_bio_02",
+    "subUnitId": "subunit_bio_02_02",
     "conceptId": "concept_bio_003",
     "selectedMistakeIds": ["mistake_record_001", "mistake_record_004"],
     "questionCount": 3,
@@ -764,6 +789,7 @@ Response:
       "id": "mistake_record_001",
       "subjectId": "subject_bio",
       "unitId": "unit_bio_02",
+      "subUnitId": "subunit_bio_02_02",
       "conceptId": "concept_bio_003",
       "questionText": "肺泡與微血管之間進行何種作用？",
       "aiSummary": "這題重點是肺泡的功能。肺泡和微血管之間進行的是氣體交換，不是消化作用。",
@@ -791,6 +817,7 @@ Response:
       "id": "note_001",
       "subjectId": "subject_bio",
       "unitId": "unit_bio_02",
+      "subUnitId": "subunit_bio_02_02",
       "conceptId": "concept_bio_003",
       "noteTitle": "氣體交換重點",
       "noteContent": "肺泡是進行氣體交換的主要場所，氧氣進入血液，二氧化碳離開血液進入肺泡。",

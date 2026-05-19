@@ -1,1 +1,605 @@
+我來幫您整理一份統一的 API 格式文件，方便後端開發人員理解和使用。
 
+## 📄 API 規格文件
+
+```markdown
+# Mistake App API 規格文件 v1.0
+
+## 基礎資訊
+
+- **Base URL**: `https://your-domain.com/api`
+- **回應格式**: JSON
+- **字元編碼**: UTF-8
+
+## 統一回應格式
+
+### 成功回應
+```json
+{
+  "success": true,
+  "data": {},
+  "message": null
+}
+```
+
+### 錯誤回應
+```json
+{
+  "success": false,
+  "data": null,
+  "message": "錯誤描述",
+  "code": "ERROR_CODE"
+}
+```
+
+### HTTP 狀態碼
+| 狀態碼 | 說明 |
+|--------|------|
+| 200 | 成功 |
+| 201 | 創建成功 |
+| 400 | 請求參數錯誤 |
+| 401 | 未授權 |
+| 404 | 資源不存在 |
+| 500 | 伺服器錯誤 |
+
+---
+
+## 1. 學生相關 API
+
+### 1.1 獲取學生資料
+`GET /students/me`
+
+**回應範例**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "student_001",
+    "name": "王哈哈",
+    "gradeYear": "高二",
+    "email": "student001@example.com",
+    "phone": "0912-345-678",
+    "subjects": [
+      {
+        "subjectId": "subject_bio",
+        "subjectName": "生物",
+        "classId": "class_hs2_bio_01",
+        "className": "高二生物班"
+      }
+    ]
+  }
+}
+```
+
+### 1.2 更新學生資料
+`PUT /students/me`
+
+**請求 Body**
+```json
+{
+  "name": "王哈哈",
+  "phone": "0912-345-678",
+  "email": "student001@example.com"
+}
+```
+
+---
+
+## 2. 科目與課程 API
+
+### 2.1 獲取科目列表
+`GET /subjects`
+
+**回應範例**
+```json
+{
+  "success": true,
+  "data": [
+    { "id": "subject_bio", "name": "生物" },
+    { "id": "subject_math", "name": "數學" }
+  ]
+}
+```
+
+### 2.2 獲取單元列表
+`GET /units?subjectId=subject_bio`
+
+**查詢參數**
+| 參數 | 類型 | 必填 | 說明 |
+|------|------|------|------|
+| subjectId | string | 是 | 科目 ID |
+
+**回應範例**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "unit_bio_01",
+      "name": "單元一 人體的運輸與防禦",
+      "order": 1,
+      "subUnits": [
+        {
+          "id": "subunit_bio_01_01",
+          "name": "1-1 血液循環概述",
+          "order": 1
+        },
+        {
+          "id": "subunit_bio_01_02",
+          "name": "1-2 體循環與肺循環",
+          "order": 2
+        }
+      ]
+    }
+  ]
+}
+```
+
+### 2.3 獲取概念列表
+`GET /concepts?unitId=unit_bio_02`
+
+**查詢參數**
+| 參數 | 類型 | 必填 | 說明 |
+|------|------|------|------|
+| unitId | string | 否 | 單元 ID |
+| subjectId | string | 否 | 科目 ID |
+
+**回應範例**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "concept_bio_003",
+      "name": "氣體交換",
+      "unitId": "unit_bio_02",
+      "subjectId": "subject_bio",
+      "mistakeCount": 5,
+      "keywords": ["肺泡", "氧氣", "二氧化碳"]
+    }
+  ]
+}
+```
+
+---
+
+## 3. 錯題相關 API
+
+### 3.1 獲取錯題列表
+`GET /mistakes`
+
+**查詢參數**
+| 參數 | 類型 | 必填 | 說明 |
+|------|------|------|------|
+| subUnitId | string | 否 | 子單元 ID |
+| conceptId | string | 否 | 概念 ID |
+| unitId | string | 否 | 單元 ID |
+| starredOnly | boolean | 否 | 僅顯示收藏 (true/false) |
+| limit | number | 否 | 每頁數量，預設 20 |
+| offset | number | 否 | 偏移量 |
+
+**回應範例**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "mistake_001",
+      "questionText": "肺泡和微血管之間會進行什麼作用？",
+      "studentQuestion": "肺泡和微血管之間到底在做什麼？",
+      "correctAnswer": "氣體交換",
+      "aiSummary": "肺泡和微血管之間進行的是氣體交換。",
+      "fullExplanation": "肺泡周圍有大量微血管，氧氣由肺泡進入血液...",
+      "conceptId": "concept_bio_003",
+      "unitId": "unit_bio_02",
+      "subUnitId": "subunit_bio_02_02",
+      "mistakeCount": 3,
+      "starred": true,
+      "starredAt": "2026-05-03T20:00:00+08:00",
+      "createdAt": "2026-05-03T09:02:30+08:00"
+    }
+  ],
+  "pagination": {
+    "total": 25,
+    "limit": 20,
+    "offset": 0
+  }
+}
+```
+
+### 3.2 新增錯題
+`POST /mistakes`
+
+**請求 Body**
+```json
+{
+  "questionText": "用戶問的問題",
+  "studentQuestion": "用戶原始問題",
+  "correctAnswer": "正確答案",
+  "aiSummary": "AI 摘要",
+  "fullExplanation": "完整解析",
+  "conceptId": "concept_bio_003",
+  "unitId": "unit_bio_02",
+  "subUnitId": "subunit_bio_02_02"
+}
+```
+
+**回應範例**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "mistake_012",
+    "createdAt": "2026-05-19T10:00:00+08:00"
+  }
+}
+```
+
+### 3.3 收藏/取消收藏錯題
+`PUT /mistakes/{mistakeId}/star`
+
+**請求 Body**
+```json
+{
+  "starred": true
+}
+```
+
+**回應範例**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "mistake_001",
+    "starred": true,
+    "starredAt": "2026-05-19T10:00:00+08:00"
+  }
+}
+```
+
+### 3.4 刪除錯題
+`DELETE /mistakes/{mistakeId}`
+
+**回應範例**
+```json
+{
+  "success": true,
+  "message": "刪除成功"
+}
+```
+
+---
+
+## 4. 概念筆記 API
+
+### 4.1 獲取概念筆記列表
+`GET /concept-notes`
+
+**查詢參數**
+| 參數 | 類型 | 必填 | 說明 |
+|------|------|------|------|
+| unitId | string | 否 | 單元 ID |
+| conceptId | string | 否 | 概念 ID |
+| starredOnly | boolean | 否 | 僅顯示收藏 |
+
+**回應範例**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "note_001",
+      "noteTitle": "氣體交換重點",
+      "noteContent": "肺泡是進行氣體交換的主要場所...",
+      "conceptId": "concept_bio_003",
+      "unitId": "unit_bio_02",
+      "starred": true,
+      "starredAt": "2026-05-03T20:05:00+08:00",
+      "createdAt": "2026-05-03T09:02:10+08:00",
+      "linkedMistakes": ["mistake_001"]
+    }
+  ]
+}
+```
+
+### 4.2 新增概念筆記
+`POST /concept-notes`
+
+**請求 Body**
+```json
+{
+  "conceptId": "concept_bio_003",
+  "noteTitle": "氣體交換重點",
+  "noteContent": "內容..."
+}
+```
+
+### 4.3 收藏/取消收藏筆記
+`PUT /concept-notes/{noteId}/star`
+
+**請求 Body**
+```json
+{
+  "starred": true
+}
+```
+
+---
+
+## 5. 聊天功能 API
+
+### 5.1 獲取聊天 Session 列表
+`GET /chat/sessions`
+
+**回應範例**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "chat_001",
+      "title": "肺泡和微血管的作用",
+      "subjectId": "subject_bio",
+      "unitId": "unit_bio_02",
+      "updatedAt": "2026-05-03T09:05:10+08:00",
+      "startedAt": "2026-05-03T09:00:00+08:00",
+      "questionGroupCount": 2
+    }
+  ]
+}
+```
+
+### 5.2 建立新聊天 Session
+`POST /chat/sessions`
+
+**請求 Body**
+```json
+{
+  "subjectId": "subject_bio",
+  "classId": "class_hs2_bio_01",
+  "unitId": "unit_bio_02",
+  "title": "問題標題",
+  "inputType": "text"
+}
+```
+
+### 5.3 獲取聊天訊息
+`GET /chat/sessions/{sessionId}/messages`
+
+**回應範例**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "msg_001",
+      "role": "student",
+      "content": "肺泡和微血管之間到底在做什麼？",
+      "messageType": "new_question",
+      "createdAt": "2026-05-03T09:00:00+08:00"
+    },
+    {
+      "id": "msg_002",
+      "role": "assistant",
+      "content": "肺泡和微血管之間會進行氣體交換...",
+      "messageType": "answer",
+      "createdAt": "2026-05-03T09:00:40+08:00"
+    }
+  ]
+}
+```
+
+### 5.4 發送訊息
+`POST /chat/messages`
+
+**請求 Body**
+```json
+{
+  "sessionId": "chat_001",
+  "role": "student",
+  "content": "用戶問題",
+  "messageType": "new_question",
+  "inputType": "text",
+  "questionImageUrl": "https://... (可選)"
+}
+```
+
+---
+
+## 6. 診斷測驗 API
+
+### 6.1 生成測驗題目
+`POST /quiz/generate`
+
+**請求 Body**
+```json
+{
+  "unitIds": ["unit_bio_01", "unit_bio_02"],
+  "conceptIds": ["concept_bio_003"],
+  "questionCount": 5,
+  "difficulty": "中等"
+}
+```
+
+**難度選項**: `簡單`、`中等`、`困難`、`混合`
+
+**回應範例**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "practice_001",
+      "text": "肺泡和微血管之間會進行什麼作用？",
+      "options": ["氣體交換", "過濾空氣", "產生養分", "儲存氧氣"],
+      "correct": 0,
+      "explanation": "肺泡周圍有大量微血管...",
+      "conceptId": "concept_bio_003",
+      "unitId": "unit_bio_02"
+    }
+  ]
+}
+```
+
+### 6.2 提交測驗答案
+`POST /quiz/submit`
+
+**請求 Body**
+```json
+{
+  "sessionId": "quiz_session_001",
+  "answers": [
+    { "questionId": "practice_001", "selected": 0 },
+    { "questionId": "practice_002", "selected": 2 }
+  ],
+  "timeSpent": 145
+}
+```
+
+**回應範例**
+```json
+{
+  "success": true,
+  "data": {
+    "score": {
+      "correct": 4,
+      "total": 5,
+      "percentage": 80
+    },
+    "details": [
+      {
+        "questionId": "practice_001",
+        "isCorrect": true,
+        "userAnswer": 0,
+        "correctAnswer": 0
+      }
+    ]
+  }
+}
+```
+
+---
+
+## 7. 儀表板 API
+
+### 7.1 獲取學習統計
+`GET /dashboard/stats`
+
+**查詢參數**
+| 參數 | 類型 | 必填 | 說明 |
+|------|------|------|------|
+| startDate | string | 否 | 起始日期 (YYYY-MM-DD) |
+| endDate | string | 否 | 結束日期 (YYYY-MM-DD) |
+
+**回應範例**
+```json
+{
+  "success": true,
+  "data": {
+    "totalMistakes": 45,
+    "starredMistakes": 12,
+    "accuracyRate": 0.75,
+    "weakConcepts": [
+      { "conceptId": "concept_bio_003", "conceptName": "氣體交換", "mistakeCount": 15 },
+      { "conceptId": "concept_bio_001", "conceptName": "血液循環方向", "mistakeCount": 10 }
+    ],
+    "trend": {
+      "mistakeRate": "+11.01%",
+      "accuracyRate": "+8.5%"
+    }
+  }
+}
+```
+
+---
+
+## 8. 錯誤碼說明
+
+| 錯誤碼 | 說明 |
+|--------|------|
+| `AUTH_001` | 未登入或登入已過期 |
+| `AUTH_002` | 權限不足 |
+| `PARAM_001` | 缺少必要參數 |
+| `PARAM_002` | 參數格式錯誤 |
+| `NOT_FOUND_001` | 資源不存在 |
+| `DUPLICATE_001` | 資源已存在 |
+| `SERVER_001` | 伺服器內部錯誤 |
+
+---
+
+## 9. 前端目前使用的 API 對應表
+
+| 前端函數 | 對應 API |
+|----------|----------|
+| `getStudentProfile()` | `GET /students/me` |
+| `getStudentMistakes()` | `GET /mistakes` |
+| `toggleMistakeStar()` | `PUT /mistakes/:id/star` |
+| `getConceptNotes()` | `GET /concept-notes` |
+| `toggleConceptNoteStar()` | `PUT /concept-notes/:id/star` |
+| `getChatSessions()` | `GET /chat/sessions` |
+| `getChatMessages()` | `GET /chat/sessions/:id/messages` |
+| `createChatSession()` | `POST /chat/sessions` |
+| `addChatMessage()` | `POST /chat/messages` |
+| `generateQuestions()` | `POST /quiz/generate` |
+| `getUnitsWithSubUnits()` | `GET /units` |
+| `getConcepts()` | `GET /concepts` |
+| `getStudentAnalyticsSummary()` | `GET /dashboard/stats` |
+
+---
+
+## 10. 資料型別定義 (TypeScript)
+
+```typescript
+// 錯題記錄
+interface Mistake {
+  id: string;
+  questionText: string;
+  studentQuestion: string;
+  correctAnswer: string;
+  aiSummary: string;
+  fullExplanation: string;
+  conceptId: string;
+  unitId: string;
+  subUnitId: string | null;
+  mistakeCount: number;
+  starred: boolean;
+  starredAt: string | null;
+  createdAt: string;
+}
+
+// 概念
+interface Concept {
+  id: string;
+  name: string;
+  unitId: string;
+  subjectId: string;
+  mistakeCount: number;
+  keywords: string[];
+}
+
+// 聊天訊息
+interface ChatMessage {
+  id: string;
+  sessionId: string;
+  role: 'student' | 'assistant';
+  content: string;
+  messageType: 'new_question' | 'follow_up' | 'answer' | 'request_practice';
+  createdAt: string;
+}
+
+// API 回應
+interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  message: string | null;
+  code?: string;
+}
+```
+```
+
+這份文件可以直接提供給後端開發人員，包含：
+1. 完整的 API 規格
+2. 請求/回應範例
+3. 錯誤碼說明
+4. TypeScript 型別定義
+5. 前端對應表

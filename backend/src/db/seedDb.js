@@ -338,8 +338,8 @@ function seedGeneratedPracticeQuestions(db, data) {
     )
   `);
 
-  for (const question of data.generatedPracticeQuestions || []) {
-    const examId = `exam_for_${question.id}`;
+  for (const [index, question] of (data.generatedPracticeQuestions || []).entries()) {
+    const examId = `generated_exam_${String(index + 1).padStart(3, '0')}`;
     const createdAt = timestamp(question.createdAt);
 
     insertExam.run({
@@ -476,13 +476,13 @@ function seedGeneratedExamSelectedMistakes(db, data) {
     VALUES (@exam_id, @mistake_record_id)
   `);
 
-  for (const question of data.generatedPracticeQuestions || []) {
+  for (const [index, question] of (data.generatedPracticeQuestions || []).entries()) {
     if (!question.sourceMistakeId) {
       continue;
     }
 
     insert.run({
-      exam_id: `exam_for_${question.id}`,
+      exam_id: `generated_exam_${String(index + 1).padStart(3, '0')}`,
       mistake_record_id: question.sourceMistakeId
     });
   }

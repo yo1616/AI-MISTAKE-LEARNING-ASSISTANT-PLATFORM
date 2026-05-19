@@ -187,10 +187,44 @@ function getStudentChatSessions(studentId) {
   }));
 }
 
+function getStudentGeneratedExams(studentId) {
+  return withDb((db) => withStudentCheck(db, studentId, () => {
+    return db.prepare(`
+      SELECT
+        ge.id AS examId,
+        ge.student_id AS studentId,
+        'Generated Exam ' || ge.id AS title,
+        ge.question_type AS examType,
+        'mistakes' AS sourceType,
+        ge.created_at AS createdAt,
+        ge.question_count AS questionCount,
+        subj.id AS subjectId,
+        subj.name AS subjectName,
+        cls.id AS classId,
+        cls.name AS className,
+        u.id AS unitId,
+        u.name AS unitName,
+        su.id AS subUnitId,
+        su.name AS subUnitName,
+        c.id AS conceptId,
+        c.name AS conceptName
+      FROM generated_exams ge
+      LEFT JOIN subjects subj ON subj.id = ge.subject_id
+      LEFT JOIN classes cls ON cls.id = ge.class_id
+      LEFT JOIN units u ON u.id = ge.unit_id
+      LEFT JOIN sub_units su ON su.id = ge.sub_unit_id
+      LEFT JOIN concepts c ON c.id = ge.concept_id
+      WHERE ge.student_id = ?
+      ORDER BY ge.created_at DESC
+    `).all(studentId);
+  }));
+}
+
 module.exports = {
   getStudentById,
   getStudentClasses,
   getStudentMistakes,
   getStudentConceptNotes,
-  getStudentChatSessions
+  getStudentChatSessions,
+  getStudentGeneratedExams
 };

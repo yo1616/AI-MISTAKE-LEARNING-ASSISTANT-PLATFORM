@@ -5,6 +5,7 @@ const studentRoutes = require('./routes/studentRoutes');
 const chatSessionRoutes = require('./routes/chatSessionRoutes');
 const mistakeRoutes = require('./routes/mistakeRoutes');
 const conceptNoteRoutes = require('./routes/conceptNoteRoutes');
+const generatedExamRoutes = require('./routes/generatedExamRoutes');
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
 
 function createApp() {
@@ -18,6 +19,7 @@ function createApp() {
   app.use('/api/chat-sessions', chatSessionRoutes);
   app.use('/api/mistakes', mistakeRoutes);
   app.use('/api/concept-notes', conceptNoteRoutes);
+  app.use('/api/generated-exams', generatedExamRoutes);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

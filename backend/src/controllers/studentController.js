@@ -61,10 +61,23 @@ async function getStudentChatSessions(req, res, next) {
   }
 }
 
+async function getStudentGeneratedExams(req, res, next) {
+  try {
+    const result = studentService.getStudentGeneratedExams(req.params.studentId);
+    if (!result.studentExists) {
+      return failure(res, 'STUDENT_NOT_FOUND', 'Student not found', 404);
+    }
+    return success(res, result.data);
+  } catch (error) {
+    return next(error);
+  }
+}
+
 module.exports = {
   getStudentById,
   getStudentClasses,
   getStudentMistakes,
   getStudentConceptNotes,
-  getStudentChatSessions
+  getStudentChatSessions,
+  getStudentGeneratedExams
 };

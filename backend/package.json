@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "db:init": "node src/db/initDb.js"
+    "db:init": "node src/db/initDb.js",
+    "db:seed": "node src/db/seedDb.js"
   },
   "dependencies": {
     "better-sqlite3": "^11.9.1",

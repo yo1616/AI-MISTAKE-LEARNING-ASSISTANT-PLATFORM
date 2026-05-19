@@ -5,5 +5,6 @@ const router = express.Router();
 
 router.get('/:noteId', conceptNoteController.getConceptNoteById);
 router.get('/:noteId/related-mistakes', conceptNoteController.getRelatedMistakes);
+router.patch('/:noteId/star', conceptNoteController.updateConceptNoteStar);
 
 module.exports = router;

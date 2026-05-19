@@ -29,7 +29,25 @@ async function getRelatedMistakes(req, res, next) {
   }
 }
 
+async function updateConceptNoteStar(req, res, next) {
+  try {
+    if (typeof req.body.starred !== 'boolean') {
+      return failure(res, 'INVALID_STARRED_VALUE', 'starred must be a boolean', 400);
+    }
+
+    const note = conceptNoteService.updateConceptNoteStar(req.params.noteId, req.body.starred);
+    if (!note) {
+      return notFound(res);
+    }
+
+    return success(res, note);
+  } catch (error) {
+    return next(error);
+  }
+}
+
 module.exports = {
   getConceptNoteById,
-  getRelatedMistakes
+  getRelatedMistakes,
+  updateConceptNoteStar
 };

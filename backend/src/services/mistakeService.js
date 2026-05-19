@@ -128,7 +128,67 @@ function getRelatedNotes(mistakeRecordId) {
   });
 }
 
+function updateMistakeStar(mistakeRecordId, starred) {
+  return withDb((db) => {
+    if (!mistakeExists(db, mistakeRecordId)) {
+      return null;
+    }
+
+    const starredAt = starred ? new Date().toISOString() : null;
+    db.prepare(`
+      UPDATE mistake_records
+      SET
+        starred = ?,
+        starred_at = ?,
+        updated_at = ?
+      WHERE id = ?
+    `).run(starred ? 1 : 0, starredAt, new Date().toISOString(), mistakeRecordId);
+
+    const row = db.prepare(`
+      SELECT
+        mr.id AS mistakeRecordId,
+        st.id AS studentId,
+        st.name AS studentName,
+        mr.question_text AS questionText,
+        mr.student_question AS studentQuestion,
+        mr.student_answer AS studentAnswer,
+        mr.correct_answer AS correctAnswer,
+        mr.ai_summary AS aiSummary,
+        mr.full_explanation AS fullExplanation,
+        mr.input_type AS inputType,
+        mr.question_image_url AS questionImageUrl,
+        mr.starred AS starred,
+        mr.starred_at AS starredAt,
+        mr.alert_triggered AS alertTriggered,
+        mr.created_at AS createdAt,
+        subj.id AS subjectId,
+        subj.name AS subjectName,
+        cls.id AS classId,
+        cls.name AS className,
+        u.id AS unitId,
+        u.name AS unitName,
+        su.id AS subUnitId,
+        su.name AS subUnitName,
+        c.id AS conceptId,
+        c.name AS conceptName,
+        mr.source_session_id AS sourceSessionId,
+        mr.question_group_id AS questionGroupId
+      FROM mistake_records mr
+      JOIN students st ON st.id = mr.student_id
+      LEFT JOIN subjects subj ON subj.id = mr.subject_id
+      LEFT JOIN classes cls ON cls.id = mr.class_id
+      LEFT JOIN units u ON u.id = mr.unit_id
+      LEFT JOIN sub_units su ON su.id = mr.sub_unit_id
+      LEFT JOIN concepts c ON c.id = mr.concept_id
+      WHERE mr.id = ?
+    `).get(mistakeRecordId);
+
+    return mapMistakeRow(row);
+  });
+}
+
 module.exports = {
   getMistakeById,
-  getRelatedNotes
+  getRelatedNotes,
+  updateMistakeStar
 };

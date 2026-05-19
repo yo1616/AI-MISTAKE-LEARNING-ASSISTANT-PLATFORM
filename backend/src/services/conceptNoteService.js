@@ -132,7 +132,60 @@ function getRelatedMistakes(noteId) {
   });
 }
 
+function updateConceptNoteStar(noteId, starred) {
+  return withDb((db) => {
+    if (!noteExists(db, noteId)) {
+      return null;
+    }
+
+    const starredAt = starred ? new Date().toISOString() : null;
+    db.prepare(`
+      UPDATE concept_notes
+      SET
+        starred = ?,
+        starred_at = ?,
+        updated_at = ?
+      WHERE id = ?
+    `).run(starred ? 1 : 0, starredAt, new Date().toISOString(), noteId);
+
+    const row = db.prepare(`
+      SELECT
+        cn.id AS noteId,
+        st.id AS studentId,
+        st.name AS studentName,
+        cn.note_title AS noteTitle,
+        cn.note_content AS noteContent,
+        cn.starred AS starred,
+        cn.starred_at AS starredAt,
+        cn.created_at AS createdAt,
+        subj.id AS subjectId,
+        subj.name AS subjectName,
+        cls.id AS classId,
+        cls.name AS className,
+        u.id AS unitId,
+        u.name AS unitName,
+        su.id AS subUnitId,
+        su.name AS subUnitName,
+        c.id AS conceptId,
+        c.name AS conceptName,
+        cn.source_session_id AS sourceSessionId,
+        cn.question_group_id AS questionGroupId
+      FROM concept_notes cn
+      JOIN students st ON st.id = cn.student_id
+      LEFT JOIN subjects subj ON subj.id = cn.subject_id
+      LEFT JOIN classes cls ON cls.id = cn.class_id
+      LEFT JOIN units u ON u.id = cn.unit_id
+      LEFT JOIN sub_units su ON su.id = cn.sub_unit_id
+      LEFT JOIN concepts c ON c.id = cn.concept_id
+      WHERE cn.id = ?
+    `).get(noteId);
+
+    return mapNoteRow(row);
+  });
+}
+
 module.exports = {
   getConceptNoteById,
-  getRelatedMistakes
+  getRelatedMistakes,
+  updateConceptNoteStar
 };

@@ -3,6 +3,8 @@ const cors = require('cors');
 const healthRoutes = require('./routes/healthRoutes');
 const studentRoutes = require('./routes/studentRoutes');
 const chatSessionRoutes = require('./routes/chatSessionRoutes');
+const mistakeRoutes = require('./routes/mistakeRoutes');
+const conceptNoteRoutes = require('./routes/conceptNoteRoutes');
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
 
 function createApp() {
@@ -14,6 +16,8 @@ function createApp() {
   app.use('/api', healthRoutes);
   app.use('/api/students', studentRoutes);
   app.use('/api/chat-sessions', chatSessionRoutes);
+  app.use('/api/mistakes', mistakeRoutes);
+  app.use('/api/concept-notes', conceptNoteRoutes);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

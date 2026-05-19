@@ -1,3 +1,25 @@
+## 0. Backend 使用方式
+
+後端程式位於 `backend/` 目錄，預設 API base URL 為 `http://localhost:3001/api`。完整 API 文件請見 [`backend/API.md`](backend/API.md)。
+
+啟動方式：
+
+```bash
+cd backend
+npm install
+npm run db:init
+npm run db:seed
+npm start
+```
+
+如果 Windows PowerShell 擋住 `npm`，可以改用：
+
+```powershell
+npm.cmd run db:init
+npm.cmd run db:seed
+npm.cmd start
+```
+
 ## 1. 共用規則
 
 - request 是前端送給後端的格式；response 是後端回傳給前端的格式

@@ -270,6 +270,56 @@ curl http://localhost:3001/api/chat-sessions/chat_001/messages
 
 ## 7. Mistake APIs
 
+### POST `/api/mistakes`
+
+Create a mistake record from a chat/question workflow.
+
+Required body fields:
+
+- `studentId`
+- `subjectId`
+- `classId`
+- `unitId`
+- `subUnitId`
+- `conceptId`
+- `questionText`
+- `studentQuestion`
+- `correctAnswer`
+- `aiSummary`
+- `fullExplanation`
+- `inputType` (`text`, `photo`, or `photo_text`)
+
+Supported nullable body fields:
+
+- `sourceSessionId`
+- `questionGroupId`
+- `studentAnswer`
+- `questionImageUrl`
+
+Example:
+
+```bash
+curl -X POST http://localhost:3001/api/mistakes \
+  -H "Content-Type: application/json" \
+  -d "{\"studentId\":\"student_001\",\"subjectId\":\"subject_bio\",\"classId\":\"class_hs2_bio_01\",\"unitId\":\"unit_bio_02\",\"subUnitId\":\"subunit_bio_02_02\",\"conceptId\":\"concept_bio_003\",\"sourceSessionId\":\"chat_001\",\"questionGroupId\":\"qg_001\",\"questionText\":\"Explain gas exchange in alveoli.\",\"studentQuestion\":\"Why does oxygen move into blood?\",\"studentAnswer\":null,\"correctAnswer\":\"Oxygen diffuses from high concentration in alveoli to lower concentration in blood.\",\"aiSummary\":\"Diffusion direction was unclear.\",\"fullExplanation\":\"Gas exchange happens by diffusion across the alveolar membrane due to concentration gradients.\",\"inputType\":\"text\",\"questionImageUrl\":null}"
+```
+
+Success response data is the created mistake detail. The response includes both `id` and `mistakeRecordId`, and `id` equals `mistakeRecordId`. It also includes `subjectName`, `className`, `unitName`, `subUnitName`, and `conceptName`.
+
+Common create errors:
+
+- `MISSING_REQUIRED_FIELDS`
+- `INVALID_INPUT_TYPE`
+- `STUDENT_NOT_FOUND`
+- `SUBJECT_NOT_FOUND`
+- `CLASS_NOT_FOUND`
+- `UNIT_NOT_FOUND`
+- `SUB_UNIT_NOT_FOUND`
+- `CONCEPT_NOT_FOUND`
+- `CHAT_SESSION_NOT_FOUND`
+- `QUESTION_GROUP_NOT_FOUND`
+- `QUESTION_GROUP_SESSION_MISMATCH`
+
 ### GET `/api/mistakes/:mistakeRecordId`
 
 用途：取得單一錯題詳細資料。
@@ -362,6 +412,49 @@ curl -X PATCH http://localhost:3001/api/mistakes/mistake_record_002/star \
 成功後回傳該錯題最新 detail。
 
 ## 8. Concept Note APIs
+
+### POST `/api/concept-notes`
+
+Create a concept note from a chat/question workflow.
+
+Required body fields:
+
+- `studentId`
+- `subjectId`
+- `classId`
+- `unitId`
+- `subUnitId`
+- `conceptId`
+- `noteTitle`
+- `noteContent`
+
+Supported nullable body fields:
+
+- `sourceSessionId`
+- `questionGroupId`
+
+Example:
+
+```bash
+curl -X POST http://localhost:3001/api/concept-notes \
+  -H "Content-Type: application/json" \
+  -d "{\"studentId\":\"student_001\",\"subjectId\":\"subject_bio\",\"classId\":\"class_hs2_bio_01\",\"unitId\":\"unit_bio_02\",\"subUnitId\":\"subunit_bio_02_02\",\"conceptId\":\"concept_bio_003\",\"sourceSessionId\":\"chat_001\",\"questionGroupId\":\"qg_001\",\"noteTitle\":\"Gas exchange diffusion\",\"noteContent\":\"Oxygen and carbon dioxide move across alveoli by diffusion along concentration gradients.\"}"
+```
+
+Success response data is the created concept note detail. The response includes both `id` and `noteId`, and `id` equals `noteId`. It also includes `subjectName`, `className`, `unitName`, `subUnitName`, and `conceptName`.
+
+Common create errors:
+
+- `MISSING_REQUIRED_FIELDS`
+- `STUDENT_NOT_FOUND`
+- `SUBJECT_NOT_FOUND`
+- `CLASS_NOT_FOUND`
+- `UNIT_NOT_FOUND`
+- `SUB_UNIT_NOT_FOUND`
+- `CONCEPT_NOT_FOUND`
+- `CHAT_SESSION_NOT_FOUND`
+- `QUESTION_GROUP_NOT_FOUND`
+- `QUESTION_GROUP_SESSION_MISMATCH`
 
 ### GET `/api/concept-notes/:noteId`
 
@@ -627,6 +720,7 @@ Common write errors:
 - `CLASS_NOT_FOUND`
 - `UNIT_NOT_FOUND`
 - `SUB_UNIT_NOT_FOUND`
+- `CONCEPT_NOT_FOUND`
 - `QUESTION_GROUP_NOT_FOUND`
 - `QUESTION_GROUP_SESSION_MISMATCH`
 - `CHAT_SESSION_NOT_FOUND`

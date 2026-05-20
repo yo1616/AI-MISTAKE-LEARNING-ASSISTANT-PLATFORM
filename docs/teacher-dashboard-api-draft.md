@@ -14,7 +14,7 @@
 | 前端頁面          | 首次載入建議呼叫                                        | 備註                                |
 | ------------- | ----------------------------------------------- | --------------------------------- |
 | 共用：班級／期間篩選    | `GET /api/teacher/classes`                      | 下拉選單；進入老師端時可先打一次。                 |
-| **Dashboard** | `GET /api/dashboard/overview`                   | 四 KPI、錯題趨勢、最常錯 Top5、無錯題學生表、頂部提示列。 |
+| **Dashboard** | `GET /api/dashboard/overview`                   | 三 KPI、錯題趨勢、最常錯 Top5、無錯題學生表、頂部提示列。 |
 | **學生列表**      | `GET /api/dashboard/students`                   | 表格 + 搜尋 + 排序；點列進詳情。               |
 | **學生詳情**      | `GET /api/dashboard/students/:studentId/detail` | 四 KPI、建議列、兩圖、標籤、錯題列表；**一支聚合**。    |
 | **知識點管理**     | `GET /api/dashboard/concepts-risk`              | 四 KPI、Top5 圖、教學建議、風險表。            |
@@ -44,6 +44,18 @@ dashboard/concepts-risk  → 知識點管理頁
 | `range`      | 是            | `7d` | `30d` | `custom`（UI「近 7 天／近 30 天」）。              |
 | `from`, `to` | `custom` 時必填 | 建議切日時區固定 `+08:00`，文件寫死避免趨勢圖錯日。                          |
 
+### Quiz 答對率計算（生成考卷作答）
+
+統計期間內、範圍內學生的生成考作答（`exam_submissions` + `exam_answers`，以 `submitted_at` 落在 `[from, to]` 為準）：
+
+| 層級 | 公式 | API 欄位 |
+|------|------|----------|
+| **全班（Dashboard）** | **正確總題數 ÷ 總答題數** | `generatedExamAccuracy.accuracyRate` |
+| **單一學生** | 同上，僅該生作答 | `generatedExamAccuracyRate` 或 `generatedExamAccuracy.accuracyRate` |
+
+- `correctCount`：期間內 `exam_answers.is_correct = 1` 的筆數（正確總題數）。
+- `totalAnswered`：期間內有計入的作答題數（總答題數）。
+- `accuracyRate` = `correctCount / totalAnswered`（0～1）；`totalAnswered === 0` 時全班可回 `accuracyRate: null` 或 `0`（實作前與前端約定）；單一學生列表建議回 `null`。
 
 **學生列表**另加：
 
@@ -96,8 +108,7 @@ dashboard/concepts-risk  → 知識點管理頁
 | 頂部提示「本期間有 N 位學生無錯題紀錄」 | `studentsWithNoMistakes.count`（或 `alertBanner.message` mock 組字） |
 | 期間新增錯題                | `newMistakeCount`                                               |
 | 活躍學生數（期間新增錯題 > 0）     | `activeStudentCount`                                            |
-| 平均 Quiz 答對率           | `generatedExamAccuracy.accuracyRate`（0～1，前端 ×100 顯示 %）          |
-| 平均不熟悉知識點數             | `avgWeakConceptsPerStudent`                                     |
+| 平均 Quiz 答對率           | `generatedExamAccuracy`：`accuracyRate` = 正確總題數 ÷ 總答題數（見 §1） |
 | 錯題趨勢（長條圖）             | `mistakeTrend[]`：`{ date, count }`                              |
 | 最常錯知識點 Top 5（橫條圖）     | `topConceptsByMistakeCount[]`：依**錯題筆數**排序                       |
 | 期間內無錯題紀錄之學生（表格）       | `studentsWithNoMistakes.students[]`                             |
@@ -123,7 +134,6 @@ dashboard/concepts-risk  → 知識點管理頁
     "enrolledStudentCount": 32,
     "newMistakeCount": 23,
     "activeStudentCount": 6,
-    "avgWeakConceptsPerStudent": 2.1,
     "generatedExamAccuracy": {
       "correctCount": 160,
       "totalAnswered": 192,
@@ -174,7 +184,7 @@ dashboard/concepts-risk  → 知識點管理頁
 | --------------------------- | -------------------------------------------------------------------- |
 | `newMistakeCount`           | 期間內 `mistake_records` 新增筆數（範圍內學生＋班級／科目篩選）。                           |
 | `activeStudentCount`        | 期間內至少 1 筆新錯題的 distinct 學生數。                                          |
-| `avgWeakConceptsPerStudent` | 每位在冊學生期間內 distinct `conceptId` 數（無錯題算 0）之和 ÷ `enrolledStudentCount`。 |
+| `generatedExamAccuracy`     | 全班期間生成考：`correctCount`（正確總題數）、`totalAnswered`（總答題數）、`accuracyRate` = `correctCount / totalAnswered`。 |
 | `topConceptsByMistakeCount` | 全班錯題筆數加總 per concept，取 Top `limit`。                                  |
 | `studentsWithNoMistakes`    | 在冊且 `mistakeCount === 0`；表格「詳情」導向 §5 `detail`。                       |
 
@@ -251,7 +261,7 @@ dashboard/concepts-risk  → 知識點管理頁
 | --------------------------- | ----------------------------------- |
 | `weakConceptCount`          | 該生期間錯題中 distinct `conceptId`（重複不算）。 |
 | `activeDays`                | 期間內有新增錯題的 distinct 日曆天數。            |
-| `generatedExamAccuracyRate` | 該生期間生成考作答正確率；無作答回 `null`。           |
+| `generatedExamAccuracyRate` | 該生期間：**正確總題數 ÷ 總答題數**（與 §1 相同，僅範圍為單生）；無作答回 `null`。 |
 
 
 ---
@@ -477,7 +487,6 @@ dashboard/concepts-risk  → 知識點管理頁
 ## 9. 併入正式文件前檢查清單
 
 - 「全部學生」：`scope=allClasses` 或省略 `classId` 定案。  
-- `avgWeakConceptsPerStudent` 分母是否永遠為在冊學生數。  
 - `activeDays` 與 UI「本月活躍天數」文案是否改為跟隨 `range`。  
 - 切日時區、`from`/`to` 是否含當日結束。  
 - 風險比例閾值是否抽成設定。  

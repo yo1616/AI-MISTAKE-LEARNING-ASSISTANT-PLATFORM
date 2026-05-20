@@ -165,6 +165,14 @@ export async function showStudentDetail(studentId) {
   const student = getStudentProfile(studentId);
   if (!student) return showError("找不到這位學生的資料。");
 
+  const quizCorrectCount = student.quizCorrectCount ?? 0;
+  const quizTotalCount = student.quizTotalCount ?? 0;
+
+  const quizAccuracy =
+    quizTotalCount === 0
+      ? 0
+      : Math.round((quizCorrectCount / quizTotalCount) * 100);
+
   const conceptsRes = await apiGetStudentConcepts({
     studentId,
     classId: appState.currentClassId,
@@ -225,7 +233,14 @@ export async function showStudentDetail(studentId) {
       </div>
       <div class="mc">
         <div class="mc-l">Quiz答對率</div>
-        <div class="mc-v">${student.quizAccuracy}%</div>
+        <div class="mc-v">${quizAccuracy}%</div>
+        <div class="mc-d">
+          ${
+            quizCorrectCount !== null && quizTotalCount !== null
+              ? `${quizCorrectCount} / ${quizTotalCount} 題`
+              : "依學生答對率資料"
+          }
+        </div>
       </div>
     </div>
 

@@ -10,86 +10,113 @@ import {
 import { logoutTeacher } from "./login.js";
 import { showDashboard } from "./dashboard.js";
 
+function renderTeachingClassList() {
+  const classes = appState.classes.filter((classItem) => {
+    return classItem.id !== "all";
+  });
+
+  if (classes.length === 0) {
+    return `
+      <div class="empty-text">
+        目前沒有可查看的班級
+      </div>
+    `;
+  }
+
+  return classes
+    .map((classItem) => {
+      return `
+        <div class="class-chip">
+          ${classItem.name}
+        </div>
+      `;
+    })
+    .join("");
+}
+
 export function showSettingsPage() {
   setActiveMenu("settings");
 
-  getMain().innerHTML = `
+  const main = getMain();
+
+  const teacherName = appState.teacherName || "未登入";
+  const teacherEmail = appState.teacherEmail || "-";
+  const teacherId = appState.currentTeacherId || "-";
+  const currentClassName =
+    appState.currentClassName ||
+    getClassNameById(appState.currentClassId) ||
+    "尚未選擇";
+
+  main.innerHTML = `
     <div class="pg-title">個人設定</div>
-    <div class="pg-sub">老師帳號、預設班級與顯示期間設定</div>
+    <div class="pg-sub">
+      查看目前登入老師資訊、負責班級與系統狀態
+    </div>
 
     <div class="settings-grid">
       <div class="card">
-        <div class="card-t">帳號資訊</div>
+        <div class="card-t">老師個人資訊</div>
 
-        <label class="form-label">老師名稱</label>
-        <input class="form-input" id="teacherNameInput" value="${appState.teacherName}" />
+        <div class="profile-box">
+          <div class="profile-avatar">
+            ${teacherName[0] || "老"}
+          </div>
 
-        <label class="form-label">Email</label>
-        <input class="form-input" id="teacherEmailInput" value="${appState.teacherEmail}" />
+          <div>
+            <div class="profile-name">${teacherName}</div>
+            <div class="profile-email">${teacherEmail}</div>
+          </div>
+        </div>
 
-        <button class="add-btn" id="saveProfileBtn">儲存設定</button>
+        <div class="settings-row">
+          <span>老師編號</span>
+          <strong>${teacherId}</strong>
+        </div>
+
+        <div class="settings-row">
+          <span>授課科目</span>
+          <strong>生物</strong>
+        </div>
       </div>
 
       <div class="card">
-        <div class="card-t">預設查看範圍</div>
-
-        <label class="form-label">目前班級</label>
-        <select class="form-input" id="settingsClassSelect">${getClassOptions()}</select>
-
-        <label class="form-label">目前時間範圍</label>
-        <select class="form-input" id="settingsRangeSelect">${getRangeOptions()}</select>
-
-        <div class="settings-date-row" id="settingsDateRow">
-          <input class="form-input" type="date" id="settingsFromDate" value="${appState.currentFrom}" />
-          <input class="form-input" type="date" id="settingsToDate" value="${appState.currentTo}" />
+        <div class="card-t">負責班級</div>
+        <div class="class-chip-list">
+          ${renderTeachingClassList()}
         </div>
-
-        <button class="add-btn" id="applyDefaultBtn">套用到系統</button>
       </div>
 
       <div class="card">
         <div class="card-t">系統狀態</div>
 
-        <div class="settings-row"><span>目前科目</span><strong>生物</strong></div>
-        <div class="settings-row"><span>目前班級</span><strong>${getClassNameById(appState.currentClassId)}</strong></div>
-        <div class="settings-row"><span>目前期間</span><strong>${getRangeLabel()}</strong></div>
+        <div class="settings-row">
+          <span>目前科目</span>
+          <strong>生物</strong>
+        </div>
 
-        <button class="btn-xs danger" id="logoutBtn">登出並重新選班</button>
+        <div class="settings-row">
+          <span>目前查看範圍</span>
+          <strong>${currentClassName}</strong>
+        </div>
+
+        <div class="settings-row">
+          <span>目前期間</span>
+          <strong>${getRangeLabel()}</strong>
+        </div>
+
+        <div class="settings-row">
+          <span>登入狀態</span>
+          <strong>已登入</strong>
+        </div>
+
+        <button class="btn-xs danger" id="logoutBtn">
+          登出
+        </button>
       </div>
     </div>
-
-    <div class="notice" id="settingsMessage" style="display:none"></div>
   `;
 
-  const dateRow = document.getElementById("settingsDateRow");
-  const settingsRangeSelect = document.getElementById("settingsRangeSelect");
-
-  const syncDateRow = () => {
-    dateRow.style.display = settingsRangeSelect.value === "custom" ? "grid" : "none";
-  };
-
-  syncDateRow();
-
-  settingsRangeSelect.addEventListener("change", syncDateRow);
-
-  document.getElementById("saveProfileBtn").addEventListener("click", () => {
-    appState.teacherName = document.getElementById("teacherNameInput").value.trim() || "老師";
-    appState.teacherEmail = document.getElementById("teacherEmailInput").value.trim() || "teacher@example.com";
-
-    const msg = document.getElementById("settingsMessage");
-    msg.style.display = "block";
-    msg.textContent = "已儲存老師帳號設定。";
+  document.getElementById("logoutBtn").addEventListener("click", () => {
+    logoutTeacher();
   });
-
-  document.getElementById("applyDefaultBtn").addEventListener("click", () => {
-    appState.currentClassId = document.getElementById("settingsClassSelect").value;
-    appState.currentClassName = appState.classes.find((item) => item.id === appState.currentClassId)?.name || "";
-    appState.currentRange = settingsRangeSelect.value;
-    appState.currentFrom = document.getElementById("settingsFromDate").value;
-    appState.currentTo = document.getElementById("settingsToDate").value;
-
-    showDashboard();
-  });
-
-  document.getElementById("logoutBtn").addEventListener("click", logoutTeacher);
 }

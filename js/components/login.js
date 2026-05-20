@@ -5,12 +5,16 @@ import { showDashboard } from "./dashboard.js";
 
 export function hideSidebar() {
   const sidebar = document.querySelector(".sidebar");
-  if (sidebar) sidebar.style.display = "none";
+  if (sidebar) {
+    sidebar.style.display = "none";
+  }
 }
 
 export function showSidebar() {
   const sidebar = document.querySelector(".sidebar");
-  if (sidebar) sidebar.style.display = "flex";
+  if (sidebar) {
+    sidebar.style.display = "flex";
+  }
 }
 
 export function showLoginPage() {
@@ -29,7 +33,7 @@ export function showLoginPage() {
             id="teacherEmail"
             class="login-input"
             placeholder="請輸入 Email"
-            value="teacher@example.com"
+            value="teacher1@example.com"
           />
         </div>
 
@@ -40,7 +44,7 @@ export function showLoginPage() {
             id="teacherPassword"
             class="login-input"
             placeholder="請輸入密碼"
-            value="123456"
+            value="12345678"
           />
         </div>
 
@@ -49,8 +53,8 @@ export function showLoginPage() {
         <button class="login-btn" id="loginBtn">登入</button>
 
         <div class="login-hint">
-          測試帳號：teacher@example.com<br />
-          測試密碼：123456
+          測試帳號一：teacher1@example.com / 12345678<br />
+          測試帳號二：teacher2@example.com / abcdefgh
         </div>
       </div>
     </div>
@@ -58,17 +62,26 @@ export function showLoginPage() {
 
   hideSidebar();
 
-  document.getElementById("loginBtn").addEventListener("click", handleTeacherLogin);
+  document
+    .getElementById("loginBtn")
+    .addEventListener("click", handleTeacherLogin);
 
-  document.getElementById("teacherPassword").addEventListener("keydown", (event) => {
-    if (event.key === "Enter") handleTeacherLogin();
-  });
+  document
+    .getElementById("teacherPassword")
+    .addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        handleTeacherLogin();
+      }
+    });
 }
 
 async function handleTeacherLogin() {
-  const email = document.getElementById("teacherEmail").value.trim();
-  const password = document.getElementById("teacherPassword").value.trim();
+  const emailInput = document.getElementById("teacherEmail");
+  const passwordInput = document.getElementById("teacherPassword");
   const errorBox = document.getElementById("loginError");
+
+  const email = emailInput.value.trim();
+  const password = passwordInput.value.trim();
 
   if (!email || !password) {
     errorBox.textContent = "請輸入帳號與密碼";
@@ -83,9 +96,11 @@ async function handleTeacherLogin() {
   }
 
   appState.currentTeacher = res.data;
+  appState.currentTeacherId = res.data.teacherId;
   appState.isLoggedIn = true;
   appState.teacherName = res.data.name;
   appState.teacherEmail = res.data.email;
+  appState.allowedClassIds = res.data.classIds || [];
 
   showClassSelectPage();
 }
@@ -95,7 +110,11 @@ export async function showClassSelectPage() {
   const res = await apiGetTeacherClasses();
 
   if (!res.success) {
-    main.innerHTML = `<div class="notice">${res.error.message}</div>`;
+    main.innerHTML = `
+      <div class="notice">
+        無法載入班級資料：${res.error.message}
+      </div>
+    `;
     return;
   }
 
@@ -111,16 +130,18 @@ export async function showClassSelectPage() {
 
         <div class="class-list">
           ${res.data
-            .map((cls) => `
-              <button
-                class="class-option"
-                data-class-id="${cls.id}"
-                data-class-name="${cls.name}"
-              >
-                <div class="class-name">${cls.name}</div>
-                <div class="class-desc">查看學生列表、統計與分析</div>
-              </button>
-            `)
+            .map(
+              (cls) => `
+                <button
+                  class="class-option"
+                  data-class-id="${cls.id}"
+                  data-class-name="${cls.name}"
+                >
+                  <div class="class-name">${cls.name}</div>
+                  <div class="class-desc">查看學生列表、統計與分析</div>
+                </button>
+              `
+            )
             .join("")}
         </div>
 
@@ -137,7 +158,9 @@ export async function showClassSelectPage() {
     });
   });
 
-  document.getElementById("logoutBtn").addEventListener("click", logoutTeacher);
+  document
+    .getElementById("logoutBtn")
+    .addEventListener("click", logoutTeacher);
 }
 
 function enterClass(classId, className) {
@@ -151,9 +174,15 @@ function enterClass(classId, className) {
 
 export function logoutTeacher() {
   appState.currentTeacher = null;
+  appState.currentTeacherId = "";
   appState.isLoggedIn = false;
   appState.currentClassId = "";
   appState.currentClassName = "";
+  appState.allowedClassIds = [];
+  appState.classes = [];
+  appState.dashboardStudents = [];
+  appState.teacherName = "老師";
+  appState.teacherEmail = "";
 
   hideSidebar();
   showLoginPage();

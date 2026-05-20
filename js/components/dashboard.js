@@ -124,7 +124,7 @@ export async function showDashboard() {
       <div class="mc">
         <div class="mc-l">平均 Quiz 答對率</div>
         <div class="mc-v">${averageQuizAccuracy}%</div>
-        <div class="mc-d">班級整體測驗表現</div>
+        <div class="mc-d">總答對題數 / 總作答題數</div>
       </div>
       <div class="mc">
         <div class="mc-l">平均不熟悉知識點數</div>

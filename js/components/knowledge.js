@@ -68,7 +68,7 @@ export async function showKnowledgePage() {
 
     ${renderApiToolbar()}
 
-    <div class="m4">
+    <div class="m3">
       <div class="mc">
         <div class="mc-l">期間總錯題數</div>
         <div class="mc-v">${overview.totalMistakeCount}</div>
@@ -90,16 +90,6 @@ export async function showKnowledgePage() {
           ${overview.mostImpactedConcept ? `影響 ${overview.mostImpactedConcept.affectedStudentCount} 位學生` : "目前沒有錯題資料"}
         </div>
       </div>
-
-      <div class="mc">
-        <div class="mc-l">最常錯知識點</div>
-        <div class="mc-v" style="font-size:16px">
-          ${overview.topWeakConcepts[0]?.conceptName || "暫無資料"}
-        </div>
-        <div class="mc-d">
-          ${overview.topWeakConcepts[0] ? `${overview.topWeakConcepts[0].mistakeCount} 題錯題` : "目前沒有錯題資料"}
-        </div>
-      </div>
     </div>
 
     <div class="two">
@@ -116,7 +106,7 @@ export async function showKnowledgePage() {
       </div>
     </div>
 
-    <div style="font-size:11px;font-weight:600;color:#111;margin-bottom:8px">
+    <div style="font-size:14px;font-weight:600;color:#111;margin-bottom:8px">
       知識點風險列表
     </div>
 
@@ -134,12 +124,7 @@ export async function showKnowledgePage() {
         ${renderKnowledgeRiskRows(overview.conceptRiskList)}
       </div>
     </div>
-
-    <div style="font-size:11px;font-weight:600;color:#111;margin:16px 0 8px">
-      知識點資料管理
-    </div>
-
-    <div class="tbl" id="knowledgeList"></div>
+    
   `;
 
   bindClassAndRangeControls(showKnowledgePage);

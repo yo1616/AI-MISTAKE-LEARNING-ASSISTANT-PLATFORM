@@ -20,7 +20,8 @@ export const mockStudents = [
     joinedAt: "2026/02/01",
     correctionRate: 72,
     activeDays: 18,
-    quizAccuracy: 84,
+    quizCorrectCount: 42,
+    quizTotalCount: 50,
     subjects: [
       { ...SUBJECT_BIO, classId: "class_jh1_bio_01", className: "國一生物1班" }
     ],
@@ -40,7 +41,8 @@ export const mockStudents = [
     joinedAt: "2026/02/03",
     correctionRate: 65,
     activeDays: 14,
-    quizAccuracy: 76,
+    quizCorrectCount: 28,
+    quizTotalCount: 50,
     subjects: [
       { ...SUBJECT_BIO, classId: "class_jh1_bio_01", className: "國一生物1班" }
     ],
@@ -57,7 +59,8 @@ export const mockStudents = [
     joinedAt: "2026/02/10",
     correctionRate: 83,
     activeDays: 10,
-    quizAccuracy: 91,
+    quizCorrectCount: 42,
+    quizTotalCount: 60,
     subjects: [
       { ...SUBJECT_BIO, classId: "class_jh1_bio_01", className: "國一生物1班" }
     ],
@@ -70,7 +73,8 @@ export const mockStudents = [
     joinedAt: "2026/02/05",
     correctionRate: 76,
     activeDays: 16,
-    quizAccuracy: 82,
+    quizCorrectCount: 50,
+    quizTotalCount: 77,
     subjects: [
       { ...SUBJECT_BIO, classId: "class_jh1_bio_02", className: "國一生物2班" }
     ],
@@ -88,7 +92,8 @@ export const mockStudents = [
     joinedAt: "2026/02/09",
     correctionRate: 58,
     activeDays: 9,
-    quizAccuracy: 68,
+    quizCorrectCount: 50,
+    quizTotalCount: 53,
     subjects: [
       { ...SUBJECT_BIO, classId: "class_jh1_bio_02", className: "國一生物2班" }
     ],
@@ -104,7 +109,8 @@ export const mockStudents = [
     joinedAt: "2026/02/12",
     correctionRate: 88,
     activeDays: 11,
-    quizAccuracy: 94,
+    quizCorrectCount: 48,
+    quizTotalCount: 50,
     subjects: [
       { ...SUBJECT_BIO, classId: "class_jh1_bio_02", className: "國一生物2班" }
     ],
@@ -117,7 +123,8 @@ export const mockStudents = [
     joinedAt: "2026/01/20",
     correctionRate: 69,
     activeDays: 19,
-    quizAccuracy: 79,
+    quizCorrectCount: 88,
+    quizTotalCount: 100,
     subjects: [
       { ...SUBJECT_BIO, classId: "class_jh3_bio_review_01", className: "國三複習生物班" }
     ],
@@ -136,7 +143,8 @@ export const mockStudents = [
     joinedAt: "2026/01/22",
     correctionRate: 74,
     activeDays: 17,
-    quizAccuracy: 86,
+    quizCorrectCount: 45,
+    quizTotalCount: 55,
     subjects: [
       { ...SUBJECT_BIO, classId: "class_jh3_bio_review_01", className: "國三複習生物班" }
     ],
@@ -153,7 +161,8 @@ export const mockStudents = [
     joinedAt: "2026/01/25",
     correctionRate: 81,
     activeDays: 13,
-    quizAccuracy: 90,
+    quizCorrectCount: 25,
+    quizTotalCount: 30,
     subjects: [
       { ...SUBJECT_BIO, classId: "class_jh3_bio_review_01", className: "國三複習生物班" }
     ],
@@ -164,15 +173,22 @@ export const mockStudents = [
 export const mockTeachers = [
   {
     id: "teacher_001",
-    name: "林老師",
-    email: "teacher@example.com",
-    password: "123456"
+    name: "陳老師",
+    email: "teacher1@example.com",
+    password: "12345678",
+    classIds: [
+      "class_jh1_bio_01",
+      "class_jh1_bio_02"
+    ]
   },
   {
     id: "teacher_002",
-    name: "王老師",
-    email: "wang@example.com",
-    password: "123456"
+    name: "林老師",
+    email: "teacher2@example.com",
+    password: "abcdefgh",
+    classIds: [
+      "class_jh3_bio_review_01"
+    ]
   }
 ];
 

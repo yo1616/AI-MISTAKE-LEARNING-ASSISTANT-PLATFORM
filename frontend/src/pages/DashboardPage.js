@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
 import { getStudentName } from '../data/userData';
-import { getStudentAnalyticsSummary, getStudentMistakes } from '../data/mockApi';
+import { getStudentAnalyticsSummary, getStudentMistakes, getUnits, getConcepts } from '../data/mockApi';
 import '../style/DashboardPage.css';
 
 function DashboardPage() {
@@ -31,71 +31,101 @@ const [weakTopics, setWeakTopics] = useState([]);
     loadData();
   }, []);
 
- const loadData = async () => {
-  const result = await getStudentMistakes();
-  if (result.success) {
-    const mistakesData = result.data;
+const loadData = async () => {
+  const [mistakesResult, unitsResult, conceptsResult] = await Promise.all([
+    getStudentMistakes(),
+    getUnits(),
+    getConcepts()
+  ]);
+  
+  if (mistakesResult.success && unitsResult.success && conceptsResult.success) {
+    const mistakesData = mistakesResult.data;  // 只宣告一次
+    const units = unitsResult.data;
+    const concepts = conceptsResult.data;
+    
+    // 建立 unitId 到 unitName 的映射
+    const unitNameMap = new Map();
+    units.forEach(unit => {
+      unitNameMap.set(unit.id, unit.name);
+    });
+    
+    // 建立 conceptId 到 conceptName 的映射
+    const conceptNameMap = new Map();
+    concepts.forEach(concept => {
+      conceptNameMap.set(concept.id, concept.name);
+    });
     
     // 1. 錯誤分佈：依 unitId 分組（章節）
     const unitMap = new Map();
     mistakesData.forEach(m => {
-      const unitName = m.unitId || '未分類';
-      unitMap.set(unitName, (unitMap.get(unitName) || 0) + 1);
+      const unitId = m.unitId || '未分類';
+      unitMap.set(unitId, (unitMap.get(unitId) || 0) + 1);
     });
     
     const total = mistakesData.length;
     setTotalMistakes(total);
     
-    const unitDist = Array.from(unitMap.entries()).map(([name, count]) => ({
-      name: name,
+    const unitDist = Array.from(unitMap.entries()).map(([unitId, count], idx) => ({
+      name: unitNameMap.get(unitId) || unitId,
+      unitId: unitId,
       count: count,
       percentage: total > 0 ? Math.round((count / total) * 100) : 0,
-      color: getUnitColor(name)
+      color: getUnitColor(unitId, idx)
     }));
     setUnitDistribution(unitDist);
     
-    // 2. 常錯知識點：依 conceptId 分組（標籤）
+    // 2. 常錯知識點：依 conceptId 分組
     const conceptMap = new Map();
     mistakesData.forEach(m => {
-      const conceptName = m.conceptId || '未分類';
-      conceptMap.set(conceptName, (conceptMap.get(conceptName) || 0) + 1);
+      const conceptId = m.conceptId || '未分類';
+      conceptMap.set(conceptId, (conceptMap.get(conceptId) || 0) + 1);
     });
     
     const conceptDist = Array.from(conceptMap.entries())
-      .map(([name, count]) => ({
-        name: name,
+      .map(([conceptId, count]) => ({
+        name: conceptNameMap.get(conceptId) || conceptId,
+        conceptId: conceptId,
         count: count,
         percentage: total > 0 ? Math.round((count / total) * 100) : 0
       }))
       .sort((a, b) => b.count - a.count)
-      .slice(0, 5);  // 取前5名
+      .slice(0, 5);
     
     setWeakTopics(conceptDist);
   }
 };
 
-  const getUnitColor = (name) => {
-    const colors = ['#95A4FC', '#BAEDBD', '#B1E3FF', '#A8C5DA', '#E3F5FF', '#FFD966'];
-    const hash = name.length % colors.length;
-    return colors[hash];
-  };
+  const getUnitColor = (name, index) => {
+  const colors = ['#95A4FC', '#BAEDBD', '#B1E3FF', '#A8C5DA', '#E3F5FF', '#FFD966'];
+  // 使用 index 而不是 name.length
+  return colors[index % colors.length];
+};
 
   const handleDateRangeChange = () => {
-    console.log(`日期範圍: ${startDate} 到 ${endDate}`);
-    loadData();
-  };
-
+  if (!validateDateRange(startDate, endDate)) {
+    alert('起始日期不能晚於結束日期，請重新選擇');
+    return;
+  }
+  console.log(`日期範圍: ${startDate} 到 ${endDate}`);
+  loadData();  // 改為 loadData，因為 loadData 已經會根據日期過濾資料
+};
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
   };
 
-  
+  // 驗證日期範圍（結束日期不能早於起始日期）
+const validateDateRange = (start, end) => {
+  if (!start || !end) return true;
+  return new Date(start) <= new Date(end);
+};
+
+  const maxCount = weakTopics.length > 0 ? Math.max(...weakTopics.map(t => t.count)) : 1;
   
   return (
     <div className="dashboard-page">
       <div className="dashboard-container">
-        <PageHeader title="Dashboard" />
+        <PageHeader title="分析表" />
         
         {/* 歡迎語 */}
         <div className="welcome-section">
@@ -185,14 +215,15 @@ const [weakTopics, setWeakTopics] = useState([]);
             </div>
             
             {/* 右側：錯誤標籤列表 */}
+            {/* 右側：錯誤標籤列表 */}
             <div className="error-tags-list">
-              {unitDistribution.map((unit, index) => (
+            {unitDistribution.map((unit, index) => (
                 <div key={index} className="error-tag-item">
-                    <div className="error-tag-dot" style={{ backgroundColor: unit.color }}></div>
-                    <span className="error-tag-name">{unit.name}</span>
-                    <span className="error-tag-count">{unit.count}次</span>
+                <div className="error-tag-dot" style={{ backgroundColor: unit.color }}></div>
+                <span className="error-tag-name">{unit.name}</span>
+                <span className="error-tag-count">{unit.percentage}%</span>
                 </div>
-                ))}
+            ))}
             </div>
           </div>
         </div>
@@ -213,18 +244,24 @@ const [weakTopics, setWeakTopics] = useState([]);
           </div>
           
           <div className="progress-bars">
-             {weakTopics.map((topic, index) => (
-              <div key={index} className="progress-bar-container">
-                <div className="progress-bar-fill" style={{ width: `${topic.percentage}%` }}></div>
-              </div>
-            ))}
-          </div>
+            {weakTopics.map((topic, index) => {
+            const percentage = (topic.count / maxCount) * 100;
+            return (
+                <div key={index} className="progress-bar-container">
+                <div 
+                    className="progress-bar-fill" 
+                    style={{ width: `${percentage}%` }}
+                ></div>
+                </div>
+            );
+            })}
+        </div>
           
           <div className="topic-counts">
              {weakTopics.map((topic, index) => (
               <div key={index} className="topic-count-item">
                 <span className="topic-count-number">{topic.count}</span>
-                <span className="topic-count-total">/{totalMistakes}</span>
+                <span className="topic-count-total"></span>
               </div>
             ))}
           </div>
@@ -244,7 +281,14 @@ const [weakTopics, setWeakTopics] = useState([]);
               type="date"
               className="date-input"
               value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
+              onChange={(e) => {
+                const newStartDate = e.target.value;
+                // 如果新的起始日期大於結束日期，自動調整結束日期
+                if (endDate && new Date(newStartDate) > new Date(endDate)) {
+                setEndDate(newStartDate);
+                }
+                setStartDate(newStartDate);
+            }}
             />
             <button className="date-confirm-btn" onClick={() => setShowStartPicker(false)}>確認</button>
           </div>
@@ -264,7 +308,15 @@ const [weakTopics, setWeakTopics] = useState([]);
               type="date"
               className="date-input"
               value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
+              onChange={(e) => {
+                const newEndDate = e.target.value;
+                // 如果新的結束日期小於起始日期，顯示警告或不允許
+                if (startDate && new Date(newEndDate) < new Date(startDate)) {
+                alert('結束日期不能早於起始日期');
+                return;
+                }
+                setEndDate(newEndDate);
+            }}
             />
             <button className="date-confirm-btn" onClick={() => setShowEndPicker(false)}>確認</button>
           </div>

@@ -31,16 +31,15 @@ function QuestionCard({ question, onAnswerSelect, onStarToggle }) {
       className={`question-card ${expanded ? 'expanded' : ''}`}
       onClick={handleCardClick}
     >
+      <div className="card-star">
+        <StarButton 
+          starred={question.starred || false} 
+          onToggle={(state) => onStarToggle(question.id, state)}
+        />
+      </div>
+
       <div className="question-content">
-        <div className="question-header">
-          <div className="question-title">{question.questionText || question.title}</div>
-          <div className="card-star">
-            <StarButton 
-              starred={question.starred || false} 
-              onToggle={(state) => onStarToggle(question.id, state)}
-            />
-          </div>
-        </div>
+        <div className="question-title">{question.questionText || question.title}</div>
         
         <div className="question-tags">
           <span className="tag">#{question.conceptId || '未分類'}</span>

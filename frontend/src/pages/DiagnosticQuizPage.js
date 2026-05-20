@@ -5,13 +5,14 @@ import Dropdown from '../components/DropDown';
 import StarButton from '../components/StarButton';
 import { generateQuestions } from '../data/mockApi';
 import { toggleMistakeStar } from '../data/mockApi';
+import { updateOrCreateMistake, updateConceptMistakeCount } from '../data/mockApi';
 import { useFavorites } from '../data/FavoritesContext';
 import '../style/DiagnosticQuizPage.css';
 
 const subjectOptions = ['生物'];
 const chapterOptions = ['單元一', '單元二', '單元三'];
 const questionCountOptions = ['5', '10', '15', '20'];
-const difficultyOptions = ['簡單', '中等', '困難', '隨機'];
+const difficultyOptions = ['簡單', '中等', '困難', '混合'];
 
 function DiagnosticQuizPage() {
   const navigate = useNavigate();
@@ -20,6 +21,11 @@ function DiagnosticQuizPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [currentQuestions, setCurrentQuestions] = useState([]);
+  // 在 state 區域新增
+const [showAddToMistake, setShowAddToMistake] = useState(false);
+const [showFeedback, setShowFeedback] = useState(false);  // 是否顯示答案反饋
+const [isAnswered, setIsAnswered] = useState(false);      // 是否已作答
+
   const [settings, setSettings] = useState({
     subject: '生物',
     rangeStart: '單元一',
@@ -86,21 +92,62 @@ const formatTime = (seconds) => {
     return { correct, total: currentQuestions.length, percentage: Math.round((correct / currentQuestions.length) * 100) };
   };
 
-  const handleSelectAnswer = (optionIndex) => {
-    setAnswers({ ...answers, [currentQuestionIndex]: optionIndex });
-  };
+const handleSelectAnswer = (optionIndex) => {
+  if (isAnswered) return;  // 已經回答過就不能再選
+  
+  const isCorrect = optionIndex === currentQuestion.correct;
+  
+  setAnswers({ ...answers, [currentQuestionIndex]: optionIndex });
+  setIsAnswered(true);
+  setShowFeedback(true);
+  
+  setShowAddToMistake(true);
+};
 
-  const handleNext = () => {
-    if (currentQuestionIndex + 1 < currentQuestions.length) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-    } else {
-      setPageState('result');
-    }
+const handleAddToMistake = async () => {
+  const currentQ = currentQuestion;
+  const isCorrect = answers[currentQuestionIndex] === currentQ.correct;
+  
+  // 直接使用 currentQuestion 中的資料
+  const mistakeData = {
+    questionText: currentQ.text,
+    studentQuestion: currentQ.text,
+    correctAnswer: currentQ.options[currentQ.correct],
+    aiSummary: currentQ.explanation?.substring(0, 100) || '',
+    fullExplanation: currentQ.explanation || '',
+    conceptId: currentQ.conceptId,      // 直接使用題目自帶的 conceptId
+    unitId: currentQ.unitId,            // 直接使用題目自帶的 unitId
+    subUnitId: currentQ.subUnitId,      // 直接使用題目自帶的 subUnitId
+    subjectId: currentQ.subjectId || 'subject_bio',
+    classId: currentQ.classId || 'class_hs2_bio_01',
+    className: currentQ.className || '高二生物班',
+    inputType: 'text',
+    starred: false,
+    // 額外記錄答題資訊
+    userAnswer: currentQ.options[answers[currentQuestionIndex]],
+    isCorrect: isCorrect,
+    answeredAt: new Date().toISOString()
   };
+  
+  const result = await updateOrCreateMistake(mistakeData);
+  
+  if (result.success) {
+    alert('已加入錯題本！');
+    setShowAddToMistake(false);
+  }
+};
 
-  const handlePrevious = () => {
-    if (currentQuestionIndex > 0) setCurrentQuestionIndex(currentQuestionIndex - 1);
-  };
+const handleNextQuestion = () => {
+  if (currentQuestionIndex + 1 < currentQuestions.length) {
+    setCurrentQuestionIndex(currentQuestionIndex + 1);
+    setIsAnswered(false);
+    setShowFeedback(false);
+    setShowAddToMistake(false);
+  } else {
+    stopTimer();
+    setPageState('result');
+  }
+};
 
   const handleFinishQuiz = () => {
   stopTimer();  // 停止計時
@@ -116,10 +163,6 @@ const handleQuizAgain = () => {
   setAnswers({});
 };
 
-const handleStarToggle = async (questionId, starred) => {
-  await toggleMistakeStar(questionId, starred);
-  await loadFavoritedMistakes();
-};
 
   const score = calculateScore();
   const currentQuestion = currentQuestions[currentQuestionIndex];
@@ -223,13 +266,7 @@ if (pageState === 'result') {
                 id={`question-${idx}`}
                 className={`result-question-card ${isCorrect ? 'correct' : 'incorrect'}`}
               >
-                {/* 右上角星標 */}
-                <div className="card-star">
-                  <StarButton 
-                    starred={false} 
-                    onToggle={(state) => handleStarToggle(q.id, state, q)}
-                  />
-                </div>
+                
                 
                 <div className="question-header">
                   <div className="question-number">第{idx + 1}題</div>
@@ -278,25 +315,70 @@ if (pageState === 'result') {
     </div>
   );
 }
+// 答題頁面
+if (!currentQuestion) return null;
 
-  if (!currentQuestion) return null;
-  return (
-    <div className="quiz-page">
-      <div className="quiz-container">
-        <PageHeader title="Diagnostic Quiz" />
-        <div className="quiz-card">
-          <div className="quiz-progress">Question: {currentQuestionIndex + 1}/{currentQuestions.length}</div>
-          <div className="quiz-question">{currentQuestion.text}</div>
-          <div className="card-star"><StarButton starred={false} onToggle={(state) => handleStarToggle(currentQuestion.id, state, currentQuestion)} /></div>
-          <div className="quiz-options">{currentQuestion.options.map((option, idx) => (<div key={idx} className={`quiz-option ${answers[currentQuestionIndex] === idx ? 'selected' : ''}`} onClick={() => handleSelectAnswer(idx)}>{option}</div>))}</div>
+const isCurrentAnswered = answers[currentQuestionIndex] !== undefined;
+const isCurrentCorrect = isCurrentAnswered && answers[currentQuestionIndex] === currentQuestion.correct;
+
+return (
+  <div className="quiz-page">
+    <div className="quiz-container">
+      <PageHeader title="即時測驗" />
+      
+      <div className="quiz-card">
+        <div className="quiz-progress">
+          第 {currentQuestionIndex + 1} / {currentQuestions.length} 題
         </div>
-        <div className="quiz-nav"><button className="nav-btn prev" onClick={handlePrevious} disabled={currentQuestionIndex === 0}>Previous</button>
-        <button className="nav-btn finish" onClick={handleFinishQuiz}>Finish</button>
-        <button className="nav-btn next" onClick={handleNext}>{currentQuestionIndex + 1 === currentQuestions.length ? 'Submit' : 'Next'}</button></div>
+        <div className="quiz-question">{currentQuestion.text}</div>
+        
+        <div className="quiz-options">
+          {currentQuestion.options.map((option, idx) => {
+            const isAnswered = answers[currentQuestionIndex] !== undefined;
+            const isSelected = answers[currentQuestionIndex] === idx;
+            const isCorrectOption = idx === currentQuestion.correct;
+            
+            let optionClass = 'quiz-option';
+            if (isAnswered) {
+              if (isCorrectOption) optionClass += ' correct-answer';
+              if (isSelected && !isCorrectOption) optionClass += ' wrong-answer';
+            }
+            
+            return (
+              <div 
+                key={idx}
+                className={optionClass}
+                onClick={() => {
+                  if (answers[currentQuestionIndex] !== undefined) return;
+                  handleSelectAnswer(idx);
+                }}
+              >
+                <span className="option-letter">{String.fromCharCode(65 + idx)}.</span>
+                <span className="option-text">{option}</span>
+                {isCurrentAnswered && isCorrectOption && <span className="check-icon">✓</span>}
+                {isCurrentAnswered && isSelected && !isCorrectOption && <span className="x-icon">✗</span>}
+                </div>
+            );
+          })}
+        </div>
+        
+        {/* 答案反饋區域 */}
+        {showFeedback && (
+          <div className="answer-feedback">
+            {showAddToMistake && (
+                <button className="add-to-mistake-btn" onClick={handleAddToMistake}>
+                    加入錯題本
+                </button>
+                )}
+                <button className="next-question-btn" onClick={handleNextQuestion}>
+                下一題
+            </button>
+          </div>
+        )}
       </div>
     </div>
-  );
-  
+  </div>
+);
 }
 
 export default DiagnosticQuizPage;

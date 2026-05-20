@@ -297,7 +297,7 @@ body {
   line-height: 22px;
   margin-bottom: 4px;
 }
-.mistake-tags {  font-style: italic; margin-bottom: 8px;  }
+
 .tag { font-size: 13px; color: rgba(0, 0, 0, 0.6); margin-right: 8px; }
 .divider { border: 0.5px solid var(--color-border); margin: 12px 0; }
 .mistake-description {
@@ -334,7 +334,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 0 18px 20px 18px;
+  padding: 0 0px 20px 0px;
 }
 
 .concept-card {
@@ -346,7 +346,7 @@ body {
   cursor: pointer;
   transition: none !important;
 }
-.concept-card.expanded { background: #F0F4EC; }
+.concept-card.expanded { background: rgba(28, 28, 28, 0.1); }
 
 .concept-header {
   display: flex;
@@ -369,7 +369,6 @@ body {
   letter-spacing: -0.08px;
   text-align: center;
   color: rgba(0, 0, 0, 0.6);
-  margin-bottom: 12px;
   display: inline-block;
 }
 .concept-divider { border: 0.5px solid var(--color-border); margin: 12px 0; }
@@ -412,39 +411,40 @@ body {
    9. 返回按鈕
    ========================================================================== */
 .back-to-chapters-btn-container {
-  position: fixed;
-  bottom: 20px;
+  justify-content: center;
+  bottom: 0px;
   left: 0;
   right: 0;
   display: flex;
-  justify-content: center;
   z-index: 100;
+  pointer-events: none; 
 }
 
 .back-to-chapters-btn {
+  pointer-events: auto; /* 按鈕本身可點擊 */
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 6px 20px;
-  width: 207px;
+  width: 200px;
   height: 48px;
-  background: linear-gradient(0deg, #F7F7F7, #F7F7F7), 
-              linear-gradient(0deg, #DDDDDD, #DDDDDD), 
-              rgba(255, 255, 255, 0.65);
-  background-blend-mode: darken, color-burn, normal;
-  border-radius: 296px;
-  border: none;
+  background: linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%);
+  border-radius: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   cursor: pointer;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.44), 0px 8px 40px rgba(0, 0, 0, 0.12);
-  transition: transform 0.12s ease;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.44), 0px 3px 6px rgba(0, 0, 0, 0.05);
+
+  transition: transform 0.2s ease;
+   margin: 0 auto;
 }
-.back-to-chapters-btn:active { transform: scale(0.96); }
+.back-to-chapters-btn:active { transform: scale(0.96); box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);}
 .btn-text {
   font-size: 17px;
   line-height: 20px;
   text-align: center;
   color: #1A1A1A;
 }
+
 
 /* ==========================================================================
    10. 下拉選單
@@ -524,9 +524,9 @@ body {
   padding: 60px 20px;
   background: #FFFFFF;
   border-radius: 16px;
-  margin: 20px 18px;
+  margin-bottom: 10px;
 }
-.empty-icon { font-size: 48px; margin-bottom: 16px; }
+
 .empty-text {
   font-size: 17px;
   font-weight: 500;

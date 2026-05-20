@@ -1,20 +1,15 @@
 import React, { useState } from 'react';
 
-function UnitSection({ unit, concepts, selectedConceptId, onSelectConcept }) {
+function UnitSection({ unit, subUnits, selectedSubUnitId, onSelectSubUnit }) {
   const [expanded, setExpanded] = useState(false);
-  // 在 UnitSection 最上方加入
-console.log('UnitSection received:', { unit, concepts });
-
-  // 如果 unit 不存在，不渲染
-  if (!unit) return null;
 
   const handleUnitClick = () => {
     setExpanded(!expanded);
   };
 
-  const handleConceptClick = (conceptId, conceptName) => {
-    if (onSelectConcept) {
-      onSelectConcept(conceptId, conceptName, unit.name);
+  const handleSubUnitClick = (subUnitId, subUnitName) => {
+    if (onSelectSubUnit) {
+      onSelectSubUnit(subUnitId, subUnitName, unit.name);
     }
   };
 
@@ -26,13 +21,13 @@ console.log('UnitSection received:', { unit, concepts });
       </div>
       
       <div className={`sub-lesson-list ${expanded ? 'show' : ''}`}>
-        {concepts && concepts.map((concept) => (
+        {subUnits && subUnits.map((subUnit) => (
           <div 
-            key={concept.id}
-            className={`sub-lesson-item ${selectedConceptId === concept.id ? 'selected' : ''}`}
-            onClick={() => handleConceptClick(concept.id, concept.name)}
+            key={subUnit.id}
+            className={`sub-lesson-item ${selectedSubUnitId === subUnit.id ? 'selected' : ''}`}
+            onClick={() => handleSubUnitClick(subUnit.id, subUnit.name)}
           >
-            <span className="sub-lesson-name">{concept.name}</span>
+            <span className="sub-lesson-name">{subUnit.name}</span>
             <span className="sub-lesson-arrow">›</span>
           </div>
         ))}

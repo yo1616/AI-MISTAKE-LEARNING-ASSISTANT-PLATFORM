@@ -17,32 +17,7 @@ function ConceptList({ items, type, onStarToggle, emptyMessage, emptyHint }) {
     );
   }
 
-  // 觀念標籤類型
-  if (type === 'concept-tag') {
-    return (
-      <div className="concept-list-container">
-        {items.map((item) => (
-          <div key={item.id} className="concept-card">
-            <div className="concept-header">
-              <div className="concept-title">{item.name}</div>
-              <div className="card-star">
-                <StarButton 
-                  starred={item.starred || false} 
-                  onToggle={(state) => onStarToggle(item.id, state, item)}
-                />
-              </div>
-            </div>
-            <div className="concept-location">{item.subjectId} / {item.unitId}</div>
-            <div className="concept-divider"></div>
-            <div className="concept-content">
-              {item.keywords?.join('、') || '無關鍵字'}
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
+  
   // 知識點筆記類型
   return (
     <div className="concept-list-container">
@@ -63,7 +38,9 @@ function ConceptList({ items, type, onStarToggle, emptyMessage, emptyHint }) {
                 />
               </div>
             </div>
-            <div className="concept-location">{note.subjectId} / {note.unitId}</div>
+            <div className="concept-location">
+            [{note.unitDisplayNumber}]
+            </div>
             <div className="concept-divider"></div>
             <div className="concept-content">{note.noteContent}</div>
             

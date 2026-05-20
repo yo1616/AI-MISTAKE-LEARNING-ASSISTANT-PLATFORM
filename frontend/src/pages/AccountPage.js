@@ -48,7 +48,7 @@ function AccountPage() {
   return (
     <div className="account-page">
       <div className="account-container">
-        <PageHeader title="Account" />
+        <PageHeader title="設定" />
         <div className="account-content">
           <div className="account-card">
             <div className="card-title">Profile Details</div>

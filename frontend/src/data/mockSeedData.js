@@ -142,75 +142,128 @@ export const seedData = {
       "isFixed": true
     }
   ],
+  // src/data/mockSeedData.js
+
+// 在 units 之後加入
+subUnits: [
+  { id: "subunit_bio_01_01", unitId: "unit_bio_01", name: "1-1 血液循環概述", order: 1 },
+  { id: "subunit_bio_01_02", unitId: "unit_bio_01", name: "1-2 體循環與肺循環", order: 2 },
+  { id: "subunit_bio_02_01", unitId: "unit_bio_02", name: "2-1 呼吸系統結構", order: 1 },
+  { id: "subunit_bio_02_02", unitId: "unit_bio_02", name: "2-2 氣體交換", order: 2 },
+  { id: "subunit_bio_02_03", unitId: "unit_bio_02", name: "2-3 呼吸作用", order: 3 },
+  { id: "subunit_bio_03_01", unitId: "unit_bio_03", name: "3-1 光合作用", order: 1 },
+  { id: "subunit_bio_03_02", unitId: "unit_bio_03", name: "3-2 葉綠體與能量轉換", order: 2 }
+],
   concepts: [
-    {
+     {
       "id": "concept_bio_001",
       "subjectId": "subject_bio",
       "unitId": "unit_bio_01",
       "name": "血液循環方向",
-      "keywords": ["體循環", "肺循環", "心臟", "血液"],
+      "keywords": [
+        "體循環",
+        "肺循環",
+        "心臟",
+        "血液"
+      ],
       "status": "active",
-      "createdBy": "seed"
+      "createdBy": "seed",
+      "subUnitId": "subunit_bio_01_02"
     },
     {
       "id": "concept_bio_002",
       "subjectId": "subject_bio",
       "unitId": "unit_bio_02",
       "name": "呼吸系統",
-      "keywords": ["鼻腔", "氣管", "支氣管", "肺"],
+      "keywords": [
+        "鼻腔",
+        "氣管",
+        "支氣管",
+        "肺"
+      ],
       "status": "active",
-      "createdBy": "seed"
+      "createdBy": "seed",
+      "subUnitId": "subunit_bio_02_01"
     },
     {
       "id": "concept_bio_003",
       "subjectId": "subject_bio",
       "unitId": "unit_bio_02",
       "name": "氣體交換",
-      "keywords": ["肺泡", "氧氣", "二氧化碳", "微血管"],
+      "keywords": [
+        "肺泡",
+        "氧氣",
+        "二氧化碳",
+        "微血管"
+      ],
       "status": "active",
-      "createdBy": "seed"
+      "createdBy": "seed",
+      "subUnitId": "subunit_bio_02_02"
     },
     {
       "id": "concept_bio_004",
       "subjectId": "subject_bio",
       "unitId": "unit_bio_02",
       "name": "呼吸作用",
-      "keywords": ["ATP", "能量", "細胞呼吸", "養分"],
+      "keywords": [
+        "ATP",
+        "能量",
+        "細胞呼吸",
+        "養分"
+      ],
       "status": "active",
-      "createdBy": "seed"
+      "createdBy": "seed",
+      "subUnitId": "subunit_bio_02_03"
     },
     {
       "id": "concept_bio_005",
       "subjectId": "subject_bio",
       "unitId": "unit_bio_03",
       "name": "光合作用",
-      "keywords": ["二氧化碳", "氧氣", "葡萄糖", "陽光"],
+      "keywords": [
+        "二氧化碳",
+        "氧氣",
+        "葡萄糖",
+        "陽光"
+      ],
       "status": "active",
-      "createdBy": "seed"
+      "createdBy": "seed",
+      "subUnitId": "subunit_bio_03_01"
     },
     {
       "id": "concept_bio_006",
       "subjectId": "subject_bio",
       "unitId": "unit_bio_03",
       "name": "葉綠體功能",
-      "keywords": ["葉綠體", "葉綠素", "光能"],
+      "keywords": [
+        "葉綠體",
+        "葉綠素",
+        "光能"
+      ],
       "status": "active",
-      "createdBy": "seed"
+      "createdBy": "seed",
+      "subUnitId": "subunit_bio_03_02"
     },
     {
       "id": "concept_bio_007",
       "subjectId": "subject_bio",
       "unitId": "unit_bio_03",
       "name": "能量轉換",
-      "keywords": ["ATP", "能量轉換", "光能", "化學能"],
+      "keywords": [
+        "ATP",
+        "能量轉換",
+        "光能",
+        "化學能"
+      ],
       "status": "active",
       "createdBy": "ai",
       "sourceSessionId": "chat_005",
-      "creationReason": "原本只有光合作用與葉綠體功能，無法完整涵蓋 ATP 與能量形式轉換的題目。"
+      "creationReason": "原本只有光合作用與葉綠體功能，無法完整涵蓋 ATP 與能量形式轉換的題目。",
+      "subUnitId": "subunit_bio_03_02"
     }
   ],
   chatSessions: [
-    {
+     {
       "id": "chat_001",
       "studentId": "student_001",
       "subjectId": "subject_bio",
@@ -227,8 +280,13 @@ export const seedData = {
         "matchedConceptName": "氣體交換",
         "isNewConcept": false,
         "confidence": 0.95,
-        "candidateConceptIds": ["concept_bio_002", "concept_bio_003", "concept_bio_004"]
-      }
+        "candidateConceptIds": [
+          "concept_bio_002",
+          "concept_bio_003",
+          "concept_bio_004"
+        ]
+      },
+      "subUnitId": "subunit_bio_02_02"
     },
     {
       "id": "chat_002",
@@ -247,8 +305,11 @@ export const seedData = {
         "matchedConceptName": "血液循環方向",
         "isNewConcept": false,
         "confidence": 0.97,
-        "candidateConceptIds": ["concept_bio_001"]
-      }
+        "candidateConceptIds": [
+          "concept_bio_001"
+        ]
+      },
+      "subUnitId": "subunit_bio_01_02"
     },
     {
       "id": "chat_003",
@@ -268,9 +329,92 @@ export const seedData = {
         "matchedConceptName": "光合作用",
         "isNewConcept": false,
         "confidence": 0.83,
-        "candidateConceptIds": ["concept_bio_005", "concept_bio_006"]
-      }
+        "candidateConceptIds": [
+          "concept_bio_005",
+          "concept_bio_006"
+        ]
+      },
+      "subUnitId": "subunit_bio_03_01"
     },
+    {
+      "id": "chat_004",
+      "studentId": "student_002",
+      "subjectId": "subject_bio",
+      "classId": "class_hs2_bio_01",
+      "className": "高二生物班",
+      "unitId": "unit_bio_02",
+      "title": "氧氣進入血液的地方",
+      "inputType": "photo_text",
+      "questionImageUrl": "/mock-images/respiration-question-2.jpg",
+      "questionText": "氧氣進入血液主要發生在哪裡？",
+      "startedAt": "2026-05-03T16:00:00+08:00",
+      "updatedAt": "2026-05-03T16:03:20+08:00",
+      "questionGroupCount": 1,
+      "conceptClassification": {
+        "matchedConceptId": "concept_bio_003",
+        "matchedConceptName": "氣體交換",
+        "isNewConcept": false,
+        "confidence": 0.94,
+        "candidateConceptIds": [
+          "concept_bio_002",
+          "concept_bio_003"
+        ]
+      },
+      "subUnitId": "subunit_bio_02_02"
+    },
+    {
+      "id": "chat_005",
+      "studentId": "student_003",
+      "subjectId": "subject_bio",
+      "classId": "class_hs3_bio_01",
+      "className": "高三生物班",
+      "unitId": "unit_bio_03",
+      "title": "ATP 和能量轉換怎麼分類",
+      "inputType": "photo_text",
+      "questionImageUrl": "/mock-images/energy-question-1.jpg",
+      "questionText": "這題在問 ATP 和能量型態轉換",
+      "startedAt": "2026-05-03T19:10:00+08:00",
+      "updatedAt": "2026-05-03T19:14:30+08:00",
+      "questionGroupCount": 1,
+      "conceptClassification": {
+        "matchedConceptId": "concept_bio_007",
+        "matchedConceptName": "能量轉換",
+        "isNewConcept": true,
+        "confidence": 0.62,
+        "candidateConceptIds": [
+          "concept_bio_004",
+          "concept_bio_005",
+          "concept_bio_006"
+        ],
+        "newConceptReason": "現有觀念能涵蓋呼吸作用或光合作用本身，但無法準確承接 ATP 與能量型態轉換的跨題型提問。"
+      },
+      "subUnitId": "subunit_bio_03_02"
+    },
+    {
+      "id": "chat_006",
+      "studentId": "student_003",
+      "subjectId": "subject_bio",
+      "classId": "class_hs3_bio_01",
+      "className": "高三生物班",
+      "unitId": "unit_bio_01",
+      "title": "運動後血液會去哪裡",
+      "inputType": "text",
+      "questionText": "運動後血液送往全身是體循環還是肺循環？",
+      "startedAt": "2026-05-03T20:30:00+08:00",
+      "updatedAt": "2026-05-03T20:33:00+08:00",
+      "questionGroupCount": 1,
+      "conceptClassification": {
+        "matchedConceptId": "concept_bio_001",
+        "matchedConceptName": "血液循環方向",
+        "isNewConcept": false,
+        "confidence": 0.96,
+        "candidateConceptIds": [
+          "concept_bio_001"
+        ]
+      },
+      "subUnitId": "subunit_bio_01_02"
+    }
+  ,
     {
       "id": "chat_004",
       "studentId": "student_002",
@@ -635,7 +779,8 @@ export const seedData = {
       "starred": true,
       "starredAt": "2026-05-03T20:00:00+08:00",
       "alertTriggered": false,
-      "createdAt": "2026-05-03T09:02:30+08:00"
+      "createdAt": "2026-05-03T09:02:30+08:00",
+      "subUnitId": "subunit_bio_02_02"
     },
     {
       "id": "mistake_record_002",
@@ -664,7 +809,8 @@ export const seedData = {
       "starred": false,
       "starredAt": null,
       "alertTriggered": false,
-      "createdAt": "2026-05-03T10:23:30+08:00"
+      "createdAt": "2026-05-03T10:23:30+08:00",
+      "subUnitId": "subunit_bio_01_02"
     },
     {
       "id": "mistake_record_003",
@@ -693,7 +839,8 @@ export const seedData = {
       "starred": true,
       "starredAt": "2026-05-03T21:00:00+08:00",
       "alertTriggered": false,
-      "createdAt": "2026-05-03T14:18:30+08:00"
+      "createdAt": "2026-05-03T14:18:30+08:00",
+      "subUnitId": "subunit_bio_03_01"
     },
     {
       "id": "mistake_record_004",
@@ -722,7 +869,8 @@ export const seedData = {
       "starred": false,
       "starredAt": null,
       "alertTriggered": false,
-      "createdAt": "2026-05-03T16:01:30+08:00"
+      "createdAt": "2026-05-03T16:01:30+08:00",
+      "subUnitId": "subunit_bio_02_02"
     },
     {
       "id": "mistake_record_005",
@@ -751,7 +899,8 @@ export const seedData = {
       "starred": true,
       "starredAt": "2026-05-03T21:10:00+08:00",
       "alertTriggered": false,
-      "createdAt": "2026-05-03T19:13:20+08:00"
+      "createdAt": "2026-05-03T19:13:20+08:00",
+      "subUnitId": "subunit_bio_03_02"
     },
     {
       "id": "mistake_record_006",
@@ -780,11 +929,12 @@ export const seedData = {
       "starred": false,
       "starredAt": null,
       "alertTriggered": true,
-      "createdAt": "2026-05-03T20:31:20+08:00"
+      "createdAt": "2026-05-03T20:31:20+08:00",
+      "subUnitId": "subunit_bio_01_02"
     }
   ],
   conceptNotes: [
-    {
+     {
       "id": "note_001",
       "studentId": "student_001",
       "sourceSessionId": "chat_001",
@@ -798,9 +948,14 @@ export const seedData = {
       "noteContent": "肺泡是進行氣體交換的主要場所，氧氣進入血液，二氧化碳離開血液進入肺泡。",
       "starred": false,
       "starredAt": null,
-      "linkedMistakes": ["mistake_record_001"],
-      "linkedPracticeQuestions": ["practice_001"],
-      "createdAt": "2026-05-03T09:02:10+08:00"
+      "linkedMistakes": [
+        "mistake_record_001"
+      ],
+      "linkedPracticeQuestions": [
+        "practice_001"
+      ],
+      "createdAt": "2026-05-03T09:02:10+08:00",
+      "subUnitId": "subunit_bio_02_02"
     },
     {
       "id": "note_002",
@@ -816,9 +971,14 @@ export const seedData = {
       "noteContent": "肺循環只在心臟和肺之間，體循環則是心臟到全身。",
       "starred": true,
       "starredAt": "2026-05-03T20:05:00+08:00",
-      "linkedMistakes": ["mistake_record_002"],
-      "linkedPracticeQuestions": ["practice_002"],
-      "createdAt": "2026-05-03T10:23:20+08:00"
+      "linkedMistakes": [
+        "mistake_record_002"
+      ],
+      "linkedPracticeQuestions": [
+        "practice_002"
+      ],
+      "createdAt": "2026-05-03T10:23:20+08:00",
+      "subUnitId": "subunit_bio_01_02"
     },
     {
       "id": "note_003",
@@ -834,9 +994,14 @@ export const seedData = {
       "noteContent": "光合作用是製造養分，呼吸作用是分解養分釋放能量，兩者方向相反但都和植物生存有關。",
       "starred": true,
       "starredAt": "2026-05-03T21:03:00+08:00",
-      "linkedMistakes": ["mistake_record_003"],
-      "linkedPracticeQuestions": ["practice_003"],
-      "createdAt": "2026-05-03T14:18:50+08:00"
+      "linkedMistakes": [
+        "mistake_record_003"
+      ],
+      "linkedPracticeQuestions": [
+        "practice_003"
+      ],
+      "createdAt": "2026-05-03T14:18:50+08:00",
+      "subUnitId": "subunit_bio_03_01"
     },
     {
       "id": "note_004",
@@ -852,9 +1017,14 @@ export const seedData = {
       "noteContent": "若題目問氧氣進入血液發生在哪裡，答案通常是肺泡，因為肺泡周圍有微血管進行氣體交換。",
       "starred": false,
       "starredAt": null,
-      "linkedMistakes": ["mistake_record_004"],
-      "linkedPracticeQuestions": ["practice_004"],
-      "createdAt": "2026-05-03T16:01:50+08:00"
+      "linkedMistakes": [
+        "mistake_record_004"
+      ],
+      "linkedPracticeQuestions": [
+        "practice_004"
+      ],
+      "createdAt": "2026-05-03T16:01:50+08:00",
+      "subUnitId": "subunit_bio_02_02"
     },
     {
       "id": "note_005",
@@ -870,9 +1040,14 @@ export const seedData = {
       "noteContent": "當題目主軸在光能、化學能與 ATP 的轉換關係時，使用「能量轉換」比單純歸在光合作用更精準。",
       "starred": true,
       "starredAt": "2026-05-03T21:12:00+08:00",
-      "linkedMistakes": ["mistake_record_005"],
-      "linkedPracticeQuestions": ["practice_005"],
-      "createdAt": "2026-05-03T19:13:00+08:00"
+      "linkedMistakes": [
+        "mistake_record_005"
+      ],
+      "linkedPracticeQuestions": [
+        "practice_005"
+      ],
+      "createdAt": "2026-05-03T19:13:00+08:00",
+      "subUnitId": "subunit_bio_03_02"
     },
     {
       "id": "note_006",
@@ -888,9 +1063,14 @@ export const seedData = {
       "noteContent": "只要題目在問血液從心臟送往全身組織，就應優先判斷為體循環。",
       "starred": false,
       "starredAt": null,
-      "linkedMistakes": ["mistake_record_006"],
-      "linkedPracticeQuestions": ["practice_006"],
-      "createdAt": "2026-05-03T20:31:40+08:00"
+      "linkedMistakes": [
+        "mistake_record_006"
+      ],
+      "linkedPracticeQuestions": [
+        "practice_006"
+      ],
+      "createdAt": "2026-05-03T20:31:40+08:00",
+      "subUnitId": "subunit_bio_01_02"
     }
   ],
   generatedPracticeQuestions: [
@@ -909,12 +1089,18 @@ export const seedData = {
       "title": "登山時的呼吸變化",
       "passage": "小明和家人一起去爬山，走到半山腰時覺得呼吸變快。爸爸告訴他，身體活動量變大時，需要更多氧氣進入血液，這時肺部中的某些構造會和周圍微血管進行作用，幫助氧氣被運送到全身。",
       "questionText": "根據上文，最符合題意的構造功能是下列哪一項？",
-      "options": ["過濾空氣中的灰塵", "進行氣體交換", "將養分分解成葡萄糖", "控制心跳速度"],
+      "options": [
+        "過濾空氣中的灰塵",
+        "進行氣體交換",
+        "將養分分解成葡萄糖",
+        "控制心跳速度"
+      ],
       "answer": "進行氣體交換",
       "explanation": "題幹描述的是氧氣進入血液的過程，對應的核心概念是氣體交換。",
       "starred": true,
       "starredAt": "2026-05-03T20:10:00+08:00",
-      "createdAt": "2026-05-03T09:04:10+08:00"
+      "createdAt": "2026-05-03T09:04:10+08:00",
+      "subUnitId": "subunit_bio_02_02"
     },
     {
       "id": "practice_002",
@@ -931,12 +1117,18 @@ export const seedData = {
       "title": "運動後的循環路徑",
       "passage": "體育課後，小華覺得心跳加快。老師說，這時心臟會更快速地把血液送到肺部和全身，讓身體能獲得足夠氧氣並帶走代謝後的廢物。",
       "questionText": "若題目特別強調血液從心臟送往肺部完成氣體交換，最適合歸類為哪一種循環？",
-      "options": ["體循環", "肺循環", "消化循環", "淋巴循環"],
+      "options": [
+        "體循環",
+        "肺循環",
+        "消化循環",
+        "淋巴循環"
+      ],
       "answer": "肺循環",
       "explanation": "心臟與肺之間的血液循環稱為肺循環，重點是完成氣體交換。",
       "starred": false,
       "starredAt": null,
-      "createdAt": "2026-05-03T10:24:00+08:00"
+      "createdAt": "2026-05-03T10:24:00+08:00",
+      "subUnitId": "subunit_bio_01_02"
     },
     {
       "id": "practice_003",
@@ -953,12 +1145,18 @@ export const seedData = {
       "title": "植物白天的生存策略",
       "passage": "阿哲觀察到家中的盆栽白天放在窗邊時生長較好。老師說，植物在有陽光時可以利用特定構造，把外界物質轉換成自己所需的養分，並產生氧氣。",
       "questionText": "根據上文，最符合這段描述的生物作用是下列哪一項？",
-      "options": ["分解養分釋放能量", "製造葡萄糖並釋放氧氣", "吸收氧氣後直接產生血液", "只在夜晚進行的作用"],
+      "options": [
+        "分解養分釋放能量",
+        "製造葡萄糖並釋放氧氣",
+        "吸收氧氣後直接產生血液",
+        "只在夜晚進行的作用"
+      ],
       "answer": "製造葡萄糖並釋放氧氣",
       "explanation": "題幹描述的是植物利用光能製造養分並釋放氧氣，屬於光合作用。",
       "starred": false,
       "starredAt": null,
-      "createdAt": "2026-05-03T14:19:00+08:00"
+      "createdAt": "2026-05-03T14:19:00+08:00",
+      "subUnitId": "subunit_bio_03_01"
     },
     {
       "id": "practice_004",
@@ -975,12 +1173,18 @@ export const seedData = {
       "title": "校慶接力賽的呼吸需求",
       "passage": "校慶接力賽時，小晴跑完一圈後氣喘吁吁。保健老師提醒她，劇烈運動時身體更需要把氧氣送到各個細胞，因此肺部中的某些構造會和血液快速進行作用。",
       "questionText": "根據上文，最符合題意的構造主要功能是什麼？",
-      "options": ["將養分儲存在肝臟", "進行氣體交換", "把血液變成養分", "控制神經反應"],
+      "options": [
+        "將養分儲存在肝臟",
+        "進行氣體交換",
+        "把血液變成養分",
+        "控制神經反應"
+      ],
       "answer": "進行氣體交換",
       "explanation": "題幹描述的是氧氣進入血液並供應全身細胞，對應的核心概念是氣體交換。",
       "starred": true,
       "starredAt": "2026-05-03T21:05:00+08:00",
-      "createdAt": "2026-05-03T16:03:20+08:00"
+      "createdAt": "2026-05-03T16:03:20+08:00",
+      "subUnitId": "subunit_bio_02_02"
     },
     {
       "id": "practice_005",
@@ -997,12 +1201,18 @@ export const seedData = {
       "title": "太陽能與細胞能量",
       "passage": "自然課時，老師提到植物可先把太陽能轉成儲存在養分中的化學能，之後細胞再利用這些能量形成 ATP，供生長與修補組織使用。小安發現這類題目不只是問光合作用名稱，而是更重視能量在不同階段的轉變。",
       "questionText": "根據上文，這類題目最適合歸在哪個觀念？",
-      "options": ["葉綠體功能", "光合作用", "能量轉換", "氣體交換"],
+      "options": [
+        "葉綠體功能",
+        "光合作用",
+        "能量轉換",
+        "氣體交換"
+      ],
       "answer": "能量轉換",
       "explanation": "題幹核心在光能、化學能與 ATP 的轉換關係，因此最適合歸在能量轉換。",
       "starred": true,
       "starredAt": "2026-05-03T21:15:00+08:00",
-      "createdAt": "2026-05-03T19:14:00+08:00"
+      "createdAt": "2026-05-03T19:14:00+08:00",
+      "subUnitId": "subunit_bio_03_02"
     },
     {
       "id": "practice_006",
@@ -1019,12 +1229,18 @@ export const seedData = {
       "title": "跑步後的血液流向",
       "passage": "運動會跑完 800 公尺後，阿誠覺得心跳明顯加快。老師說，這時心臟會更快地把含氧血送往全身各部位，讓肌肉得到足夠氧氣與養分。",
       "questionText": "根據上文，血液由心臟送往全身各部位主要屬於哪一種循環？",
-      "options": ["體循環", "肺循環", "淋巴循環", "消化循環"],
+      "options": [
+        "體循環",
+        "肺循環",
+        "淋巴循環",
+        "消化循環"
+      ],
       "answer": "體循環",
       "explanation": "從心臟將含氧血送到全身的是體循環。",
       "starred": false,
       "starredAt": null,
-      "createdAt": "2026-05-03T20:33:00+08:00"
+      "createdAt": "2026-05-03T20:33:00+08:00",
+      "subUnitId": "subunit_bio_01_02"
     }
   ],
   studentAnalyticsSummary: [
@@ -1209,6 +1425,7 @@ export const initializeLocalStorage = () => {
   initialize('subjects', seedData.subjects);
   initialize('classes', seedData.classes);
   initialize('units', seedData.units);
+  initialize('subUnits', seedData.subUnits); 
   initialize('concepts', seedData.concepts);
   initialize('chatSessions', seedData.chatSessions);
   initialize('chatMessages', seedData.chatMessages);

@@ -1,17 +1,23 @@
 import React, { useState } from 'react';
 import StarButton from './StarButton';
 
-function MistakeList({ mistakes, onStarToggle, emptyMessage, emptyHint }) {
+function MistakeList({ mistakes, concepts, onStarToggle, emptyMessage, emptyHint }) {
   const [expandedId, setExpandedId] = useState(null);
 
   const handleCardClick = (id) => {
     setExpandedId(expandedId === id ? null : id);
   };
 
+   // 根據 conceptId 獲取觀念名稱
+  const getConceptName = (conceptId) => {
+    if (!concepts || concepts.length === 0) return conceptId;
+    const concept = concepts.find(c => c.id === conceptId);
+    return concept ? concept.name : conceptId;
+  };
+
   if (!mistakes || mistakes.length === 0) {
     return (
       <div className="empty-state">
-        <span className="empty-icon">📝</span>
         <p className="empty-text">{emptyMessage || '暫無錯題'}</p>
         {emptyHint && <p className="empty-hint">{emptyHint}</p>}
       </div>
@@ -22,6 +28,7 @@ function MistakeList({ mistakes, onStarToggle, emptyMessage, emptyHint }) {
     <div className="mistake-list-container">
       {mistakes.map((mistake) => {
         const isExpanded = expandedId === mistake.id;
+        const conceptName = getConceptName(mistake.conceptId);
         
         return (
           <div 
@@ -44,7 +51,7 @@ function MistakeList({ mistakes, onStarToggle, emptyMessage, emptyHint }) {
               <div className="mistake-title">{mistake.questionText || '錯題'}</div>
               
               <div className="mistake-tags">
-                <span className="tag">#{mistake.conceptId}</span>
+                <span className="tag">#{conceptName}</span>
               </div>
               
               <div className="divider"></div>

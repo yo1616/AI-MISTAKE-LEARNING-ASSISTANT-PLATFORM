@@ -124,3 +124,27 @@
 .empty-messages { text-align: center; padding: 60px 20px; }
 .empty-icon { font-size: 48px; margin-bottom: 16px; }
 .empty-text { font-size: 14px; color: rgba(0, 0, 0, 0.4); }
+
+/* 訊息氣泡需要設定相對定位 */
+.message-bubble {
+  max-width: 85%;
+  padding: 12px 16px;
+  border-radius: 20px;
+  background: var(--color-bg-card);
+  box-shadow: var(--shadow-md);
+  position: relative;  /* 確保星星相對於氣泡定位 */
+}
+
+/* 星星固定在右上角 */
+.message-star {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  cursor: pointer;
+  z-index: 10;
+}
+
+/* 確保 AI 訊息氣泡有足夠的右內距，避免文字被星星遮住 */
+.message.ai .message-bubble {
+  padding-right: 40px;  /* 預留星星空間 */
+}

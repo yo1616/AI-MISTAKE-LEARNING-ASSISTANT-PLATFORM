@@ -2,30 +2,42 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
 import MistakeList from '../components/MistakeList';
-import { getStudentMistakes, toggleMistakeStar } from '../data/mockApi';
+import { getStudentMistakes, toggleMistakeStar, getConcepts } from '../data/mockApi';
 import { useFavorites } from '../data/FavoritesContext';
 
 function MistakeDetailPage() {
-  const { chapterId } = useParams();
+  const { chapterId } = useParams();  // 這裡是 subUnitId
   const navigate = useNavigate();
   const location = useLocation();
   const { loadFavoritedMistakes } = useFavorites();
   const [questions, setQuestions] = useState([]);
-
-  // 從 location.state 取得名稱
-  const conceptName = location.state?.conceptName || chapterId;
-  const unitName = location.state?.unitName || '';
+  const [concepts, setConcepts] = useState([]);
+  
+  const subUnitName = location.state?.subUnitName || chapterId;
+   const unitName = location.state?.unitName || '';
 
   useEffect(() => {
     loadMistakes();
+    loadConcepts();
   }, [chapterId]);
 
   const loadMistakes = async () => {
-    const result = await getStudentMistakes({ conceptId: chapterId });
+  console.log('查詢的 subUnitId:', chapterId);
+  const result = await getStudentMistakes({ subUnitId: chapterId });
+  console.log('API 回傳結果:', result);
+  if (result.success) {
+    console.log('找到的錯題數量:', result.data.length);
+    setQuestions(result.data);
+  }
+};
+
+const loadConcepts = async () => {
+    const result = await getConcepts();
     if (result.success) {
-      setQuestions(result.data);
+      setConcepts(result.data);
     }
   };
+
 
   const handleStarToggle = async (questionId, newState) => {
     await toggleMistakeStar(questionId, newState);
@@ -37,23 +49,17 @@ function MistakeDetailPage() {
     navigate('/chapters');
   };
 
-  // 組合標題
-  const pageTitle = unitName 
-    ? `Mistake Notebook /\n${unitName}\n/\n${conceptName}`
-    : `Mistake Notebook /\n${conceptName}`;
-    
   return (
     <div className="mistake-detail-page">
       <div className="mistake-detail-container">
-        <PageHeader title={pageTitle} />
-        
-        <MistakeList 
+        <PageHeader title={`錯題列表 ${subUnitName}`} />
+        <MistakeList
           mistakes={questions}
+          concepts={concepts}
           onStarToggle={handleStarToggle}
           emptyMessage="暫無錯題記錄"
           emptyHint=""
         />
-        
         <div className="fixed-back-button">
           <button className="back-to-chapters-btn" onClick={handleBackToChapters}>
             <span className="btn-text">返回章節列表</span>

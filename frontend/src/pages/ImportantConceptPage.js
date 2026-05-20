@@ -12,7 +12,9 @@ function ImportantConceptPage() {
 
   const loadNotes = async () => {
     const result = await getConceptNotes({ starredOnly: true });
-    if (result.success) setFavoritedNotes(result.data);
+    if (result.success) {
+      setFavoritedNotes(result.data);
+    }
   };
 
   const handleStarToggle = async (noteId, starred) => {

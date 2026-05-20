@@ -4,34 +4,33 @@ import ConceptList from '../components/ConceptList';
 import { getConceptNotes, toggleConceptNoteStar } from '../data/mockApi';
 
 function ConceptPage() {
-  const [conceptTags, setConceptTags] = useState([]);
   const [conceptNotes, setConceptNotes] = useState([]);
 
   useEffect(() => {
-    loadData();
+    loadNotes();
   }, []);
 
-  const loadData = async () => {
-    const concepts = JSON.parse(localStorage.getItem('concepts') || '[]');
-    setConceptTags(concepts);
-    const notesResult = await getConceptNotes();
-    if (notesResult.success) setConceptNotes(notesResult.data);
-  };
+  const loadNotes = async () => {
+  const result = await getConceptNotes();
+  console.log('getConceptNotes 結果:', result);
+  if (result.success) {
+    setConceptNotes(result.data);
+  }
+};
 
-  const handleNoteStarToggle = async (noteId, starred) => {
+  const handleStarToggle = async (noteId, starred) => {
     await toggleConceptNoteStar(noteId, starred);
-    await loadData();
+    await loadNotes();
   };
 
   return (
     <div className="concept-page">
       <div className="concept-container">
-        <PageHeader title="Concept" />
-
+        <PageHeader title="觀念" />
         <ConceptList
           items={conceptNotes}
-          type="concept-note"
-          onStarToggle={handleNoteStarToggle}
+          
+          onStarToggle={handleStarToggle}
           emptyMessage="暫無知識點筆記"
           emptyHint="在聊天中讓 AI 幫你整理筆記"
         />

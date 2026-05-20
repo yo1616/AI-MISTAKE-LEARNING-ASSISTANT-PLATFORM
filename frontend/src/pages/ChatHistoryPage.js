@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
-import StarButton from '../components/StarButton';
-import { getChatSessions, getChatMessages, toggleConceptNoteStar } from '../data/mockApi';
+import { getChatSessions, getChatMessages, deleteChatSession } from '../data/mockApi';  // 新增 deleteChatSession
+
 import { formatDateTime } from '../utils/timeUtils';
 import '../style/ChatHistoryPage.css';
 
@@ -12,6 +12,7 @@ function ChatHistoryPage() {
   const [expandedSessionId, setExpandedSessionId] = useState(null);
   const [sessionMessages, setSessionMessages] = useState({});
   const [filter, setFilter] = useState('all');
+  
 
   useEffect(() => {
     loadSessions();
@@ -39,13 +40,27 @@ function ChatHistoryPage() {
     }
   };
 
-  const handleStarToggle = async (noteId, starred) => {
-    await toggleConceptNoteStar(noteId, starred);
+  // 新增：刪除對話
+  const handleDeleteSession = async (sessionId, e) => {
+    e.stopPropagation();  // 防止觸發展開/收合
+    if (window.confirm('確定要刪除這個對話紀錄嗎？')) {
+      const result = await deleteChatSession(sessionId);
+      if (result.success) {
+        // 重新載入列表
+        await loadSessions();
+        // 如果刪除的是目前展開的對話，清空展開狀態
+        if (expandedSessionId === sessionId) {
+          setExpandedSessionId(null);
+          setSessionMessages(prev => {
+            const newState = { ...prev };
+            delete newState[sessionId];
+            return newState;
+          });
+        }
+      }
+    }
   };
 
-  const handleViewConcept = (concept) => {
-    navigate('/concept');
-  };
 
   const filteredSessions = filter === 'all' ? sessions : sessions.filter(s => s.starred);
 
@@ -64,11 +79,7 @@ function ChatHistoryPage() {
   return (
     <div className="chat-history-page">
       <div className="chat-history-container">
-        <PageHeader title="Chat History" />
-        <div className="filter-tabs">
-          <button className={`filter-tab ${filter === 'all' ? 'active' : ''}`} onClick={() => setFilter('all')}>全部</button>
-          <button className={`filter-tab ${filter === 'favorited' ? 'active' : ''}`} onClick={() => setFilter('favorited')}>⭐ 已收藏</button>
-        </div>
+        <PageHeader title="對話紀錄" />
         <div className="history-list">
           {Object.keys(groupedSessions).length === 0 ? (
             <div className="empty-history"><div className="empty-icon">💬</div><div className="empty-text">暫無對話記錄</div><div className="empty-hint">在 Home 頁面提問，對話會自動保存</div></div>
@@ -79,20 +90,31 @@ function ChatHistoryPage() {
                 {daySessions.map((session) => (
                   <div key={session.id} className={`history-item ${expandedSessionId === session.id ? 'expanded' : ''}`}>
                     <div className="history-item-header" onClick={() => handleSessionClick(session.id)}>
-                      <div className="item-type">🤖 {session.title || '對話'}</div>
-                      <div className="item-actions">
-                        <StarButton starred={session.starred || false} onToggle={(state) => handleStarToggle(session.id, state)} />
+                      <div className="item-type"> {session.title || '對話'}</div>
+                       <div className="item-actions">
                         <span className="history-item-time">{formatDateTime(session.updatedAt)}</span>
+                        {/* 刪除按鈕 */}
+                        <button 
+                          className="delete-session-btn"
+                          onClick={(e) => handleDeleteSession(session.id, e)}
+                          aria-label="刪除對話"
+                        >
+                          🗑️
+                        </button>
+                    
                       </div>
                     </div>
                     {expandedSessionId === session.id && sessionMessages[session.id] && (
                       <div className="session-messages">
                         {sessionMessages[session.id].map((msg) => (
-                          <div key={msg.id} className={`session-message ${msg.role}`}>
-                            <div className="message-bubble"><div className="message-text">{msg.content}</div><div className="message-time">{formatDateTime(msg.createdAt)}</div></div>
-                          </div>
+                            <div key={msg.id} className={`session-message ${msg.role}`}>
+                            <div className="message-bubble">
+                                <div className="message-text">{msg.content}</div>
+                            </div>
+                            <div className="message-time">{formatDateTime(msg.createdAt)}</div>
+                            </div>
                         ))}
-                      </div>
+                        </div>
                     )}
                   </div>
                 ))}

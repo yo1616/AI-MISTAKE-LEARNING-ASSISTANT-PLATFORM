@@ -2,44 +2,43 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
 import UnitSection from '../components/UnitSection';
-import { getUnits, getConcepts } from '../data/mockApi';
+import { getUnitsWithSubUnits } from '../data/mockApi';
 
 function ChapterListPage() {
   const navigate = useNavigate();
-  const [selectedConceptId, setSelectedConceptId] = useState(null);
+   const [selectedSubUnitId, setSelectedSubUnitId] = useState(null);  // ← 定義這個
   const [units, setUnits] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadUnits();
   }, []);
 
   const loadUnits = async () => {
-  const [unitsResult, conceptsResult] = await Promise.all([
-    getUnits(),
-    getConcepts()
-  ]);
-  
-  if (unitsResult.success && conceptsResult.success) {
-    const unitsWithConcepts = unitsResult.data.map(unit => ({
-      id: unit.id,
-      name: unit.name,           // 確保有 name
-      concepts: conceptsResult.data.filter(c => c.unitId === unit.id)
-    }));
-    setUnits(unitsWithConcepts);
-  }
-};
+    const result = await getUnitsWithSubUnits();
+    if (result.success) {
+      setUnits(result.data);
+    }
+    setLoading(false);
+  };
 
-  const handleSelectConcept = (conceptId, conceptName, unitName) => {
-  setSelectedConceptId(conceptId);
-  setTimeout(() => {
-    navigate(`/mistake/${conceptId}`, { state: { conceptName, unitName } });
-  }, 150);
-};
+  // 修改這裡：使用 subUnitId
+  const handleSelectSubUnit = (subUnitId, subUnitName, unitName) => {
+    console.log('點擊子章節:', { subUnitId, subUnitName, unitName });
+    setSelectedSubUnitId(subUnitId);
+    setTimeout(() => {
+      navigate(`/mistake/${subUnitId}`, { state: { subUnitName, unitName } });
+    }, 150);
+  };
+
+  if (loading) {
+    return <div className="loading">載入中...</div>;
+  }
 
   return (
     <div className="chapter-page">
       <div className="chapter-container">
-        <PageHeader title="Mistake Notebook" />
+        <PageHeader title="錯提列表" />
         <div className="chapter-card">
           <div className="chapter-title">章節列表</div>
           <div className="unit-list">
@@ -47,9 +46,9 @@ function ChapterListPage() {
               <UnitSection
                 key={unit.id}
                 unit={unit}
-                concepts={unit.concepts}
-                selectedConceptId={selectedConceptId}
-                onSelectConcept={handleSelectConcept}
+                subUnits={unit.subUnits}
+                selectedSubUnitId={selectedSubUnitId}
+                onSelectSubUnit={handleSelectSubUnit}
               />
             ))}
           </div>

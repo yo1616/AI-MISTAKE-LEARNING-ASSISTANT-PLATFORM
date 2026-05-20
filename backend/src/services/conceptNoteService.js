@@ -24,6 +24,7 @@ function mapNoteRow(row) {
   }
 
   return {
+    id: row.noteId,
     ...row,
     starred: toBoolean(row.starred)
   };
@@ -31,6 +32,7 @@ function mapNoteRow(row) {
 
 function mapMistakeRow(row) {
   return {
+    id: row.mistakeRecordId,
     ...row,
     starred: toBoolean(row.starred),
     alertTriggered: toBoolean(row.alertTriggered)

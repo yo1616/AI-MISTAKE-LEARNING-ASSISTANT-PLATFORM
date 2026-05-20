@@ -14,6 +14,24 @@ function chatSessionExists(db, sessionId) {
   return Boolean(row);
 }
 
+function mapSessionRow(row) {
+  if (!row) {
+    return null;
+  }
+
+  return {
+    id: row.sessionId,
+    ...row
+  };
+}
+
+function mapMessageRow(row) {
+  return {
+    id: row.messageId,
+    ...row
+  };
+}
+
 function getChatSessionById(sessionId) {
   return withDb((db) => {
     const row = db.prepare(`
@@ -51,7 +69,7 @@ function getChatSessionById(sessionId) {
       WHERE cs.id = ?
     `).get(sessionId);
 
-    return row || null;
+    return mapSessionRow(row);
   });
 }
 
@@ -83,7 +101,7 @@ function getChatSessionMessages(sessionId) {
 
     return {
       sessionExists: true,
-      data: rows
+      data: rows.map(mapMessageRow)
     };
   });
 }

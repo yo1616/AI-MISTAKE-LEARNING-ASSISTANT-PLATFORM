@@ -24,6 +24,7 @@ function mapMistakeRow(row) {
   }
 
   return {
+    id: row.mistakeRecordId,
     ...row,
     starred: toBoolean(row.starred),
     alertTriggered: toBoolean(row.alertTriggered)
@@ -121,6 +122,7 @@ function getRelatedNotes(mistakeRecordId) {
     return {
       mistakeExists: true,
       data: rows.map((row) => ({
+        id: row.noteId,
         ...row,
         starred: toBoolean(row.starred)
       }))

@@ -551,5 +551,5 @@ curl http://localhost:3001/api/generated-exams/generated_exam_001/source-mistake
 - `options` 在 generated exam questions API 中會回傳 array。
 - `backend/data/app.sqlite` 不應該 commit。
 - `backend/node_modules/` 不應該 commit。
-- Dashboard / analytics API 尚未包含在本文件，會由另一位組員負責。
+- Dashboard / analytics API 尚未包含在本文件，會由另一位組員負責；老師端擴充統計之草稿規格見 [`docs/teacher-dashboard-api-draft.md`](../docs/teacher-dashboard-api-draft.md)。
 - Windows PowerShell 對 `curl -d` 的 JSON quoting 較容易出錯；若遇到 request body 解析錯誤，可以改用 `Invoke-RestMethod` 或在 cmd 中執行 curl。

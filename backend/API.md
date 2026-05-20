@@ -532,7 +532,106 @@ curl http://localhost:3001/api/generated-exams/generated_exam_001/source-mistake
 - `conceptName`
 - `createdAt`
 
-## 10. Common Error Codes
+## 10. Chat Session Write APIs
+
+The following endpoints create and delete chat-session data. Responses use the common envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+### POST `/api/chat-sessions`
+
+Create a chat session.
+
+Required body fields:
+
+- `studentId`
+- `subjectId`
+- `inputType` (`text`, `photo`, or `photo_text`)
+
+Supported optional body fields:
+
+- `classId`
+- `unitId`
+- `subUnitId`
+- `title`
+
+Example:
+
+```bash
+curl -X POST http://localhost:3001/api/chat-sessions \
+  -H "Content-Type: application/json" \
+  -d "{\"studentId\":\"student_001\",\"subjectId\":\"subject_bio\",\"classId\":\"class_hs2_bio_01\",\"unitId\":\"unit_bio_respiration\",\"subUnitId\":\"subunit_bio_respiration_gas_exchange\",\"title\":\"Gas exchange question\",\"inputType\":\"text\"}"
+```
+
+Success response data is the created session. The session response includes both `id` and `sessionId`, and `id` equals `sessionId`.
+
+### POST `/api/chat-sessions/:sessionId/messages`
+
+Create a message under an existing chat session.
+
+Required body fields:
+
+- `role` (`student` or `assistant`)
+- `messageType` (`new_question`, `follow_up`, `request_practice`, `answer`, or `classification_explanation`)
+- `content`
+
+Supported optional body fields:
+
+- `questionGroupId`
+- `inputType` (`text`, `photo`, or `photo_text`)
+- `questionText`
+- `questionImageUrl`
+
+Example:
+
+```bash
+curl -X POST http://localhost:3001/api/chat-sessions/chat_001/messages \
+  -H "Content-Type: application/json" \
+  -d "{\"role\":\"student\",\"messageType\":\"follow_up\",\"questionGroupId\":\"qg_001\",\"inputType\":\"text\",\"content\":\"Can you explain it again?\",\"questionText\":\"Can you explain it again?\"}"
+```
+
+Success response data is the created message. The message response includes both `id` and `messageId`, and `id` equals `messageId`.
+
+### DELETE `/api/chat-sessions/:sessionId`
+
+Delete a chat session. The current schema defines `ON DELETE CASCADE` for `chat_messages.session_id` and `question_groups.session_id`, so deleting a session also removes its messages and question groups. If the session does not exist, the API returns `CHAT_SESSION_NOT_FOUND`.
+
+Example:
+
+```bash
+curl -X DELETE http://localhost:3001/api/chat-sessions/chat_001
+```
+
+Success response data:
+
+```json
+{
+  "success": true,
+  "deletedId": "chat_001"
+}
+```
+
+Common write errors:
+
+- `MISSING_REQUIRED_FIELDS`
+- `INVALID_INPUT_TYPE`
+- `INVALID_MESSAGE_ROLE`
+- `INVALID_MESSAGE_TYPE`
+- `STUDENT_NOT_FOUND`
+- `SUBJECT_NOT_FOUND`
+- `CLASS_NOT_FOUND`
+- `UNIT_NOT_FOUND`
+- `SUB_UNIT_NOT_FOUND`
+- `QUESTION_GROUP_NOT_FOUND`
+- `QUESTION_GROUP_SESSION_MISMATCH`
+- `CHAT_SESSION_NOT_FOUND`
+
+## 11. Common Error Codes
 
 目前常見錯誤碼：
 
@@ -543,7 +642,7 @@ curl http://localhost:3001/api/generated-exams/generated_exam_001/source-mistake
 - `GENERATED_EXAM_NOT_FOUND`：找不到生成考卷 / 練習題。
 - `INVALID_STARRED_VALUE`：`starred` 不是 boolean。
 
-## 11. Notes for Frontend Integration
+## 12. Notes for Frontend Integration
 
 - 所有 API 預設回傳 JSON。
 - `starred` 欄位會回傳 boolean。

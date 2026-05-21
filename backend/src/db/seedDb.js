@@ -470,6 +470,145 @@ function seedConceptNotes(db, data) {
   }
 }
 
+function seedExamSubmissionsFromAnalytics(db, data) {
+  const insertSubmission = db.prepare(`
+    INSERT INTO exam_submissions (id, exam_id, student_id, submitted_at)
+    VALUES (@id, @exam_id, @student_id, @submitted_at)
+  `);
+  const insertAnswer = db.prepare(`
+    INSERT INTO exam_answers (
+      id, submission_id, exam_question_id, student_answer, is_correct,
+      correct_answer, explanation, can_save_to_mistakes, created_at
+    )
+    VALUES (
+      @id, @submission_id, @exam_question_id, @student_answer, @is_correct,
+      @correct_answer, @explanation, @can_save_to_mistakes, @created_at
+    )
+  `);
+  const insertQuestion = db.prepare(`
+    INSERT INTO generated_exam_questions (
+      id, exam_id, concept_id, question_type, question_text, options,
+      correct_answer, explanation, created_at
+    )
+    VALUES (
+      @id, @exam_id, @concept_id, @question_type, @question_text, @options,
+      @correct_answer, @explanation, @created_at
+    )
+  `);
+  const updateExamQuestionCount = db.prepare(`
+    UPDATE generated_exams
+    SET question_count = ?, updated_at = ?
+    WHERE id = ?
+  `);
+
+  const chartsByStudentClass = new Map();
+  for (const chart of data.studentAnalyticsCharts || []) {
+    chartsByStudentClass.set(`${chart.studentId}:${chart.classId}`, chart);
+  }
+
+  for (const summary of data.studentAnalyticsSummary || []) {
+    const accuracy = summary.generatedExamAccuracy;
+    if (!accuracy || !accuracy.totalAnswered) {
+      continue;
+    }
+
+    const { studentId, classId } = summary;
+    const correctCount = accuracy.correctCount || 0;
+    const totalAnswered = accuracy.totalAnswered;
+
+    const exams = db.prepare(`
+      SELECT id FROM generated_exams
+      WHERE student_id = ? AND class_id = ?
+      ORDER BY created_at ASC, id ASC
+    `).all(studentId, classId);
+
+    if (exams.length === 0) {
+      continue;
+    }
+
+    const primaryExamId = exams[0].id;
+    const examMeta = db.prepare(`
+      SELECT subject_id, unit_id, sub_unit_id, concept_id, created_at
+      FROM generated_exams WHERE id = ?
+    `).get(primaryExamId);
+
+    const existingQuestions = db.prepare(`
+      SELECT id, correct_answer, explanation
+      FROM generated_exam_questions
+      WHERE exam_id = ?
+      ORDER BY created_at ASC, id ASC
+    `).all(primaryExamId);
+
+    const template = existingQuestions[0] || db.prepare(`
+      SELECT id, correct_answer, explanation
+      FROM generated_exam_questions
+      WHERE exam_id IN (SELECT id FROM generated_exams WHERE student_id = ?)
+      ORDER BY created_at ASC
+      LIMIT 1
+    `).get(studentId);
+
+    if (!template) {
+      continue;
+    }
+
+    while (existingQuestions.length < totalAnswered) {
+      const index = existingQuestions.length;
+      const questionId = `seed_quiz_${studentId}_${index + 1}`;
+      const createdAt = timestamp('2026-05-03T18:00:00+08:00');
+      insertQuestion.run({
+        id: questionId,
+        exam_id: primaryExamId,
+        concept_id: examMeta.concept_id,
+        question_type: 'multiple_choice',
+        question_text: `補充練習題 ${index + 1}`,
+        options: toJson(['A', 'B', 'C', 'D']),
+        correct_answer: template.correct_answer,
+        explanation: template.explanation,
+        created_at: createdAt
+      });
+      existingQuestions.push({
+        id: questionId,
+        correct_answer: template.correct_answer,
+        explanation: template.explanation
+      });
+    }
+
+    updateExamQuestionCount.run(
+      totalAnswered,
+      timestamp('2026-05-03T18:00:00+08:00'),
+      primaryExamId
+    );
+
+    const chart = chartsByStudentClass.get(`${studentId}:${classId}`);
+    const trendDate = chart?.generatedExamAccuracyTrend?.[0]?.date || '2026-05-03';
+    const submittedAt = timestamp(`${trendDate}T18:00:00+08:00`);
+
+    const submissionId = `submission_${studentId}_${classId}`;
+    insertSubmission.run({
+      id: submissionId,
+      exam_id: primaryExamId,
+      student_id: studentId,
+      submitted_at: submittedAt
+    });
+
+    const usedQuestions = existingQuestions.slice(0, totalAnswered);
+    usedQuestions.forEach((question, index) => {
+      const isCorrect = index < correctCount ? 1 : 0;
+      insertAnswer.run({
+        id: `answer_${submissionId}_${index + 1}`,
+        submission_id: submissionId,
+        exam_question_id: question.id,
+        student_answer: isCorrect ? question.correct_answer : '錯誤選項',
+        is_correct: isCorrect,
+        correct_answer: question.correct_answer,
+        explanation: question.explanation,
+        can_save_to_mistakes: isCorrect ? 0 : 1,
+        created_at: submittedAt
+      });
+    });
+  }
+}
+
 function seedGeneratedExamSelectedMistakes(db, data) {
   const insert = db.prepare(`
     INSERT INTO generated_exam_selected_mistakes (exam_id, mistake_record_id)
@@ -543,6 +682,7 @@ function seedDb() {
       seedMistakeRecords(db, data);
       seedConceptNotes(db, data);
       seedGeneratedExamSelectedMistakes(db, data);
+      seedExamSubmissionsFromAnalytics(db, data);
     });
 
     runSeed();
@@ -565,14 +705,16 @@ function seedDb() {
       'mistake_records',
       'concept_notes',
       'concept_note_mistakes',
-      'generated_exam_selected_mistakes'
+      'generated_exam_selected_mistakes',
+      'exam_submissions',
+      'exam_answers'
     ];
 
     console.log(`Seeded database at ${dbPath}`);
     for (const table of seededTables) {
       console.log(`${table}: ${tableCount(db, table)}`);
     }
-    console.log('Skipped analytics seed tables; analytics will be calculated by future API code.');
+    console.log('Quiz submissions seeded from demoData studentAnalyticsSummary (generatedExamAccuracy).');
     console.log('No teacher records were inserted because demoData/demoData1 does not include teachers.');
   } finally {
     db.close();

@@ -1,6 +1,6 @@
 # 老師端 Dashboard／統計 API 規格草稿
 
-> **狀態**：草稿，尚未併入 `README.md`／`backend/API.md`。  
+> **狀態**：已實作；正式文件見 [`teacher-dashboard-api.md`](teacher-dashboard-api.md)，`README.md` §8、`backend/API.md` §10。  
 > **原則**：成功 `{ success, data }`、失敗 `{ success, error }`、ISO 8601、camelCase、`range` 為 `7d` | `30d` | `custom`（`custom` 時必填 `from`、`to`）。  
 > **設計原則**：**一頁一主 API**；共用篩選參數；不為每張 KPI 卡或每張圖各開一支。
 
@@ -372,20 +372,21 @@ dashboard/concepts-risk  → 知識點管理頁
 | 知識點風險列表           | `conceptRiskRows[]`                                           |
 
 
-### 6.2 風險等級（比例制，非絕對錯題數）
+### 6.2 風險等級與 KPI（已實作：絕對錯題數／影響學生數）
 
-- `N` = `enrolledStudentCount`
-- `affectedRatio` = `affectedStudentCount / N`
+| KPI / 排名 | 算法 |
+| ---------- | ---- |
+| **高風險知識點數** | 期間錯題數 ≥ 5 **或** 影響學生數 ≥ 3 的 distinct 知識點數 |
+| **最多學生卡關** `mostAffectedConcept` | 影響學生數（不同學生出錯人數）最多；非錯題筆數 |
+| **最常錯知識點** `mostMistakenConcept` | 期間錯題筆數排名第一 |
 
+| `riskLevel` | 條件（滿足任一；先判高再判中） |
+| ----------- | ------------------------------ |
+| `high`      | 期間錯題數 ≥ 5，或影響學生數 ≥ 3 |
+| `medium`    | 期間錯題數 ≥ 3，或影響學生數 ≥ 2（且非 high） |
+| `low`       | 不符合高／中 |
 
-| `riskLevel` | 條件（範例，可抽設定）                   |
-| ----------- | ----------------------------- |
-| `low`       | `affectedRatio < 0.1`         |
-| `medium`    | `0.1 <= affectedRatio < 0.25` |
-| `high`      | `affectedRatio >= 0.25`       |
-
-
-**高風險知識點數** = `conceptRiskRows` 中 `riskLevel === "high"` 的 distinct 知識點數。
+`affectedRatio` 仍可回傳供 UI，不參與分級。
 
 `**suggestedAction`（mock 範例）**：
 

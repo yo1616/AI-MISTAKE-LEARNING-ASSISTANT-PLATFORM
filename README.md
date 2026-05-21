@@ -973,187 +973,104 @@ Response:
 }
 ```
 
-## 8. 老師端分析
+## 8. 老師端 Dashboard API
 
-### 班級範圍與排序規則
+完整規格與 curl 範例見 [`docs/teacher-dashboard-api.md`](docs/teacher-dashboard-api.md)。後端啟動方式見 [`backend/API.md`](backend/API.md) §10。
 
-- 老師登入畫面可先選擇要查看的 `classId`，`className`用「年級 + 科目 + 班」表示（例如 `高二數學班`）
-- 一旦進入系統後，老師端看到的學生列表、統計、分析都以該班級為範圍
-- 全班學生列表可依兩種方式排序：
-  - 錯題數 `sortBy=mistakeCount`
-  - 不熟悉知識點數 `sortBy=weakConceptCount`
+### 前端頁面 ↔ API
 
-### 分析期間規則
+| 頁面 | API |
+|------|-----|
+| 班級／期間篩選 | `GET /api/teacher/classes` |
+| Dashboard | `GET /api/dashboard/overview` |
+| 學生列表 | `GET /api/dashboard/students` |
+| 學生詳情 | `GET /api/dashboard/students/:studentId/detail` |
+| 知識點管理 | `GET /api/dashboard/concepts-risk` |
 
-- 要能選擇統計期間`range`，有`7d`、`30d`、`custom`
-- 若 `range = custom`，則另外傳 `from` 與 `to`
+### 共用參數
 
-### 老師可查看班級列表
+- `classId`：班級（詳情、知識點風險必填；列表／overview 可用 `scope=allClasses`）
+- `range`：`7d` | `30d` | `custom`（`custom` 時加 `from`、`to`，時區建議 `+08:00`）
+- Quiz 答對率：期間內 `exam_submissions` + `exam_answers`，`accuracyRate = correctCount / totalAnswered`；seed 後 demo 班 `class_hs2_bio_01` 約 5/7
+
+### 學生列表排序
+
+`sortBy`：`mistakeCount` | `weakConceptCount` | `activeDays` | `generatedExamAccuracyRate` | `name`；可加 `q`、`page`、`limit`。
+
+### 向後相容
+
+- `GET /api/dashboard/summary` → overview 子集
+- `GET /api/dashboard/students/:studentId/concepts`
+- `GET /api/dashboard/students/:studentId/charts`（含 `generatedExamAccuracyTrend`）
+
+### 範例：班級列表
 
 `GET /api/teacher/classes`
 
-Response:
-
 ```json
 {
   "success": true,
   "data": [
     {
-      "id": "class_hs2_math_01",
-      "name": "高二數學班"
-    },
-    {
-      "id": "class_hs3_bio_01",
-      "name": "高三生物班"
+      "id": "class_hs2_bio_01",
+      "name": "高二生物班",
+      "gradeYear": "高二",
+      "subjectId": "subject_bio",
+      "subjectName": "生物"
     }
   ]
 }
 ```
 
-### 全班學生列表
+### 範例：Dashboard overview
 
-`GET /api/dashboard/students?classId=class_hs2_math_01&range=30d&sortBy=mistakeCount`
-
-查看某個班級底下的學生，並依錯題數或出錯知識點數排序。
-
-Response:
-
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "studentId": "student_001",
-      "name": "王哈哈",
-      "gradeYear": "高二",
-      "className": "高二數學班",
-      "mistakeCount": 12,
-      "weakConceptCount": 4,
-      "generatedExamAccuracyRate": 0.8
-    },
-    {
-      "studentId": "student_002",
-      "name": "林沃沃",
-      "gradeYear": "高二",
-      "className": "高二數學班",
-      "mistakeCount": 9,
-      "weakConceptCount": 3,
-      "generatedExamAccuracyRate": 0.67
-    }
-  ]
-}
-```
-
-### 全班常錯觀念統計
-
-`GET /api/dashboard/summary?classId=class_hs2_math_01&range=30d&limit=5`
-
-老師查看全班在指定期間內整體較常錯的幾個觀念，並依錯誤次數排序
-
-Response:
+`GET /api/dashboard/overview?classId=class_hs2_bio_01&range=30d`
 
 ```json
 {
   "success": true,
   "data": {
     "range": "30d",
-    "weeklyMistakeCount": 12,
-    "studentCount": 3,
+    "classId": "class_hs2_bio_01",
+    "className": "高二生物班",
+    "enrolledStudentCount": 2,
+    "newMistakeCount": 4,
+    "activeStudentCount": 2,
     "generatedExamAccuracy": {
-      "correctCount": 16,
-      "totalAnswered": 22,
-      "accuracyRate": 0.73
+      "correctCount": 5,
+      "totalAnswered": 7,
+      "accuracyRate": 0.714
     },
-    "topWeakConcepts": [
-      {
-        "conceptId": "concept_bio_003",
-        "conceptName": "氣體交換",
-        "mistakeCount": 4,
-        "rank": 1
-      },
-      {
-        "conceptId": "concept_bio_001",
-        "conceptName": "血液循環方向",
-        "mistakeCount": 3,
-        "rank": 2
-      }
-    ]
+    "mistakeTrend": [{ "date": "2026-05-03", "count": 4 }],
+    "topConceptsByMistakeCount": [],
+    "studentsWithNoMistakes": { "count": 0, "students": [] },
+    "alertBanner": { "type": "info", "message": "本期間有 0 位學生無錯題紀錄" }
   }
 }
 ```
 
-### 單一學生常錯觀念分析
+### 範例：學生列表
 
-`GET /api/dashboard/students/:studentId/concepts?classId=class_hs2_math_01&range=30d&limit=5`
-
-查看單一學生在指定期間內最常錯的幾個觀念，並依錯誤次數排序
-
-Response:
+`GET /api/dashboard/students?classId=class_hs2_bio_01&range=30d&sortBy=mistakeCount`
 
 ```json
 {
   "success": true,
   "data": {
     "range": "30d",
-    "generatedExamAccuracy": {
-      "correctCount": 8,
-      "totalAnswered": 10,
-      "accuracyRate": 0.8
-    },
-    "topWeakConcepts": [
+    "classId": "class_hs2_bio_01",
+    "className": "高二生物班",
+    "total": 2,
+    "students": [
       {
-        "conceptId": "concept_bio_003",
-        "conceptName": "氣體交換",
-        "mistakeCount": 3,
-        "rank": 1
-      },
-      {
-        "conceptId": "concept_bio_001",
-        "conceptName": "血液循環方向",
+        "studentId": "student_001",
+        "name": "王哈哈",
+        "gradeYear": "高二",
         "mistakeCount": 2,
-        "rank": 2
+        "weakConceptCount": 2,
+        "activeDays": 1,
+        "generatedExamAccuracyRate": 0.667
       }
-    ],
-    "conceptDistribution": [
-      { "conceptId": "concept_bio_003", "conceptName": "氣體交換", "count": 3 },
-      { "conceptId": "concept_bio_001", "conceptName": "血液循環方向", "count": 2 }
-    ],
-    "unitDistribution": [
-      { "unitName": "單元二 呼吸作用", "count": 4 },
-      { "unitName": "單元一 人體的運輸與防禦", "count": 2 }
-    ]
-  }
-}
-```
-
-### 老師端單一學生分析圖表
-
-`GET /api/dashboard/students/:studentId/charts?classId=class_hs2_math_01&range=30d`
-
-查看單一學生在指定期間內的圖表資料
-
-Response:
-
-```json
-{
-  "success": true,
-  "data": {
-    "range": "30d",
-    "mistakeTrend": [
-      { "date": "2026-05-01", "count": 1 },
-      { "date": "2026-05-03", "count": 2 }
-    ],
-    "generatedExamAccuracyTrend": [
-      { "date": "2026-05-01", "accuracyRate": 0.5 },
-      { "date": "2026-05-03", "accuracyRate": 1.0 }
-    ],
-    "conceptDistribution": [
-      { "conceptId": "concept_bio_003", "conceptName": "氣體交換", "count": 3 },
-      { "conceptId": "concept_bio_001", "conceptName": "血液循環方向", "count": 2 }
-    ],
-    "unitDistribution": [
-      { "unitName": "單元二 呼吸作用", "count": 4 },
-      { "unitName": "單元一 人體的運輸與防禦", "count": 2 }
     ]
   }
 }

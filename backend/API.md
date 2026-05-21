@@ -532,7 +532,51 @@ curl http://localhost:3001/api/generated-exams/generated_exam_001/source-mistake
 - `conceptName`
 - `createdAt`
 
-## 10. Common Error Codes
+## 10. Teacher Dashboard APIs
+
+規格詳見 [`docs/teacher-dashboard-api.md`](../docs/teacher-dashboard-api.md)。`npm run db:seed` 會依 `demoData/demoData1` 的 `studentAnalyticsSummary` 寫入 `exam_submissions` / `exam_answers`，供 Quiz 答對率統計。
+
+### GET `/api/teacher/classes`
+
+```bash
+curl http://localhost:3001/api/teacher/classes
+```
+
+### GET `/api/dashboard/overview`
+
+```bash
+curl "http://localhost:3001/api/dashboard/overview?classId=class_hs2_bio_01&range=30d"
+```
+
+### GET `/api/dashboard/students`
+
+```bash
+curl "http://localhost:3001/api/dashboard/students?classId=class_hs2_bio_01&range=30d&sortBy=generatedExamAccuracyRate&sortOrder=desc"
+```
+
+### GET `/api/dashboard/students/:studentId/detail`
+
+```bash
+curl "http://localhost:3001/api/dashboard/students/student_001/detail?classId=class_hs2_bio_01&range=30d"
+```
+
+### GET `/api/dashboard/concepts-risk`
+
+```bash
+curl "http://localhost:3001/api/dashboard/concepts-risk?classId=class_hs2_bio_01&range=30d"
+```
+
+### 向後相容
+
+```bash
+curl "http://localhost:3001/api/dashboard/summary?classId=class_hs2_bio_01&range=30d"
+curl "http://localhost:3001/api/dashboard/students/student_001/concepts?classId=class_hs2_bio_01&range=30d"
+curl "http://localhost:3001/api/dashboard/students/student_001/charts?classId=class_hs2_bio_01&range=30d"
+```
+
+Dashboard 相關錯誤碼：`INVALID_RANGE`、`INVALID_CUSTOM_RANGE`、`MISSING_CLASS_ID`、`CLASS_NOT_FOUND`、`STUDENT_NOT_FOUND`、`STUDENT_NOT_IN_CLASS`、`SCOPE_NOT_SUPPORTED`。
+
+## 11. Common Error Codes
 
 目前常見錯誤碼：
 
@@ -543,7 +587,7 @@ curl http://localhost:3001/api/generated-exams/generated_exam_001/source-mistake
 - `GENERATED_EXAM_NOT_FOUND`：找不到生成考卷 / 練習題。
 - `INVALID_STARRED_VALUE`：`starred` 不是 boolean。
 
-## 11. Notes for Frontend Integration
+## 12. Notes for Frontend Integration
 
 - 所有 API 預設回傳 JSON。
 - `starred` 欄位會回傳 boolean。
@@ -551,5 +595,5 @@ curl http://localhost:3001/api/generated-exams/generated_exam_001/source-mistake
 - `options` 在 generated exam questions API 中會回傳 array。
 - `backend/data/app.sqlite` 不應該 commit。
 - `backend/node_modules/` 不應該 commit。
-- Dashboard / analytics API 尚未包含在本文件，會由另一位組員負責；老師端擴充統計之草稿規格見 [`docs/teacher-dashboard-api-draft.md`](../docs/teacher-dashboard-api-draft.md)。
+- 老師端 Dashboard API 見 [`docs/teacher-dashboard-api.md`](../docs/teacher-dashboard-api.md) 與本文件 §10。
 - Windows PowerShell 對 `curl -d` 的 JSON quoting 較容易出錯；若遇到 request body 解析錯誤，可以改用 `Invoke-RestMethod` 或在 cmd 中執行 curl。

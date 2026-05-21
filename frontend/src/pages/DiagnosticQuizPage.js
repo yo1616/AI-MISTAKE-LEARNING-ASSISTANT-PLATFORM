@@ -275,10 +275,7 @@ if (pageState === 'result') {
                   </div>
                 </div>
                 
-                {/* 文章內容（如果有） */}
-                {q.passage && (
-                  <div className="question-passage">{q.passage}</div>
-                )}
+                
                 
                 <div className="question-text">{q.text}</div>
                 
@@ -290,8 +287,6 @@ if (pageState === 'result') {
                     if (answers[idx] === optIdx && optIdx !== q.correct) optionClass += ' wrong-option';
                     
                     let statusText = '';
-                    if (optIdx === q.correct) statusText = '(正確答案)';
-                    if (answers[idx] === optIdx && optIdx !== q.correct) statusText = '(您的答案)';
                     
                     return (
                       <div key={optIdx} className={optionClass}>
@@ -304,7 +299,7 @@ if (pageState === 'result') {
                 </div>
                 
                 <div className="explanation-section">
-                  <div className="explanation-title">📖 解析 (Analysis)</div>
+                  <div className="explanation-title">解析 (Analysis)</div>
                   <div className="explanation-text">{q.explanation}</div>
                 </div>
               </div>
@@ -364,16 +359,10 @@ return (
         
         {/* 答案反饋區域 */}
         {showFeedback && (
-          <div className="answer-feedback">
-            {showAddToMistake && (
-                <button className="add-to-mistake-btn" onClick={handleAddToMistake}>
-                    加入錯題本
-                </button>
-                )}
-                <button className="next-question-btn" onClick={handleNextQuestion}>
-                下一題
-            </button>
-          </div>
+         <div className="button-group">
+            <button className="add-to-mistake-btn" onClick={handleAddToMistake}>加入錯題本</button>
+            <button className="next-question-btn" onClick={handleNextQuestion}>下一題</button>
+            </div>
         )}
       </div>
     </div>

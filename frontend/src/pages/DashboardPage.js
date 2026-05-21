@@ -130,7 +130,6 @@ const validateDateRange = (start, end) => {
         {/* 歡迎語 */}
         <div className="welcome-section">
           <div className="greeting">{studentName}，你好</div>
-          <div className="insights-label">Insights:</div>
         </div>
         
         {/* 日期範圍選擇器 */}

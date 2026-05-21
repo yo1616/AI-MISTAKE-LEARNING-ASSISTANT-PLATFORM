@@ -210,7 +210,7 @@ function HomePage() {
         <PageHeader title="Home" />
         <div className="home-content">
           {messages.length === 0 ? (
-            <div className="welcome-text">你好<br />有哪個題目需要幫忙呢？</div>
+            <div className="welcome-text">有哪個題目需要幫忙呢？</div>
           ) : (
             <div style={{ minHeight: '20px' }}></div>
           )}

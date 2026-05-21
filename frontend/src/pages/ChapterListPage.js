@@ -38,7 +38,7 @@ function ChapterListPage() {
   return (
     <div className="chapter-page">
       <div className="chapter-container">
-        <PageHeader title="錯提列表" />
+        <PageHeader title="錯題列表" />
         <div className="chapter-card">
           <div className="chapter-title">章節列表</div>
           <div className="unit-list">

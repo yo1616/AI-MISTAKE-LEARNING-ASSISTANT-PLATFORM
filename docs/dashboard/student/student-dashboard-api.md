@@ -72,11 +72,31 @@ curl "http://localhost:3001/api/students/student_001/dashboard?from=2026-04-21&t
     "to": "2026-05-21T23:59:59+08:00",
     "summary": {
       "totalMistakes": 12,
+      "totalMistakesIncrease": {
+        "currentCount": 12,
+        "previousCount": 109,
+        "increaseRate": 0.11009174311926606
+      },
       "totalConcepts": 5,
+      "totalConceptsIncrease": {
+        "currentCount": 5,
+        "previousCount": 96,
+        "increaseRate": 0.052083333333333336
+      },
       "quizAccuracy": {
         "correctCount": 18,
         "totalAnswered": 24,
-        "accuracyRate": 0.75
+        "accuracyRate": 0.75,
+        "increase": {
+          "currentCount": 18,
+          "previousCount": 212,
+          "increaseRate": 0.08490566037735849
+        }
+      },
+      "quizAccuracyIncrease": {
+        "currentCount": 18,
+        "previousCount": 212,
+        "increaseRate": 0.08490566037735849
       }
     },
     "unitDistribution": [
@@ -118,10 +138,20 @@ curl "http://localhost:3001/api/students/student_001/dashboard?from=2026-04-21&t
 | 欄位 | 型別 | 說明 |
 |------|------|------|
 | `summary.totalMistakes` | number | 期間內錯題總筆數 |
+| `summary.totalMistakesIncrease.currentCount` | number | 選取期間內新增錯題數，等於 `summary.totalMistakes` |
+| `summary.totalMistakesIncrease.previousCount` | number | `from` 以前該學生累積錯題數 |
+| `summary.totalMistakesIncrease.increaseRate` | number \| null | `currentCount / previousCount`，前端顯示百分比時乘 100；若 `previousCount = 0` 回 `null` |
 | `summary.totalConcepts` | number | 期間內 distinct `conceptId` 數量 |
+| `summary.totalConceptsIncrease.currentCount` | number | 選取期間內新增 distinct `conceptId` 數量，等於 `summary.totalConcepts` |
+| `summary.totalConceptsIncrease.previousCount` | number | `from` 以前該學生錯題涉及的累積 distinct `conceptId` 數量 |
+| `summary.totalConceptsIncrease.increaseRate` | number \| null | `currentCount / previousCount`，前端顯示百分比時乘 100；若 `previousCount = 0` 回 `null` |
 | `summary.quizAccuracy.correctCount` | number | 期間內 Quiz 作答正確題數 |
 | `summary.quizAccuracy.totalAnswered` | number | 期間內 Quiz 總作答題數 |
 | `summary.quizAccuracy.accuracyRate` | number \| null | `correctCount / totalAnswered`，範圍 0~1；若無作答則回 `null` |
+| `summary.quizAccuracy.increase.currentCount` | number | 選取期間內 Quiz 答對題數，等於 `summary.quizAccuracy.correctCount` |
+| `summary.quizAccuracy.increase.previousCount` | number | `from` 以前該學生累積 Quiz 答對題數 |
+| `summary.quizAccuracy.increase.increaseRate` | number \| null | `currentCount / previousCount`，前端顯示百分比時乘 100；若 `previousCount = 0` 回 `null` |
+| `summary.quizAccuracyIncrease` | object | 同 `summary.quizAccuracy.increase`，提供給卡片直接取用 |
 
 ### 5.2 錯誤分布
 
@@ -158,6 +188,14 @@ where student_id = :studentId
 and created_at between from and to
 ```
 
+新增百分比：
+
+```text
+totalMistakesIncrease.increaseRate =
+  count(mistake_records where created_at between from and to)
+  / count(mistake_records where created_at < from)
+```
+
 ### 總概念數
 
 定義：該學生在指定期間內錯題所涉及的不重複知識點數。
@@ -166,6 +204,14 @@ and created_at between from and to
 totalConcepts = count(distinct concept_id)
 where student_id = :studentId
 and created_at between from and to
+```
+
+新增百分比：
+
+```text
+totalConceptsIncrease.increaseRate =
+  count(distinct concept_id where created_at between from and to)
+  / count(distinct concept_id where created_at < from)
 ```
 
 ### 答對率
@@ -181,6 +227,16 @@ accuracyRate = correctCount / totalAnswered
 - `correctCount` = `exam_answers.is_correct = 1` 的筆數
 - `totalAnswered` = 該期間內所有 `exam_answers` 筆數
 - 若 `totalAnswered = 0`，建議回傳 `accuracyRate: null`
+
+答對題數新增百分比：
+
+```text
+quizAccuracyIncrease.increaseRate =
+  count(correct exam_answers where submitted_at between from and to)
+  / count(correct exam_answers where submitted_at < from)
+```
+
+若分母為 0，`increaseRate` 回 `null`。
 
 ### 錯誤分布
 

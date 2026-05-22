@@ -238,6 +238,59 @@ function aggregateExamAccuracyAllClasses(db, studentIds, from, to) {
   };
 }
 
+function calculateIncreaseRate(currentCount, previousCount) {
+  if (previousCount <= 0) {
+    return null;
+  }
+  return currentCount / previousCount;
+}
+
+function getStudentMistakeBaseline(db, studentId, classId, before) {
+  const classFilter = classId ? 'AND class_id = ?' : '';
+  const params = classId ? [studentId, before, classId] : [studentId, before];
+
+  const row = db.prepare(`
+    SELECT
+      COUNT(*) AS totalMistakes,
+      COUNT(DISTINCT concept_id) AS totalConcepts
+    FROM mistake_records
+    WHERE student_id = ?
+      AND created_at < ?
+      ${classFilter}
+  `).get(...params);
+
+  return {
+    totalMistakes: Number(row?.totalMistakes) || 0,
+    totalConcepts: Number(row?.totalConcepts) || 0
+  };
+}
+
+function getStudentExamBaseline(db, studentId, classId, before) {
+  const classFilter = classId ? 'AND (ge.class_id = ? OR ge.class_id IS NULL)' : '';
+  const params = classId ? [studentId, before, classId] : [studentId, before];
+
+  const row = db.prepare(`
+    SELECT
+      SUM(ea.is_correct) AS correctCount,
+      COUNT(ea.id) AS totalAnswered
+    FROM exam_submissions es
+    JOIN exam_answers ea ON ea.submission_id = es.id
+    JOIN generated_exams ge ON ge.id = es.exam_id
+    WHERE es.student_id = ?
+      AND es.submitted_at < ?
+      ${classFilter}
+  `).get(...params);
+
+  const correctCount = Number(row?.correctCount) || 0;
+  const totalAnswered = Number(row?.totalAnswered) || 0;
+
+  return {
+    correctCount,
+    totalAnswered,
+    accuracyRate: totalAnswered > 0 ? correctCount / totalAnswered : null
+  };
+}
+
 function buildStudentStats(enrolled, mistakes, examByStudent) {
   const mistakesByStudent = new Map();
   for (const m of mistakes) {
@@ -1107,6 +1160,31 @@ function getStudentDashboard(studentId, query) {
       .map(({ rank, unitId, ...rest }) => rest);
     const unitDistribution = buildUnitDistribution(db, mistakes, unitLimit);
     const totalConcepts = new Set(mistakes.map((m) => m.conceptId).filter(Boolean)).size;
+    const mistakeBaseline = getStudentMistakeBaseline(db, studentId, classId, from);
+    const examBaseline = getStudentExamBaseline(db, studentId, classId, from);
+    const totalMistakesIncrease = {
+      currentCount: mistakes.length,
+      previousCount: mistakeBaseline.totalMistakes,
+      increaseRate: calculateIncreaseRate(mistakes.length, mistakeBaseline.totalMistakes)
+    };
+    const totalConceptsIncrease = {
+      currentCount: totalConcepts,
+      previousCount: mistakeBaseline.totalConcepts,
+      increaseRate: calculateIncreaseRate(totalConcepts, mistakeBaseline.totalConcepts)
+    };
+    const quizAccuracy = {
+      ...exam,
+      increase: {
+        currentCount: exam.correctCount,
+        previousCount: examBaseline.correctCount,
+        increaseRate: calculateIncreaseRate(exam.correctCount, examBaseline.correctCount)
+      }
+    };
+    const quizAccuracyIncrease = {
+      currentCount: exam.correctCount,
+      previousCount: examBaseline.correctCount,
+      increaseRate: calculateIncreaseRate(exam.correctCount, examBaseline.correctCount)
+    };
 
     const data = {
       studentId: student.studentId,
@@ -1116,8 +1194,11 @@ function getStudentDashboard(studentId, query) {
       to,
       summary: {
         totalMistakes: mistakes.length,
+        totalMistakesIncrease,
         totalConcepts,
-        quizAccuracy: exam
+        totalConceptsIncrease,
+        quizAccuracy,
+        quizAccuracyIncrease
       },
       unitDistribution,
       topWeakConcepts

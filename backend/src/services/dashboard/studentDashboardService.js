@@ -18,9 +18,12 @@ function withMainFrontendFields(result) {
     data: {
       ...data,
       totalMistakes: data.summary?.totalMistakes || 0,
+      totalMistakesIncrease: data.summary?.totalMistakesIncrease || null,
       totalConcepts,
+      totalConceptsIncrease: data.summary?.totalConceptsIncrease || null,
       starredNotes: totalConcepts,
       generatedExamAccuracy: quizAccuracy,
+      generatedExamAccuracyIncrease: data.summary?.quizAccuracyIncrease || null,
       conceptDistribution: (data.topWeakConcepts || []).map((concept) => ({
         conceptId: concept.conceptId,
         conceptName: concept.conceptName,

@@ -246,10 +246,13 @@ curl "http://localhost:3001/api/students/student_001/dashboard?classId=class_hs2
 - `from`
 - `to`
 - `summary.totalMistakes`
+- `summary.totalMistakesIncrease.increaseRate`
 - `summary.totalConcepts`
+- `summary.totalConceptsIncrease.increaseRate`
 - `summary.quizAccuracy.correctCount`
 - `summary.quizAccuracy.totalAnswered`
 - `summary.quizAccuracy.accuracyRate`
+- `summary.quizAccuracyIncrease.increaseRate`
 - `unitDistribution[]`
 - `topWeakConcepts[]`
 

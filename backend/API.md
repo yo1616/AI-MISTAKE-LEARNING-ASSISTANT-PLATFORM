@@ -831,5 +831,5 @@ Teacher Dashboard 兼容 `frontend-prototype`：`classId` 可使用 `all`、`cla
 - `options` 在 generated exam questions API 中會回傳 array。
 - `backend/data/app.sqlite` 不應該 commit。
 - `backend/node_modules/` 不應該 commit。
-- 老師端 Dashboard API 見 [`docs/dashboard/teacher/teacher-dashboard-api.md`](../docs/dashboard/teacher/teacher-dashboard-api.md) 與本文件 §10。
+- 老師端 Dashboard API 見 [`docs/dashboard/teacher/teacher-dashboard-api.md`](../docs/dashboard/teacher/teacher-dashboard-api.md) 與本文件 §11。
 - Windows PowerShell 對 `curl -d` 的 JSON quoting 較容易出錯；若遇到 request body 解析錯誤，可以改用 `Invoke-RestMethod` 或在 cmd 中執行 curl。

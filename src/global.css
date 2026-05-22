@@ -1,0 +1,953 @@
+/* ==========================================================================
+   1. 設計系統變數 & 基礎重置 (Design System & Base Reset)
+   ========================================================================== */
+:root {
+  /* 品牌色 & 語意色 */
+  --color-primary: #0088FF;
+  --color-primary-active: #0077EE;
+  --color-secondary: #4C5484;
+  --color-secondary-bg: #6E7084;
+  --color-success: #34C759;
+  --color-danger: #BA1A1A;
+  --color-warning: #FFCC00;
+  
+  /* 灰色階 */
+  --color-bg-main: #F6F6F6;
+  --color-bg-card: #FFFFFF;
+  --color-bg-header: #f6f6f6;
+  --color-bg-header: ;
+  --color-text-main: #000000;
+  --color-text-muted: #8E8E93;
+  --color-text-dark: #1A1A1A;
+  --color-border: #D9D9D9;
+  --color-border-light: #E5E5EA;
+
+  /* 動畫 */
+  --transition-fast: all 0.2s ease;
+  --transition-normal: all 0.3s ease;
+  
+  /* 陰影 */
+  --shadow-sm: 0px 2px 4px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0px 2px 8px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0px 8px 40px rgba(0, 0, 0, 0.12);
+  --shadow-quiz: 0px 0px 16px rgba(0, 0, 0, 0.25);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, 'SF Pro', 'Inter', 'Helvetica Neue', sans-serif;
+  /* ⚠️ 修正：背景色改成淡淡的 iOS 灰即可，取消任何 flex 置中，讓網頁回歸正常的靠上對齊 */
+  background-color: #F2F2F7; 
+  color: var(--color-text-main);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ==========================================================================
+   2. 頁面通用骨架 & 全域佈局容器 (Global Layout Containers)
+   ========================================================================== */
+/* 核心手機容器：靠上頂住、水平置中 */
+.app-container-max {
+  width: 100%;
+  max-width: 402px;            /* 限制 iPhone 最大寬度 */
+  min-height: 100vh;           /* 至少撐滿整個螢幕高度 */
+  margin: 0 auto;              /* 💡 關鍵：這樣就能做到「水平置中，但垂直靠上對齊」 */
+  background: var(--color-bg-main);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  
+  /* 電腦瀏覽器檢視時的模擬手機外框效果 */
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.08);
+  border-left: 1px solid rgba(0, 0, 0, 0.05);
+  border-right: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* 全螢幕固定層（側邊選單、彈出蓋板）：在電腦上老實待在手機框內，在手機上完美滿版 */
+.page-fixed-fullscreen, .menu-overlay {
+  position: absolute; 
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  overflow-y: auto;
+}
+
+.menu-drawer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 280px;      /* 恢復你原本 HomePage.css 定義的精確 280px */
+  height: 100%;
+  background: var(--color-bg-card);
+  z-index: 201;
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
+  animation: slideIn 0.3s ease;
+}
+
+/* 📱 關鍵：當裝置真的是 iPhone / 手機時（螢幕寬度小於 440px） */
+@media (max-width: 440px) {
+  body {
+    background-color: var(--color-bg-main);
+  }
+  
+  .app-container-max {
+    max-width: 100%;       /* 手機上 100% 滿版 */
+    min-height: 100vh;
+    border: none;          /* 拔掉外框線 */
+    box-shadow: none;      /* 拔掉陰影 */
+  }
+  
+  /* 在真實手機上，切換回 fixed 才能鎖定在手機螢幕最上層 */
+  .page-fixed-fullscreen, .menu-overlay {
+    position: fixed;
+  }
+  .menu-drawer {
+    position: fixed;
+  }
+}
+/* ==========================================================================
+   3. 共用頭部組件樣式 (PageHeader & HomeHeader)
+   ========================================================================== */
+.page-header, .home-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px;
+  background: var(--color-bg-header);
+  min-height: 56px;
+  margin-top: 50px; 
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  z-index: 10;
+  width: 60px;
+  padding-left: 0;  /* 確保沒有多餘內邊距 */
+  margin-left: 0;   /* 確保沒有多餘外邊距 */
+}
+
+.header-right, .header-placeholder {
+  width: 60px;
+}
+
+.page-title, .home-title {
+  font-weight: 600;
+  font-size: 17px;
+  line-height: 22px;
+  color: var(--color-text-main);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+}
+
+/* 漢堡選單圖示 */
+.hamburger-icon {
+  width: 24px;
+  height: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.hamburger-icon span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: var(--color-text-dark);
+  border-radius: 2px;
+}
+
+.back-btn:active, .hamburger-icon:active, .back-home:active {
+  opacity: 0.6;
+}
+
+.back-home {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.back-text {
+  font-size: 17px;
+  color: var(--color-primary);
+}
+
+.back-arrow-icon {
+  font-size: 32px;
+  font-weight: 500;
+  color: #0088FF;
+  line-height: 0.8;
+  margin-top: -4px;
+  display: inline-block;
+}
+
+/* ==========================================================================
+   4. 全域對話氣泡組件（首頁與歷史頁共用）
+   ========================================================================== */
+.message {
+  display: flex;
+  flex-direction: column;
+}
+
+.message.user { align-items: flex-end; }
+.message.ai   { align-items: flex-start; }
+
+.message-bubble {
+  max-width: 85%;
+  padding: 12px 16px;
+  border-radius: 20px;
+  background: var(--color-bg-card);
+  box-shadow: var(--shadow-md);
+  position: relative;
+}
+
+.message.user .message-bubble {
+  background: var(--color-primary);
+  color: white;
+}
+
+.message.ai .message-bubble {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-light);
+}
+
+.message-text {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-text-main);
+  white-space: pre-wrap;
+}
+
+.message.user .message-text { color: white; }
+
+.message-time {
+  font-size: 10px;
+  color: var(--color-text-muted);
+  margin-top: 4px;
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+.message-star {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+}
+
+/* 對話底部與關聯概念 */
+.message-footer {
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid #F0F0F0;
+}
+
+.related-info { font-size: 12px; color: var(--color-text-muted); margin-bottom: 8px; }
+.related-label { font-weight: 500; }
+.related-concept { color: var(--color-primary); cursor: pointer; text-decoration: underline; }
+
+
+/* ==========================================================================
+   6. 通用列表、選單與卡片容器 (Cards & Menus)
+   ========================================================================== */
+.ui-card-base {
+  background: var(--color-bg-card);
+  border-radius: 12px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.favorites-section, .studytools-section {
+  background: var(--color-bg-card);
+  box-shadow: var(--shadow-sm);
+  border-radius: 12px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.section-header {
+  padding: 10px 16px;
+  font-weight: 400;
+  font-size: 15px;
+  color: rgba(0, 0, 0, 0.57);
+  background: var(--color-bg-card);
+}
+
+/* 選單項目 */
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  border-bottom: 0.5px solid #D9D9D9;
+  background: #FFFFFF;
+}
+
+.menu-item:last-child { border-bottom: none; }
+
+/* 刪除 :active 灰色反饋 */
+/* .menu-item:active { background: #E5E5EA; }  ← 刪除或註解掉 */
+
+/* 選中樣式 */
+.menu-item.selected {
+  background: #ededed;
+}
+
+.menu-item.selected .item-label {
+  font-weight: 500;
+  color: #0088FF;
+  transition: color 0.3s ease;
+}
+
+
+.item-label { flex: 1; font-size: 15px; color: var(--color-text-main); }
+
+/* ==========================================================================
+   7. 錯題筆記本與章節折疊列表 (Chapter List & Unit Sections)
+   ========================================================================== */
+/* ==========================================================================
+   章節列表樣式
+   ========================================================================== */
+.chapter-card {
+  background: var(--color-bg-card);
+  box-shadow: var(--shadow-sm);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.chapter-title { 
+  padding: 16px 0 0 16px; 
+  font-size: 17px; 
+  font-weight: 600; 
+  color: var(--color-text-main); 
+}
+
+.unit-list { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 13px; 
+  padding: 16px 0 24px; 
+}
+
+.unit-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 12px;
+  margin: 0 8px;
+}
+
+.unit-item.selected { 
+  background: #F2F2F7; 
+  
+}
+
+.unit-name { 
+  font-size: 17px; 
+  color: var(--color-text-muted); 
+}
+
+.unit-item.selected .unit-name { 
+  font-weight: 500; 
+  color: #0088FF; 
+}
+
+.unit-arrow { 
+  font-size: 14px; 
+  color: var(--color-text-muted); 
+  transition: var(--transition-fast); 
+}
+
+.unit-arrow.expanded { 
+  transform: rotate(90deg); 
+}
+
+/* 子單元列表 */
+.sub-lesson-list {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 16px 8px 32px;
+}
+
+.sub-lesson-list.show { 
+  display: flex; 
+}
+
+.sub-lesson-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: var(--transition-fast);
+}
+
+.sub-lesson-item:active { 
+  background: #E5E5EA; 
+}
+
+.sub-lesson-item.selected { 
+  background: #F2F2F7; 
+}
+
+.sub-lesson-name { 
+  font-size: 15px; 
+  color: var(--color-text-main); 
+}
+
+.sub-lesson-item.selected .sub-lesson-name { 
+  font-weight: 500; 
+  color: #0088FF; 
+}
+
+.sub-lesson-arrow { 
+  font-size: 15px; 
+  color: var(--color-text-muted); 
+}
+/* 返回章節列表按鈕容器 */
+.back-button-container {
+  position: fixed;
+  bottom: 20px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* 按鈕本體 - 置中 */
+.back-to-chapters-btn {
+  pointer-events: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 24px;
+  background: #FFFFFF;
+  border-radius: 40px;
+  border: 0.5px solid #E5E5EA;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+
+/* 點擊效果 */
+.back-to-chapters-btn:active {
+  transform: scale(0.96);
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.44), 0px 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* 文字 */
+.btn-text {
+  font-family: -apple-system, 'SF Pro', sans-serif;
+  font-weight: 510;
+  font-size: 17px;
+  line-height: 20px;
+  text-align: center;
+  color: #1A1A1A;
+  font-feature-settings: 'ss16' on;
+  mix-blend-mode: plus-darker;
+  position: relative;
+  z-index: 1;
+}
+/* ==========================================================================
+   8. 題目/錯題卡片通用樣式 (QuestionCard Component)
+   ========================================================================== */
+.question-card, .concept-card {
+  position: relative;
+  background: var(--color-bg-card);
+  border-radius: 12px;
+  padding: 16px 18px 13px 18px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm); 
+  overflow: hidden;
+}
+
+/* 展開時直接變淺綠色 */
+.question-card.expanded { 
+  background: #dedede; 
+  box-shadow: var(--shadow-sm); 
+  transition: none !important;
+}
+
+.question-header,.concept-header { 
+  display: flex;
+  align-items: center;
+  justify-content: space-between; 
+}
+
+.question-title,.concept-title  { 
+  font-weight: 590; 
+  font-size: 17px; 
+  line-height: 20px; 
+  letter-spacing: -0.43px; 
+  color: var(--color-text-main); 
+  margin-bottom: 4px;
+  flex: 1; 
+}
+
+.question-tags { font-style: italic; margin-bottom: 8px; }
+.tag { font-size: 13px; color: rgba(0, 0, 0, 0.60); margin-right: 8px; }
+.divider,.concept-divider { border: 0.5px solid var(--color-border); margin: 12px 0; }
+.question-card.expanded .divider { border-color: #C0C0C0; }
+.question-text,.concept-content { font-size: 13px; line-height: 18px; letter-spacing: -0.08px; color: rgba(0, 0, 0, 0.8); }
+.placeholder-image { width: 100%; height: 5px; background: #E5E5EA; border-radius: 2px; margin-top: 8px; }
+
+.expand-hint { 
+  text-align: center; 
+  margin-top: 12px; 
+  padding-top: 8px; 
+  cursor: pointer; 
+}
+
+.expand-hint span:hover { background: #E5E5EA; }
+
+.question-detail { margin-top: 8px; }
+.question-stem { margin: 12px 0; }
+.stem-text,.answer-label, .explanation-label { font-size: 13px; font-weight: 600; color: var(--color-text-main); display: block; margin-bottom: 8px; }
+.stem-content { font-size: 13px; line-height: 18px; color: rgba(0, 0, 0, 0.80); margin: 0; }
+
+.options { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+
+.option {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--color-bg-card);
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid var(--color-border-light);
+}
+
+.option.selected { 
+  background: #EDEDED; 
+}
+
+.option-letter { 
+  font-weight: 600; 
+  font-size: 14px; 
+  color: var(--color-text-main); 
+  min-width: 32px; 
+}
+
+.option-text { 
+  font-size: 14px; 
+  color: var(--color-text-main); 
+  flex: 1; 
+}
+
+/* 選中時文字變藍色 */
+.option.selected .option-letter,
+.option.selected .option-text {
+  color: #0088FF;
+}
+
+
+.answer-section {
+  margin-top: 12px; 
+}
+
+.answer { margin-bottom: 12px; }
+.answer-label, .explanation-label { 
+
+  display: block; 
+  margin-bottom: 4px; 
+}
+
+.answer-text, .explanation-text {
+  font-size: 13px;
+  line-height: 18px;
+  color: rgba(0, 0, 0, 0.8);
+  margin-bottom: 8px;
+}
+
+/* 範圍標籤 - 符合 Figma 設計 */
+.concept-location {
+  font-family: 'SF Pro', -apple-system, sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 18px;
+  letter-spacing: -0.08px;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.6);
+  display: inline-block;
+}
+
+
+/* 共用錯題列表容器 */
+.mistake-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 0 20px 0;
+}
+
+/* 空狀態 */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  background: #FFFFFF;
+  border-radius: 16px;
+  margin: 20px 18px;
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.empty-text {
+  font-family: -apple-system, 'SF Pro', sans-serif;
+  font-size: 17px;
+  font-weight: 500;
+  color: #1A1A1A;
+  margin-bottom: 8px;
+}
+
+.empty-hint {
+  font-family: -apple-system, 'SF Pro', sans-serif;
+  font-size: 13px;
+  color: #8E8E93;
+}
+
+/* ==========================================================================
+   9. 星標按鈕與微標籤 (StarButton & Micro Tags)
+   ========================================================================== */
+.card-star { position: absolute; top: 16px; right: 16px; cursor: pointer; z-index: 10; }
+.star-button { display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s ease; }
+.star-button:hover { transform: scale(1.1); }
+.star-button:active { transform: scale(0.95); }
+.mistake-chapter-tag { font-weight: 400; font-size: 12px; color: var(--color-primary); background: #E8F0E2; display: inline-block; padding: 2px 10px; border-radius: 20px; margin-bottom: 10px; }
+
+/* ==========================================================================
+   10. 全域通用原子樣式類 (Utility Classes)
+   ========================================================================== */
+.text-center { text-align: center; }
+.p-40        { padding: 40px; }
+.color-gray  { color: var(--color-text-muted); }
+.mt-10       { margin-top: 10px; }
+.mb-10       { margin-bottom: 10px; }
+.flex-between { display: flex; justify-content: space-between; align-items: center; }
+/* ==========================================================================
+   11. 下拉選單 (Dropdown Menu)
+   ========================================================================== */
+
+/* 下拉選單容器 */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+/* 下拉選單觸發按鈕 */
+.dropdown-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(118, 128, 128, 0.12);
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 8px;
+  min-width: 100px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.dropdown-trigger span {
+  font-size: 14px;
+  color: var(--color-text-main);
+}
+
+.dropdown-trigger .dropdown-icon {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.54);
+  transition: transform 0.2s;
+}
+
+.dropdown-trigger.open .dropdown-icon {
+  transform: rotate(180deg);
+}
+
+/* 下拉選單面板 - 符合 Figma 設計 */
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 100%;
+  background: #FFFFFF;
+  box-shadow: 0px 3px 14px 2px rgba(0, 0, 0, 0.12), 
+              0px 8px 10px 1px rgba(0, 0, 0, 0.14), 
+              0px 5px 5px -3px rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  z-index: 100;
+  overflow: hidden;
+  animation: dropdownFadeIn 0.2s ease;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 選項列表 */
+.dropdown-list {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+  margin: 0;
+  list-style: none;
+}
+
+/* 選項項目 - 符合 Figma MenuItem */
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  padding: 6px 16px;
+  min-height: 36px;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-family: 'Roboto', -apple-system, sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 150%;
+  letter-spacing: 0.15px;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.dropdown-item:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.dropdown-item:active {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.dropdown-item.selected {
+  background: rgba(0, 136, 255, 0.08);
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   1. 全局左右边距限制 (Global Horizontal Padding)
+   ========================================================================== */
+
+/* 所有內容容器左右留白 18px */
+.app-container-max,
+.home-container,
+.menu,
+.chapter-container,
+.mistake-detail-container,
+.important-mistake-container,
+.concept-container,
+.important-concept-container,
+.quiz-container,
+.dashboard-container,
+.account-container,
+.chat-history-container {
+  padding-left: 18px;
+  padding-right: 18px;
+}
+
+/* 讓卡片佔滿寬度（不額外縮減） */
+.quiz-setup-card,
+.chapter-card,
+.favorites-section,
+.studytools-section,
+.question-card,
+.concept-card,
+.mistake-card,
+.account-card {
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/* 確保內容不超出 */
+* {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* 錯題列表容器 */
+.mistake-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 18px 20px 18px;
+}
+
+/* 錯題卡片 */
+.mistake-card {
+  background: #FFFFFF;
+  border-radius: 12px;
+  padding: 16px;
+  position: relative;
+  cursor: pointer;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);
+  transition: none !important;
+}
+
+.mistake-card.expanded {
+  background: #F0F4EC;
+}
+
+
+
+/* 標題 */
+.mistake-title {
+  font-weight: 590;
+  font-size: 17px;
+  line-height: 22px;
+  margin-bottom: 8px;
+}
+
+/* 標籤 */
+.mistake-tags {
+  margin-bottom: 1
+  2px;
+}
+
+.tag {
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.6);
+  margin-right: 8px;
+}
+
+
+/* 描述 */
+.mistake-description {
+  font-size: 13px;
+  line-height: 18px;
+  color: rgba(0, 0, 0, 0.8);
+}
+
+
+
+
+
+
+/* 概念列表容器 */
+.concept-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 18px 20px 18px;
+}
+
+/* 概念卡片 */
+.concept-card {
+  background: #FFFFFF;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 12px;
+  padding: 16px 18px 13px 18px;
+  position: relative;
+  cursor: pointer;
+  transition: none !important;
+}
+
+/* 概念卡片展開狀態 */
+.concept-card.expanded {
+  background: #F0F4EC;
+}
+
+/* 標題區域 */
+.concept-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.concept-title {
+  font-family: 'SF Pro', -apple-system, sans-serif;
+  font-weight: 590;
+  font-size: 17px;
+  line-height: 22px;
+  letter-spacing: -0.43px;
+  color: #000000;
+  flex: 1;
+}
+
+/* 位置標籤 */
+.concept-location {
+  font-family: 'SF Pro', -apple-system, sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 18px;
+  letter-spacing: -0.08px;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.6);
+  margin-bottom: 12px;
+}
+
+/* 分割線 */
+.concept-divider {
+  border: 0.5px solid #D9D9D9;
+  margin: 1px 0 12px 0;
+  transform: rotate(-0.17deg);
+}
+
+/* 概念內容 */
+.concept-content {
+  font-family: 'SF Pro', -apple-system, sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 18px;
+  letter-spacing: -0.08px;
+  color: rgba(0, 0, 0, 0.8);
+  white-space: pre-line;
+}
+
+
+
+.concept-detail {
+  font-family: 'SF Pro', -apple-system, sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 18px;
+  letter-spacing: -0.08px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+/* 星標位置 */
+.concept-card .card-star {
+  position: static;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* 點擊效果 */
+.concept-card:active {
+  background: #F6F6F6;
+}

@@ -1,0 +1,133 @@
+/* ==========================================================================
+   Account - iOS 黑白精緻灰風格
+   ========================================================================== */
+
+.account-card { 
+  background: #FFFFFF;
+  border-radius: 20px;
+  padding: 20px 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.card-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: #1C1C1E;
+  margin-bottom: 16px;
+  letter-spacing: -0.4px;
+}
+
+.info-list { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 8px; 
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #F2F2F7;
+  border-radius: 14px;
+  padding: 16px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.info-row:active { 
+  background: #E5E5EA; 
+}
+
+.info-label { 
+  font-size: 15px; 
+  font-weight: 500;
+  color: #8E8E93; 
+  letter-spacing: -0.3px;
+}
+
+.info-value-wrapper { 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+}
+
+.info-value { 
+  font-size: 15px; 
+  font-weight: 500;
+  text-align: right; 
+  color: #1C1C1E; 
+  letter-spacing: -0.3px;
+}
+
+.next-icon { 
+  font-size: 16px; 
+  color: #8E8E93; 
+}
+
+/* 科目標籤 */
+.subjects-row { 
+  padding: 12px 16px; 
+}
+
+.subjects-tags { 
+  display: flex; 
+  flex-wrap: wrap;
+  gap: 8px; 
+}
+
+.subject-tag { 
+  background: #E5E5EA; 
+  border-radius: 20px; 
+  padding: 6px 12px; 
+  font-size: 14px; 
+  font-weight: 500;
+  color: #1C1C1E;
+}
+
+/* 通知設定 */
+.notification-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #F2F2F7;
+  border-radius: 14px;
+  padding: 16px 16px;
+}
+
+.notification-label { 
+  font-weight: 500; 
+  font-size: 16px; 
+  color: #1C1C1E;
+  letter-spacing: -0.3px;
+}
+
+/* Toggle 開關 - iOS 風格 */
+.toggle-switch {
+  width: 51px;
+  height: 31px;
+  background: #E5E5EA;
+  border-radius: 100px;
+  padding: 2px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.toggle-switch.active { 
+  background: #34C759; 
+}
+
+.toggle-knob { 
+  width: 27px; 
+  height: 27px; 
+  background: #FFFFFF; 
+  border-radius: 50%; 
+  transition: transform 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-switch.active .toggle-knob { 
+  transform: translateX(20px); 
+}

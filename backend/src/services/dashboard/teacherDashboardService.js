@@ -8,6 +8,19 @@ function toPercent(rate) {
   return Math.round(rate * 100);
 }
 
+function classQuizAccuracyFromAccuracy(accuracy) {
+  return toPercent(accuracy?.accuracyRate);
+}
+
+function averageWeakConceptCount(students) {
+  if (!students || students.length === 0) {
+    return '0.0';
+  }
+
+  const average = students.reduce((sum, student) => sum + student.weakConceptCount, 0) / students.length;
+  return average.toFixed(1);
+}
+
 function withPrototypeStudentFields(payload) {
   return {
     ...toPrototypeClass(payload),
@@ -29,11 +42,29 @@ function asPrototypeStudentArray(result) {
 }
 
 function withPrototypeSummaryFields(payload) {
+  const students = payload.students || [];
+
   return {
     ...toPrototypeClass(payload),
+    studentsWithNoMistakes: payload.studentsWithNoMistakes
+      ? {
+        ...payload.studentsWithNoMistakes,
+        students
+      }
+      : payload.studentsWithNoMistakes,
     weeklyMistakeCount: payload.newMistakeCount,
     studentCount: payload.enrolledStudentCount,
+    classQuizAccuracy: classQuizAccuracyFromAccuracy(payload.generatedExamAccuracy),
+    averageWeakConceptCount: averageWeakConceptCount(students),
     topWeakConcepts: payload.topConceptsByMistakeCount || []
+  };
+}
+
+function withPrototypeSummarySubsetFields(payload) {
+  return {
+    ...toPrototypeClass(payload),
+    classQuizAccuracy: classQuizAccuracyFromAccuracy(payload.generatedExamAccuracy),
+    averageWeakConceptCount: payload.averageWeakConceptCount ?? null
   };
 }
 
@@ -71,10 +102,29 @@ module.exports = {
     return mapResult(dashboardService.getDashboardOverview(query), withPrototypeSummaryFields);
   },
   getSummary(query) {
-    return mapResult(dashboardService.getDashboardSummary(query), toPrototypeClass);
+    const summaryResult = dashboardService.getDashboardSummary(query);
+    if (!summaryResult.ok) {
+      return summaryResult;
+    }
+
+    const studentsResult = dashboardService.getDashboardStudents(query);
+    if (!studentsResult.ok) {
+      return studentsResult;
+    }
+
+    return {
+      ...summaryResult,
+      data: withPrototypeSummarySubsetFields({
+        ...summaryResult.data,
+        averageWeakConceptCount: averageWeakConceptCount(studentsResult.data.students || [])
+      })
+    };
   },
   getClassCharts(query) {
-    return mapResult(dashboardService.getClassCharts(query), toPrototypeClass);
+    return mapResult(dashboardService.getClassCharts(query), (payload) => ({
+      ...toPrototypeClass(payload),
+      classQuizAccuracy: classQuizAccuracyFromAccuracy(payload.generatedExamAccuracy)
+    }));
   },
   getStudents(query) {
     return asPrototypeStudentArray(dashboardService.getDashboardStudents(query));

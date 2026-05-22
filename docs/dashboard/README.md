@@ -22,5 +22,6 @@
 
 ## Notes
 
+- Dashboard 測試步驟見 [dashboard-testing.md](./dashboard-testing.md)
 - Student 詳細規格見 [student/student-dashboard-api.md](./student/student-dashboard-api.md)
 - Teacher 正式規格見 [teacher/teacher-dashboard-api.md](./teacher/teacher-dashboard-api.md)

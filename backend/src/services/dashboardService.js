@@ -266,7 +266,9 @@ function buildStudentStats(enrolled, mistakes, examByStudent) {
       mistakeCount: studentMistakes.length,
       weakConceptCount: conceptIds.size,
       activeDays: activeDaySet.size,
-      generatedExamAccuracyRate
+      generatedExamAccuracyRate,
+      quizCorrectCount: exam ? exam.correctCount : null,
+      quizTotalCount: exam ? exam.totalAnswered : null
     };
   });
 }
@@ -543,7 +545,6 @@ function getDashboardStudents(query) {
     const mistakes = ctx.scope === 'class'
       ? fetchMistakesInPeriod(db, studentIds, classId, from, to)
       : fetchMistakesInPeriodAllStudents(db, studentIds, from, to);
-
     const examStats = ctx.scope === 'class'
       ? aggregateExamAccuracy(db, studentIds, classId, from, to)
       : aggregateExamAccuracyAllClasses(db, studentIds, from, to);
@@ -594,7 +595,6 @@ function getDashboardOverview(query) {
     const mistakes = ctx.scope === 'class'
       ? fetchMistakesInPeriod(db, studentIds, classId, from, to)
       : fetchMistakesInPeriodAllStudents(db, studentIds, from, to);
-
     const examStats = ctx.scope === 'class'
       ? aggregateExamAccuracy(db, studentIds, classId, from, to)
       : aggregateExamAccuracyAllClasses(db, studentIds, from, to);
@@ -690,6 +690,9 @@ function getClassCharts(query) {
     const mistakes = ctx.scope === 'class'
       ? fetchMistakesInPeriod(db, studentIds, classId, from, to)
       : fetchMistakesInPeriodAllStudents(db, studentIds, from, to);
+    const examStats = ctx.scope === 'class'
+      ? aggregateExamAccuracy(db, studentIds, classId, from, to)
+      : aggregateExamAccuracyAllClasses(db, studentIds, from, to);
 
     const conceptDistribution = attachConceptNames(
       db,
@@ -704,6 +707,7 @@ function getClassCharts(query) {
       from,
       to,
       mistakeTrend: buildMistakeTrend(mistakes),
+      generatedExamAccuracy: examStats.classTotal,
       conceptDistribution,
       unitDistribution: buildUnitDistribution(db, mistakes, mistakes.length || 1)
         .map(({ mistakeCount, ...unit }) => ({ ...unit, count: mistakeCount }))

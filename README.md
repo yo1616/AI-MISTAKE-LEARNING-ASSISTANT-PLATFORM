@@ -975,7 +975,7 @@ Response:
 
 ## 8. 老師端 Dashboard API
 
-完整規格與 curl 範例見 [`docs/teacher-dashboard-api.md`](docs/teacher-dashboard-api.md)。後端啟動方式見 [`backend/API.md`](backend/API.md) §10。
+完整規格與 curl 範例見 [`docs/dashboard/teacher/teacher-dashboard-api.md`](docs/dashboard/teacher/teacher-dashboard-api.md)。後端啟動方式見 [`backend/API.md`](backend/API.md) §10。
 
 ### 前端頁面 ↔ API
 

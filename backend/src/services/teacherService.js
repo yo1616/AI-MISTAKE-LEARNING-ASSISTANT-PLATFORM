@@ -1,4 +1,5 @@
 const { openDatabase } = require('../db/connection');
+const { toPrototypeClassList } = require('../utils/frontendPrototypeClassMap');
 
 function withDb(callback) {
   const db = openDatabase();
@@ -10,7 +11,8 @@ function withDb(callback) {
 }
 
 function getTeacherClasses() {
-  return withDb((db) => db.prepare(`
+  return withDb((db) => {
+    const rows = db.prepare(`
     SELECT
       c.id,
       c.name,
@@ -20,7 +22,10 @@ function getTeacherClasses() {
     FROM classes c
     JOIN subjects s ON s.id = c.subject_id
     ORDER BY c.grade_year ASC, s.name ASC, c.name ASC
-  `).all());
+  `).all();
+
+    return toPrototypeClassList(rows);
+  });
 }
 
 module.exports = {

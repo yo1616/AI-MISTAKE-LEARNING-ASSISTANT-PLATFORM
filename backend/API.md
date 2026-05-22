@@ -218,6 +218,41 @@ curl http://localhost:3001/api/students/student_001/generated-exams
 - `subUnitId`, `subUnitName`
 - `conceptId`, `conceptName`
 
+### GET `/api/students/:studentId/dashboard`
+
+用途：取得學生端分析表資料，包含總錯題數、總概念數、Quiz 答對率、依單元的錯誤分布、常錯知識點排行。
+
+範例：
+
+```bash
+curl "http://localhost:3001/api/students/student_001/dashboard?from=2026-04-21&to=2026-05-21"
+curl "http://localhost:3001/api/students/student_001/dashboard?range=30d"
+curl "http://localhost:3001/api/students/student_001/dashboard?classId=class_hs2_bio_01&from=2026-04-21&to=2026-05-21"
+```
+
+主要 query 參數：
+
+- `from`, `to`
+- 或 `range=7d|30d|custom`
+- `classId`（可選）
+- `unitLimit`
+- `conceptLimit`
+
+主要回傳欄位：
+
+- `studentId`
+- `studentName`
+- `range`
+- `from`
+- `to`
+- `summary.totalMistakes`
+- `summary.totalConcepts`
+- `summary.quizAccuracy.correctCount`
+- `summary.quizAccuracy.totalAnswered`
+- `summary.quizAccuracy.accuracyRate`
+- `unitDistribution[]`
+- `topWeakConcepts[]`
+
 ## 6. Chat Session APIs
 
 ### GET `/api/chat-sessions/:sessionId`
@@ -534,7 +569,7 @@ curl http://localhost:3001/api/generated-exams/generated_exam_001/source-mistake
 
 ## 10. Teacher Dashboard APIs
 
-規格詳見 [`docs/teacher-dashboard-api.md`](../docs/teacher-dashboard-api.md)。`npm run db:seed` 會依 `demoData/demoData1` 的 `studentAnalyticsSummary` 寫入 `exam_submissions` / `exam_answers`，供 Quiz 答對率統計。
+規格詳見 [`docs/dashboard/teacher/teacher-dashboard-api.md`](../docs/dashboard/teacher/teacher-dashboard-api.md)。`npm run db:seed` 會依 `demoData/demoData1` 的 `studentAnalyticsSummary` 寫入 `exam_submissions` / `exam_answers`，供 Quiz 答對率統計。
 
 ### GET `/api/teacher/classes`
 
@@ -545,36 +580,44 @@ curl http://localhost:3001/api/teacher/classes
 ### GET `/api/dashboard/overview`
 
 ```bash
-curl "http://localhost:3001/api/dashboard/overview?classId=class_hs2_bio_01&range=30d"
+curl "http://localhost:3001/api/dashboard/overview?classId=class_jh1_bio_01&range=30d"
+```
+
+### GET `/api/dashboard/charts`
+
+```bash
+curl "http://localhost:3001/api/dashboard/charts?classId=class_jh1_bio_01&range=30d"
 ```
 
 ### GET `/api/dashboard/students`
 
 ```bash
-curl "http://localhost:3001/api/dashboard/students?classId=class_hs2_bio_01&range=30d&sortBy=generatedExamAccuracyRate&sortOrder=desc"
+curl "http://localhost:3001/api/dashboard/students?classId=class_jh1_bio_01&range=30d&sortBy=quizAccuracy&sortOrder=desc"
 ```
 
 ### GET `/api/dashboard/students/:studentId/detail`
 
 ```bash
-curl "http://localhost:3001/api/dashboard/students/student_001/detail?classId=class_hs2_bio_01&range=30d"
+curl "http://localhost:3001/api/dashboard/students/student_001/detail?classId=class_jh1_bio_01&range=30d"
 ```
 
 ### GET `/api/dashboard/concepts-risk`
 
 ```bash
-curl "http://localhost:3001/api/dashboard/concepts-risk?classId=class_hs2_bio_01&range=30d"
+curl "http://localhost:3001/api/dashboard/concepts-risk?classId=class_jh1_bio_01&range=30d"
 ```
 
 ### 向後相容
 
 ```bash
-curl "http://localhost:3001/api/dashboard/summary?classId=class_hs2_bio_01&range=30d"
-curl "http://localhost:3001/api/dashboard/students/student_001/concepts?classId=class_hs2_bio_01&range=30d"
-curl "http://localhost:3001/api/dashboard/students/student_001/charts?classId=class_hs2_bio_01&range=30d"
+curl "http://localhost:3001/api/dashboard/summary?classId=class_jh1_bio_01&range=30d"
+curl "http://localhost:3001/api/dashboard/students/student_001/concepts?classId=class_jh1_bio_01&range=30d"
+curl "http://localhost:3001/api/dashboard/students/student_001/charts?classId=class_jh1_bio_01&range=30d"
 ```
 
 Dashboard 相關錯誤碼：`INVALID_RANGE`、`INVALID_CUSTOM_RANGE`、`MISSING_CLASS_ID`、`CLASS_NOT_FOUND`、`STUDENT_NOT_FOUND`、`STUDENT_NOT_IN_CLASS`、`SCOPE_NOT_SUPPORTED`。
+
+Teacher Dashboard 兼容 `frontend-prototype`：`classId` 可使用 `all`、`class_jh1_bio_01`、`class_jh1_bio_02`、`class_jh3_bio_review_01`；`range` 支援 `7d`、`14d`、`30d`、`custom`；學生列表可用 `sortBy=quizAccuracy`。
 
 ## 11. Common Error Codes
 
@@ -595,5 +638,5 @@ Dashboard 相關錯誤碼：`INVALID_RANGE`、`INVALID_CUSTOM_RANGE`、`MISSING_
 - `options` 在 generated exam questions API 中會回傳 array。
 - `backend/data/app.sqlite` 不應該 commit。
 - `backend/node_modules/` 不應該 commit。
-- 老師端 Dashboard API 見 [`docs/teacher-dashboard-api.md`](../docs/teacher-dashboard-api.md) 與本文件 §10。
+- 老師端 Dashboard API 見 [`docs/dashboard/teacher/teacher-dashboard-api.md`](../docs/dashboard/teacher/teacher-dashboard-api.md) 與本文件 §10。
 - Windows PowerShell 對 `curl -d` 的 JSON quoting 較容易出錯；若遇到 request body 解析錯誤，可以改用 `Invoke-RestMethod` 或在 cmd 中執行 curl。

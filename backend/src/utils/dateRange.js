@@ -60,12 +60,13 @@ function addDaysTaipei(year, month, day, deltaDays) {
  * @returns {{ ok: true, range: string, from: string, to: string } | { ok: false, code: string, message: string }}
  */
 function resolveDateRange(query) {
-  const range = query.range;
-  if (!range || !['7d', '30d', 'custom'].includes(range)) {
+  const inferredCustom = !query.range && query.from && query.to;
+  const range = inferredCustom ? 'custom' : query.range;
+  if (!range || !['7d', '14d', '30d', 'custom'].includes(range)) {
     return {
       ok: false,
       code: 'INVALID_RANGE',
-      message: 'Query parameter range is required and must be 7d, 30d, or custom'
+      message: 'Query parameter range is required and must be 7d, 14d, 30d, or custom'
     };
   }
 
@@ -89,7 +90,12 @@ function resolveDateRange(query) {
     return { ok: true, range, from, to };
   }
 
-  const days = range === '7d' ? 6 : 29;
+  const daysByRange = {
+    '7d': 6,
+    '14d': 13,
+    '30d': 29
+  };
+  const days = daysByRange[range];
   const today = nowInTaipeiParts();
   const start = addDaysTaipei(today.year, today.month, today.day, -days);
 

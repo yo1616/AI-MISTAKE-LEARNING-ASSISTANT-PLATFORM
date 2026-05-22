@@ -1,5 +1,6 @@
 const { openDatabase } = require('../db/connection');
 const { resolveDateRange, dateKeyFromIso } = require('../utils/dateRange');
+const { normalizeDashboardClassId } = require('../utils/frontendPrototypeClassMap');
 
 /** 知識點管理：依期間錯題數與影響學生數（非比例制） */
 const CONCEPT_RISK_RULES = {
@@ -24,8 +25,8 @@ function withDb(callback) {
 }
 
 function parseScope(query) {
-  const scope = query.scope === 'allClasses' ? 'allClasses' : 'class';
-  const classId = query.classId || null;
+  const scope = query.scope === 'allClasses' || query.classId === 'all' ? 'allClasses' : 'class';
+  const classId = normalizeDashboardClassId(query.classId) || null;
 
   if (scope === 'class' && !classId) {
     return {
@@ -82,7 +83,7 @@ function getAllEnrolledStudents(db) {
     JOIN students st ON st.id = sc.student_id
     JOIN classes c ON c.id = sc.class_id
     WHERE sc.status = 'active'
-    ORDER BY st.name ASC, c.name ASC
+    ORDER BY st.name ASC, CASE WHEN c.subject_id = 'subject_bio' THEN 0 ELSE 1 END, c.name ASC
   `).all();
 
   const byStudent = new Map();
@@ -392,6 +393,44 @@ function buildMistakeTrend(mistakes) {
     .map(([date, count]) => ({ date, count }));
 }
 
+function buildUnitDistribution(db, mistakes, limit) {
+  if (mistakes.length === 0) {
+    return [];
+  }
+
+  const counts = new Map();
+  for (const mistake of mistakes) {
+    const unitId = mistake.unitId || null;
+    counts.set(unitId, (counts.get(unitId) || 0) + 1);
+  }
+
+  const unitIds = [...counts.keys()].filter(Boolean);
+  const units = unitIds.length
+    ? db.prepare(`
+      SELECT id AS unitId, name AS unitName
+      FROM units
+      WHERE id IN (${unitIds.map(() => '?').join(', ')})
+    `).all(...unitIds)
+    : [];
+  const unitMap = new Map(units.map((unit) => [unit.unitId, unit.unitName]));
+  const totalMistakes = mistakes.length;
+
+  return [...counts.entries()]
+    .map(([unitId, mistakeCount]) => ({
+      unitId,
+      unitName: unitId ? (unitMap.get(unitId) || unitId) : '未分類單元',
+      mistakeCount,
+      percentage: totalMistakes > 0 ? mistakeCount / totalMistakes : 0
+    }))
+    .sort((a, b) => {
+      if (b.mistakeCount !== a.mistakeCount) {
+        return b.mistakeCount - a.mistakeCount;
+      }
+      return a.unitName.localeCompare(b.unitName, 'zh-Hant');
+    })
+    .slice(0, limit);
+}
+
 function riskLevelFromCounts(mistakeCount, affectedStudentCount) {
   const { high, medium } = CONCEPT_RISK_RULES;
   if (mistakeCount >= high.minMistakeCount || affectedStudentCount >= high.minAffectedStudents) {
@@ -516,7 +555,8 @@ function getDashboardStudents(query) {
       students = students.filter((s) => s.name.includes(q));
     }
 
-    students = sortStudents(students, query.sortBy, query.sortOrder);
+    const sortBy = query.sortBy === 'quizAccuracy' ? 'generatedExamAccuracyRate' : query.sortBy;
+    students = sortStudents(students, sortBy, query.sortOrder);
 
     const { total, students: pageStudents } = query.page || query.limit
       ? paginate(students, query.page, query.limit)
@@ -639,6 +679,47 @@ function getDashboardSummary(query) {
   };
 }
 
+function getClassCharts(query) {
+  return withDb((db) => {
+    const ctx = resolveContext(db, query);
+    if (!ctx.ok) {
+      return ctx;
+    }
+
+    const { range, from, to, classId, classRow, studentIds } = ctx;
+    const mistakes = ctx.scope === 'class'
+      ? fetchMistakesInPeriod(db, studentIds, classId, from, to)
+      : fetchMistakesInPeriodAllStudents(db, studentIds, from, to);
+
+    const conceptDistribution = attachConceptNames(
+      db,
+      rankTopConcepts(mistakes, mistakes.length || 1)
+    ).map(({ rank, mistakeCount, ...concept }) => ({
+      ...concept,
+      count: mistakeCount
+    }));
+
+    const data = {
+      range,
+      from,
+      to,
+      mistakeTrend: buildMistakeTrend(mistakes),
+      conceptDistribution,
+      unitDistribution: buildUnitDistribution(db, mistakes, mistakes.length || 1)
+        .map(({ mistakeCount, ...unit }) => ({ ...unit, count: mistakeCount }))
+    };
+
+    if (ctx.scope === 'class') {
+      data.classId = classRow.classId;
+      data.className = classRow.className;
+    } else {
+      data.scope = 'allClasses';
+    }
+
+    return { ok: true, data };
+  });
+}
+
 function getStudentDetail(studentId, query) {
   return withDb((db) => {
     const dateRange = resolveDateRange(query);
@@ -646,7 +727,7 @@ function getStudentDetail(studentId, query) {
       return { ok: false, error: dateRange };
     }
 
-    const classId = query.classId;
+    const classId = normalizeDashboardClassId(query.classId);
     if (!classId) {
       return {
         ok: false,
@@ -782,20 +863,12 @@ function getConceptsRisk(query) {
       return ctx;
     }
 
-    if (ctx.scope === 'allClasses') {
-      return {
-        ok: false,
-        error: {
-          code: 'SCOPE_NOT_SUPPORTED',
-          message: 'concepts-risk requires a specific classId'
-        }
-      };
-    }
-
     const limit = Math.max(1, Number(query.limit) || 5);
     const { range, from, to, classId, classRow, enrolled, studentIds } = ctx;
     const enrolledCount = enrolled.length;
-    const mistakes = fetchMistakesInPeriod(db, studentIds, classId, from, to);
+    const mistakes = ctx.scope === 'class'
+      ? fetchMistakesInPeriod(db, studentIds, classId, from, to)
+      : fetchMistakesInPeriodAllStudents(db, studentIds, from, to);
 
     const byConcept = new Map();
     for (const m of mistakes) {
@@ -859,14 +932,12 @@ function getConceptsRisk(query) {
       ? `建議優先處理高風險知識點，其中「${mostAffected.conceptName}」影響學生數最多。`
       : '本期間班級錯題資料較少，可持續觀察學習狀況。';
 
-    return {
+    const result = {
       ok: true,
       data: {
         range,
         from,
         to,
-        classId: classRow.classId,
-        className: classRow.className,
         enrolledStudentCount: enrolledCount,
         totalMistakesInPeriod: mistakes.length,
         highRiskConceptCount,
@@ -889,6 +960,15 @@ function getConceptsRisk(query) {
         conceptRiskRows
       }
     };
+
+    if (ctx.scope === 'class') {
+      result.data.classId = classRow.classId;
+      result.data.className = classRow.className;
+    } else {
+      result.data.scope = 'allClasses';
+    }
+
+    return result;
   });
 }
 
@@ -902,7 +982,7 @@ function getStudentConcepts(studentId, query) {
   const { data } = detail;
 
   const unitRows = withDb((db) => {
-    const classId = query.classId;
+    const classId = normalizeDashboardClassId(query.classId);
     const dateRange = resolveDateRange(query);
     if (!dateRange.ok) {
       return [];
@@ -938,7 +1018,7 @@ function getStudentCharts(studentId, query) {
 
   const { data } = detail;
 
-  const classId = query.classId;
+  const classId = normalizeDashboardClassId(query.classId);
   const dateRange = resolveDateRange(query);
   const unitRows = dateRange.ok
     ? withDb((db) => db.prepare(`
@@ -968,11 +1048,96 @@ function getStudentCharts(studentId, query) {
   };
 }
 
+function getStudentDashboard(studentId, query) {
+  return withDb((db) => {
+    const dateRange = resolveDateRange(query);
+    if (!dateRange.ok) {
+      return { ok: false, error: dateRange };
+    }
+
+    const student = db.prepare(`
+      SELECT id AS studentId, name
+      FROM students
+      WHERE id = ?
+    `).get(studentId);
+
+    if (!student) {
+      return { ok: false, error: { code: 'STUDENT_NOT_FOUND', message: 'Student not found' } };
+    }
+
+    const { range, from, to } = dateRange;
+    const classId = normalizeDashboardClassId(query.classId) || null;
+    const unitLimit = Math.max(1, Number(query.unitLimit) || 10);
+    const conceptLimit = Math.max(1, Number(query.conceptLimit) || 10);
+
+    let classRow = null;
+    if (classId) {
+      classRow = getClassRow(db, classId);
+      if (!classRow) {
+        return { ok: false, error: { code: 'CLASS_NOT_FOUND', message: 'Class not found' } };
+      }
+    }
+
+    if (classId && !studentInClass(db, studentId, classId)) {
+      return {
+        ok: false,
+        error: { code: 'STUDENT_NOT_IN_CLASS', message: 'Student is not enrolled in this class' }
+      };
+    }
+
+    const mistakes = classId
+      ? fetchMistakesInPeriod(db, [studentId], classId, from, to)
+      : fetchMistakesInPeriodAllStudents(db, [studentId], from, to);
+
+    const examStats = classId
+      ? aggregateExamAccuracy(db, [studentId], classId, from, to)
+      : aggregateExamAccuracyAllClasses(db, [studentId], from, to);
+    const exam = examStats.byStudent.get(studentId) || {
+      correctCount: 0,
+      totalAnswered: 0,
+      accuracyRate: null
+    };
+
+    const conceptLimitSafe = Math.max(1, conceptLimit);
+    const topWeakConcepts = attachConceptNames(db, rankTopConcepts(mistakes, conceptLimitSafe))
+      .map(({ rank, unitId, ...rest }) => rest);
+    const unitDistribution = buildUnitDistribution(db, mistakes, unitLimit);
+    const totalConcepts = new Set(mistakes.map((m) => m.conceptId).filter(Boolean)).size;
+
+    const data = {
+      studentId: student.studentId,
+      studentName: student.name,
+      range,
+      from,
+      to,
+      summary: {
+        totalMistakes: mistakes.length,
+        totalConcepts,
+        quizAccuracy: exam
+      },
+      unitDistribution,
+      topWeakConcepts
+    };
+
+    if (classId) {
+      data.classId = classRow.classId;
+      data.className = classRow.className;
+      data.subjectName = classRow.subjectName;
+    } else {
+      data.scope = 'allClasses';
+    }
+
+    return { ok: true, data };
+  });
+}
+
 module.exports = {
   getDashboardStudents,
   getDashboardOverview,
   getDashboardSummary,
+  getClassCharts,
   getStudentDetail,
+  getStudentDashboard,
   getConceptsRisk,
   getStudentConcepts,
   getStudentCharts

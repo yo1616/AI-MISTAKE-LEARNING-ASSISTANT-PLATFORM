@@ -1,5 +1,5 @@
-const dashboardService = require('../services/dashboardService');
-const { success, failure } = require('../utils/response');
+const teacherDashboardService = require('../../services/dashboard/teacherDashboardService');
+const { success, failure } = require('../../utils/response');
 
 function handleServiceResult(res, result) {
   if (!result.ok) {
@@ -13,7 +13,7 @@ function handleServiceResult(res, result) {
 
 async function getOverview(req, res, next) {
   try {
-    return handleServiceResult(res, dashboardService.getDashboardOverview(req.query));
+    return handleServiceResult(res, teacherDashboardService.getOverview(req.query));
   } catch (error) {
     return next(error);
   }
@@ -21,7 +21,15 @@ async function getOverview(req, res, next) {
 
 async function getSummary(req, res, next) {
   try {
-    return handleServiceResult(res, dashboardService.getDashboardSummary(req.query));
+    return handleServiceResult(res, teacherDashboardService.getSummary(req.query));
+  } catch (error) {
+    return next(error);
+  }
+}
+
+async function getClassCharts(req, res, next) {
+  try {
+    return handleServiceResult(res, teacherDashboardService.getClassCharts(req.query));
   } catch (error) {
     return next(error);
   }
@@ -29,7 +37,7 @@ async function getSummary(req, res, next) {
 
 async function getStudents(req, res, next) {
   try {
-    return handleServiceResult(res, dashboardService.getDashboardStudents(req.query));
+    return handleServiceResult(res, teacherDashboardService.getStudents(req.query));
   } catch (error) {
     return next(error);
   }
@@ -37,7 +45,7 @@ async function getStudents(req, res, next) {
 
 async function getStudentDetail(req, res, next) {
   try {
-    return handleServiceResult(res, dashboardService.getStudentDetail(req.params.studentId, req.query));
+    return handleServiceResult(res, teacherDashboardService.getStudentDetail(req.params.studentId, req.query));
   } catch (error) {
     return next(error);
   }
@@ -45,7 +53,7 @@ async function getStudentDetail(req, res, next) {
 
 async function getConceptsRisk(req, res, next) {
   try {
-    return handleServiceResult(res, dashboardService.getConceptsRisk(req.query));
+    return handleServiceResult(res, teacherDashboardService.getConceptsRisk(req.query));
   } catch (error) {
     return next(error);
   }
@@ -53,7 +61,7 @@ async function getConceptsRisk(req, res, next) {
 
 async function getStudentConcepts(req, res, next) {
   try {
-    return handleServiceResult(res, dashboardService.getStudentConcepts(req.params.studentId, req.query));
+    return handleServiceResult(res, teacherDashboardService.getStudentConcepts(req.params.studentId, req.query));
   } catch (error) {
     return next(error);
   }
@@ -61,7 +69,7 @@ async function getStudentConcepts(req, res, next) {
 
 async function getStudentCharts(req, res, next) {
   try {
-    return handleServiceResult(res, dashboardService.getStudentCharts(req.params.studentId, req.query));
+    return handleServiceResult(res, teacherDashboardService.getStudentCharts(req.params.studentId, req.query));
   } catch (error) {
     return next(error);
   }
@@ -70,6 +78,7 @@ async function getStudentCharts(req, res, next) {
 module.exports = {
   getOverview,
   getSummary,
+  getClassCharts,
   getStudents,
   getStudentDetail,
   getConceptsRisk,

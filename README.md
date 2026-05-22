@@ -1,147 +1,259 @@
-# Mistake Learning System (Frontend)
+# Mistake Learning System - Frontend
 
-以 **React** 建立的學習輔助前端，核心目標是把學生的提問、錯題、重點觀念、即時測驗與學習分析整合在同一個介面中，幫助使用者進行「錯題驅動」的複習。
+這是一個以 **React** 開發的學習系統前端，主題是「用錯題幫助學習」。
+系統將學生提問、對話紀錄、錯題收藏、重點觀念、即時測驗、學習分析整合在同一個 App 中。
 
 ---
 
-## 專案特色
+## 目錄
 
-- 🧠 **錯題追蹤**：記錄學生提問與解析內容，建立錯題資料。
-- ⭐ **收藏機制**：可收藏重要錯題與重要觀念（Favorites）。
-- 📝 **即時測驗**：依單元範圍與題數生成題目，測後可加入錯題本。
-- 📊 **學習分析**：顯示錯誤分佈、常錯知識點與整體學習概況。
-- 💬 **對話紀錄**：保存學習對話，支援歷史紀錄展開與刪除。
+- [專案定位](#專案定位)
+- [技術棧](#技術棧)
+- [前端功能總覽](#前端功能總覽)
+- [各頁面功能說明](#各頁面功能說明)
+- [資料流與狀態管理](#資料流與狀態管理)
+- [API 介接說明](#api-介接說明)
+- [專案結構](#專案結構)
+- [安裝與執行](#安裝與執行)
+- [開發備註與已知限制](#開發備註與已知限制)
+- [可優化方向](#可優化方向)
+
+---
+
+## 專案定位
+
+本前端主要解決以下需求：
+
+1. 學生可以快速提問（文字 / 圖片）並取得系統回覆。
+2. 問答內容可沉澱為「錯題」與「概念筆記」。
+3. 透過收藏機制，建立個人化重點複習清單。
+4. 透過即時測驗與分析表，觀察弱點與學習進度。
 
 ---
 
 ## 技術棧
 
 - **React 19**
-- **React Router DOM 6**
+- **React Router DOM 6**（多頁路由）
 - **Create React App / react-scripts 5**
-- **Context API**（`FavoritesContext` 管理收藏狀態）
-- **Fetch API**（串接後端 `http://localhost:3001/api`）
+- **Context API**（`FavoritesContext`）
+- **Fetch API**（呼叫後端 REST API）
+- CSS Modules 風格拆分（`src/style/*.css` 與 `global.css`）
 
 ---
 
-## 主要路由（`src/App.js`）
+## 前端功能總覽
 
-| 路徑 | 頁面 | 說明 |
+### 1) 學習對話（Home）
+- 支援文字輸入與圖片上傳（檔案型別與大小驗證）
+- 顯示對話泡泡、時間戳、AI 回覆 loading 效果
+- 送出後建立 chat session，並儲存使用者/AI 訊息
+- 將問答內容轉為錯題資料（供後續錯題本與分析使用）
+
+### 2) 錯題管理
+- 依單元/子單元瀏覽錯題
+- 錯題可切換收藏（星號）
+- 可集中檢視「重要錯題」
+
+### 3) 概念筆記管理
+- 顯示概念筆記並補齊單元資訊、錯題關聯數
+- 筆記可切換收藏
+- 可集中檢視「重要觀念」
+
+### 4) 即時測驗
+- 可設定科目、範圍、題數、難度
+- 題目由錯題資料生成，不足時自動補預設題
+- 支援作答回饋、成績頁、解析檢視
+- 可把測驗題加入錯題本
+
+### 5) 學習分析 Dashboard
+- 統計總錯題、概念數、答對率
+- 錯誤分佈（圓環圖）
+- 常錯知識點（排序與長條視覺）
+- 可設定日期區間重算統計
+
+### 6) 對話歷史
+- 依日期分組顯示歷史對話
+- 點擊展開可看當次對話訊息
+- 支援刪除對話 session
+
+### 7) 個人設定
+- 顯示姓名、年級、電話、科目、Email
+- 通知開關 UI（前端狀態）
+
+---
+
+## 各頁面功能說明
+
+> 路由定義見 `src/App.js`
+
+| 路由 | 檔案 | 功能重點 |
 |---|---|---|
-| `/` | HomePage | 提問入口（文字/圖片）、AI 回覆、可收藏 |
-| `/menu` | MenuPage | 功能選單 |
-| `/chapters` | ChapterListPage | 章節錯題列表 |
-| `/mistake/:chapterId` | MistakeDetailPage | 單章錯題詳情 |
-| `/concept` | ConceptPage | 觀念總覽 |
-| `/important-concept` | ImportantConceptPage | 收藏觀念 |
-| `/important-mistake` | ImportantMistakePage | 收藏錯題 |
-| `/diagnostic-quiz` | DiagnosticQuizPage | 即時測驗 |
-| `/dashboard` | DashboardPage | 分析儀表板 |
-| `/account` | AccountPage | 個人設定 |
-| `/chat-history` | ChatHistoryPage | 對話紀錄 |
+| `/` | `pages/HomePage.js` | 問答主頁：提問、上傳圖片、訊息儲存、轉錯題 |
+| `/menu` | `pages/MenuPage.js` | 功能入口頁：我的最愛、學習工具導覽 |
+| `/chapters` | `pages/ChapterListPage.js` | 章節/子章節展開，導向子章錯題頁 |
+| `/mistake/:chapterId` | `pages/MistakeDetailPage.js` | 依 `subUnitId` 顯示錯題清單與收藏切換 |
+| `/important-mistake` | `pages/ImportantMistakePage.js` | 僅顯示已收藏錯題 |
+| `/concept` | `pages/ConceptPage.js` | 顯示概念筆記，整合單元資訊與錯題數 |
+| `/important-concept` | `pages/ImportantConceptPage.js` | 僅顯示已收藏概念筆記 |
+| `/diagnostic-quiz` | `pages/DiagnosticQuizPage.js` | 測驗設定、作答、結果、加入錯題本 |
+| `/dashboard` | `pages/DashboardPage.js` | 日期篩選、錯誤分佈、常錯知識點 |
+| `/chat-history` | `pages/ChatHistoryPage.js` | 對話紀錄列表、展開訊息、刪除 session |
+| `/account` | `pages/AccountPage.js` | 個人資料顯示與通知 UI |
 
 ---
 
-## 專案結構（重點）
+## 資料流與狀態管理
 
-```bash
-src/
-├── App.js
-├── components/         # UI 元件（列表、按鈕、標頭、題卡等）
-├── data/               # Context 與本地資料設定
-│   └── FavoritesContext.js
-├── pages/              # 各功能頁
-├── services/           # API 請求封裝
-│   └── api.js
-├── style/              # 各頁樣式
-└── utils/              # 工具函式（如時間格式）
-```
+## 1. 全域狀態：`FavoritesContext`
+
+檔案：`src/data/FavoritesContext.js`
+
+- 管理 `favoriteMistakes`、`favoriteNotes`、`loading`
+- 封裝：
+  - `loadFavoritedMistakes()`
+  - `loadFavoritedNotes()`
+  - `toggleMistakeFavorite()`
+  - `toggleNoteFavorite()`
+
+## 2. API Service Layer
+
+檔案：`src/services/api.js`
+
+- 統一 `request()` 包裝 fetch、錯誤處理
+- 依功能分區提供 API 函式：
+  - 基礎資料
+  - 錯題
+  - 概念筆記
+  - 最愛
+  - 對話
+  - 分析
+  - 學生資料
+  - 測驗題生成
+
+## 3. 頁面層狀態
+
+- 每頁使用 `useState + useEffect` 管理資料載入
+- 以「進頁載入、操作後重載」為主（例如收藏切換後重新拉資料）
 
 ---
 
-## API 整合說明
+## API 介接說明
 
-前端預設會呼叫：
+前端預設 API Base URL：
 
 ```txt
 http://localhost:3001/api
 ```
 
-主要包含：
+目前主要使用到的端點類型：
 
-- 基礎資料：subjects / units / subunits / concepts
-- 錯題：查詢、建立、收藏切換、明細
-- 概念筆記：查詢、收藏切換、明細
-- 對話：session 與 messages 管理
-- 分析：summary / charts
-- 學生資料：profile
+- `GET /subjects`, `GET /subjects/:id/units`, `GET /units/:id/subunits`
+- `GET /students/:id/mistakes`, `POST /mistakes`, `PATCH /mistakes/:id/star`
+- `GET /students/:id/concept-notes`, `PATCH /concept-notes/:id/star`
+- `GET /students/:id/chat-sessions`, `GET /chat-sessions/:id/messages`
+- `POST /chat-sessions`, `POST /chat-sessions/:id/messages`, `DELETE /chat-sessions/:id`
+- `GET /students/:id/analytics/summary`, `GET /students/:id/analytics/charts`
 
-> `src/services/api.js` 目前使用固定學生 ID：`student_001`（可依需求改為登入態）。
+> 備註：`api.js` 目前固定 `CURRENT_STUDENT_ID = student_001`。
 
 ---
 
-## 安裝與啟動
+## 專案結構
 
-### 1) 安裝套件
+```bash
+src/
+├── App.js
+├── components/
+│   ├── ConceptList.js
+│   ├── MistakeList.js
+│   ├── StarButton.js
+│   ├── PageHeader.js
+│   └── ...
+├── data/
+│   ├── FavoritesContext.js
+│   ├── subUnitMapping.js
+│   ├── quizData.js
+│   └── ...
+├── pages/
+│   ├── HomePage.js
+│   ├── ChapterListPage.js
+│   ├── MistakeDetailPage.js
+│   ├── ConceptPage.js
+│   ├── DiagnosticQuizPage.js
+│   ├── DashboardPage.js
+│   └── ...
+├── services/
+│   └── api.js
+├── style/
+│   └── *.css
+├── utils/
+│   └── timeUtils.js
+└── global.css
+```
+
+---
+
+## 安裝與執行
+
+### 1) 安裝
 
 ```bash
 npm install
 ```
 
-### 2) 啟動前端
+### 2) 啟動開發環境
 
 ```bash
-npm start
+npm startㄇ
 ```
 
-預設會開在：`http://localhost:3000`
+前端預設網址：`http://localhost:3000`
 
-### 3) 建置（Production）
+### 3) 建置
 
 ```bash
 npm run build
 ```
 
----
+### 4) 測試
 
-## 可用 Scripts
-
-- `npm start`：啟動開發模式
-- `npm test`：執行測試
-- `npm run build`：輸出 production build
-- `npm run eject`：彈出 CRA 設定（不可逆）
+```bash
+npm test
+```
 
 ---
 
-## 目前已實作的學習流程（摘要）
+## 開發備註與已知限制
 
-1. 使用者在 Home 提問（可附圖片）
-2. 系統建立聊天 session 並儲存訊息
-3. 生成回答後，將內容轉存為錯題資料
-4. 錯題與觀念可被收藏，集中於重要列表
-5. 即時測驗可依單元出題，錯題可回寫到錯題本
-6. Dashboard 依資料統整錯誤分佈與常錯知識點
-
----
-
-## 已知注意事項
-
-- 本專案依賴本機後端 API（`localhost:3001`），若後端未啟動，部分頁面會無資料或報錯。
-- 部分流程含暫時性 mock/預設行為（例如測驗題目 fallback）。
-- `HomePage` 目前同時有 localStorage 與 API 的收藏/資料邏輯，後續可再整併一致。
+1. **後端依賴**：本專案需要 `localhost:3001` 後端服務，未啟動時多數頁面會無法取得資料。
+2. **學生 ID 固定**：目前以前端常數 `student_001` 模擬登入態。
+3. **部分 fallback 邏輯**：例如測驗題不足時會補預設題。
+4. **資料來源混用**：HomePage 仍可見 localStorage 與 API 混合邏輯，未來建議整併。
+5. **AccountPage**：目前直接 fetch `students/student_001`，尚未統一透過 service layer。
 
 ---
 
-## 後續可優化方向
+## 可優化方向
 
-- 導入登入機制（取代固定 `student_001`）
-- 抽離 API Base URL 為環境變數（`.env`）
-- 補齊錯誤處理與 loading state 一致性
-- 增加單元/整合測試覆蓋率
-- 統一資料來源（localStorage vs backend API）
+- [ ] 導入登入與權限（JWT / Session）
+- [ ] API Base URL 改為 `.env`
+- [ ] 完整錯誤提示與重試機制
+- [ ] 將資料請求改為 React Query/SWR（改善快取與同步）
+- [ ] 單元測試 + E2E 測試（例如 Playwright）
+- [ ] 無障礙與 RWD 細節優化
+
+---
+
+## Scripts
+
+- `npm start` - 開發模式
+- `npm test` - 執行測試
+- `npm run build` - 產生 production build
+- `npm run eject` - 彈出 CRA 設定（不可逆）
 
 ---
 
 ## License
 
-此專案目前未指定授權條款；若要公開於 GitHub，建議補上 `LICENSE`（例如 MIT）。
+目前尚未附上授權，若要公開到 GitHub，建議新增 `LICENSE`（常見：MIT）。

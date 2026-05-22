@@ -104,6 +104,7 @@ function getStudentMistakes(studentId) {
     `).all(studentId);
 
     return rows.map((row) => ({
+      id: row.mistakeRecordId,
       ...row,
       starred: toBoolean(row.starred),
       alertTriggered: toBoolean(row.alertTriggered)
@@ -142,6 +143,7 @@ function getStudentConceptNotes(studentId) {
     `).all(studentId);
 
     return rows.map((row) => ({
+      id: row.noteId,
       ...row,
       starred: toBoolean(row.starred)
     }));
@@ -150,7 +152,7 @@ function getStudentConceptNotes(studentId) {
 
 function getStudentChatSessions(studentId) {
   return withDb((db) => withStudentCheck(db, studentId, () => {
-    return db.prepare(`
+    const rows = db.prepare(`
       SELECT
         cs.id AS sessionId,
         cs.title AS title,
@@ -184,12 +186,17 @@ function getStudentChatSessions(studentId) {
       WHERE cs.student_id = ?
       ORDER BY cs.updated_at DESC, cs.started_at DESC
     `).all(studentId);
+
+    return rows.map((row) => ({
+      id: row.sessionId,
+      ...row
+    }));
   }));
 }
 
 function getStudentGeneratedExams(studentId) {
   return withDb((db) => withStudentCheck(db, studentId, () => {
-    return db.prepare(`
+    const rows = db.prepare(`
       SELECT
         ge.id AS examId,
         ge.student_id AS studentId,
@@ -217,6 +224,11 @@ function getStudentGeneratedExams(studentId) {
       WHERE ge.student_id = ?
       ORDER BY ge.created_at DESC
     `).all(studentId);
+
+    return rows.map((row) => ({
+      id: row.examId,
+      ...row
+    }));
   }));
 }
 

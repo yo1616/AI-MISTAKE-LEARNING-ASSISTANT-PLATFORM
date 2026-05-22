@@ -305,6 +305,56 @@ curl http://localhost:3001/api/chat-sessions/chat_001/messages
 
 ## 7. Mistake APIs
 
+### POST `/api/mistakes`
+
+Create a mistake record from a chat/question workflow.
+
+Required body fields:
+
+- `studentId`
+- `subjectId`
+- `classId`
+- `unitId`
+- `subUnitId`
+- `conceptId`
+- `questionText`
+- `studentQuestion`
+- `correctAnswer`
+- `aiSummary`
+- `fullExplanation`
+- `inputType` (`text`, `photo`, or `photo_text`)
+
+Supported nullable body fields:
+
+- `sourceSessionId`
+- `questionGroupId`
+- `studentAnswer`
+- `questionImageUrl`
+
+Example:
+
+```bash
+curl -X POST http://localhost:3001/api/mistakes \
+  -H "Content-Type: application/json" \
+  -d "{\"studentId\":\"student_001\",\"subjectId\":\"subject_bio\",\"classId\":\"class_hs2_bio_01\",\"unitId\":\"unit_bio_02\",\"subUnitId\":\"subunit_bio_02_02\",\"conceptId\":\"concept_bio_003\",\"sourceSessionId\":\"chat_001\",\"questionGroupId\":\"qg_001\",\"questionText\":\"Explain gas exchange in alveoli.\",\"studentQuestion\":\"Why does oxygen move into blood?\",\"studentAnswer\":null,\"correctAnswer\":\"Oxygen diffuses from high concentration in alveoli to lower concentration in blood.\",\"aiSummary\":\"Diffusion direction was unclear.\",\"fullExplanation\":\"Gas exchange happens by diffusion across the alveolar membrane due to concentration gradients.\",\"inputType\":\"text\",\"questionImageUrl\":null}"
+```
+
+Success response data is the created mistake detail. The response includes both `id` and `mistakeRecordId`, and `id` equals `mistakeRecordId`. It also includes `subjectName`, `className`, `unitName`, `subUnitName`, and `conceptName`.
+
+Common create errors:
+
+- `MISSING_REQUIRED_FIELDS`
+- `INVALID_INPUT_TYPE`
+- `STUDENT_NOT_FOUND`
+- `SUBJECT_NOT_FOUND`
+- `CLASS_NOT_FOUND`
+- `UNIT_NOT_FOUND`
+- `SUB_UNIT_NOT_FOUND`
+- `CONCEPT_NOT_FOUND`
+- `CHAT_SESSION_NOT_FOUND`
+- `QUESTION_GROUP_NOT_FOUND`
+- `QUESTION_GROUP_SESSION_MISMATCH`
+
 ### GET `/api/mistakes/:mistakeRecordId`
 
 用途：取得單一錯題詳細資料。
@@ -397,6 +447,49 @@ curl -X PATCH http://localhost:3001/api/mistakes/mistake_record_002/star \
 成功後回傳該錯題最新 detail。
 
 ## 8. Concept Note APIs
+
+### POST `/api/concept-notes`
+
+Create a concept note from a chat/question workflow.
+
+Required body fields:
+
+- `studentId`
+- `subjectId`
+- `classId`
+- `unitId`
+- `subUnitId`
+- `conceptId`
+- `noteTitle`
+- `noteContent`
+
+Supported nullable body fields:
+
+- `sourceSessionId`
+- `questionGroupId`
+
+Example:
+
+```bash
+curl -X POST http://localhost:3001/api/concept-notes \
+  -H "Content-Type: application/json" \
+  -d "{\"studentId\":\"student_001\",\"subjectId\":\"subject_bio\",\"classId\":\"class_hs2_bio_01\",\"unitId\":\"unit_bio_02\",\"subUnitId\":\"subunit_bio_02_02\",\"conceptId\":\"concept_bio_003\",\"sourceSessionId\":\"chat_001\",\"questionGroupId\":\"qg_001\",\"noteTitle\":\"Gas exchange diffusion\",\"noteContent\":\"Oxygen and carbon dioxide move across alveoli by diffusion along concentration gradients.\"}"
+```
+
+Success response data is the created concept note detail. The response includes both `id` and `noteId`, and `id` equals `noteId`. It also includes `subjectName`, `className`, `unitName`, `subUnitName`, and `conceptName`.
+
+Common create errors:
+
+- `MISSING_REQUIRED_FIELDS`
+- `STUDENT_NOT_FOUND`
+- `SUBJECT_NOT_FOUND`
+- `CLASS_NOT_FOUND`
+- `UNIT_NOT_FOUND`
+- `SUB_UNIT_NOT_FOUND`
+- `CONCEPT_NOT_FOUND`
+- `CHAT_SESSION_NOT_FOUND`
+- `QUESTION_GROUP_NOT_FOUND`
+- `QUESTION_GROUP_SESSION_MISMATCH`
 
 ### GET `/api/concept-notes/:noteId`
 
@@ -567,7 +660,107 @@ curl http://localhost:3001/api/generated-exams/generated_exam_001/source-mistake
 - `conceptName`
 - `createdAt`
 
-## 10. Teacher Dashboard APIs
+## 10. Chat Session Write APIs
+
+The following endpoints create and delete chat-session data. Responses use the common envelope:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+### POST `/api/chat-sessions`
+
+Create a chat session.
+
+Required body fields:
+
+- `studentId`
+- `subjectId`
+- `inputType` (`text`, `photo`, or `photo_text`)
+
+Supported optional body fields:
+
+- `classId`
+- `unitId`
+- `subUnitId`
+- `title`
+
+Example:
+
+```bash
+curl -X POST http://localhost:3001/api/chat-sessions \
+  -H "Content-Type: application/json" \
+  -d "{\"studentId\":\"student_001\",\"subjectId\":\"subject_bio\",\"classId\":\"class_hs2_bio_01\",\"unitId\":\"unit_bio_respiration\",\"subUnitId\":\"subunit_bio_respiration_gas_exchange\",\"title\":\"Gas exchange question\",\"inputType\":\"text\"}"
+```
+
+Success response data is the created session. The session response includes both `id` and `sessionId`, and `id` equals `sessionId`.
+
+### POST `/api/chat-sessions/:sessionId/messages`
+
+Create a message under an existing chat session.
+
+Required body fields:
+
+- `role` (`student` or `assistant`)
+- `messageType` (`new_question`, `follow_up`, `request_practice`, `answer`, or `classification_explanation`)
+- `content`
+
+Supported optional body fields:
+
+- `questionGroupId`
+- `inputType` (`text`, `photo`, or `photo_text`)
+- `questionText`
+- `questionImageUrl`
+
+Example:
+
+```bash
+curl -X POST http://localhost:3001/api/chat-sessions/chat_001/messages \
+  -H "Content-Type: application/json" \
+  -d "{\"role\":\"student\",\"messageType\":\"follow_up\",\"questionGroupId\":\"qg_001\",\"inputType\":\"text\",\"content\":\"Can you explain it again?\",\"questionText\":\"Can you explain it again?\"}"
+```
+
+Success response data is the created message. The message response includes both `id` and `messageId`, and `id` equals `messageId`.
+
+### DELETE `/api/chat-sessions/:sessionId`
+
+Delete a chat session. The current schema defines `ON DELETE CASCADE` for `chat_messages.session_id` and `question_groups.session_id`, so deleting a session also removes its messages and question groups. If the session does not exist, the API returns `CHAT_SESSION_NOT_FOUND`.
+
+Example:
+
+```bash
+curl -X DELETE http://localhost:3001/api/chat-sessions/chat_001
+```
+
+Success response data:
+
+```json
+{
+  "success": true,
+  "deletedId": "chat_001"
+}
+```
+
+Common write errors:
+
+- `MISSING_REQUIRED_FIELDS`
+- `INVALID_INPUT_TYPE`
+- `INVALID_MESSAGE_ROLE`
+- `INVALID_MESSAGE_TYPE`
+- `STUDENT_NOT_FOUND`
+- `SUBJECT_NOT_FOUND`
+- `CLASS_NOT_FOUND`
+- `UNIT_NOT_FOUND`
+- `SUB_UNIT_NOT_FOUND`
+- `CONCEPT_NOT_FOUND`
+- `QUESTION_GROUP_NOT_FOUND`
+- `QUESTION_GROUP_SESSION_MISMATCH`
+- `CHAT_SESSION_NOT_FOUND`
+
+## 11. Teacher Dashboard APIs
 
 規格詳見 [`docs/dashboard/teacher/teacher-dashboard-api.md`](../docs/dashboard/teacher/teacher-dashboard-api.md)。`npm run db:seed` 會依 `demoData/demoData1` 的 `studentAnalyticsSummary` 寫入 `exam_submissions` / `exam_answers`，供 Quiz 答對率統計。
 
@@ -619,7 +812,7 @@ Dashboard 相關錯誤碼：`INVALID_RANGE`、`INVALID_CUSTOM_RANGE`、`MISSING_
 
 Teacher Dashboard 兼容 `frontend-prototype`：`classId` 可使用 `all`、`class_jh1_bio_01`、`class_jh1_bio_02`、`class_jh3_bio_review_01`；`range` 支援 `7d`、`14d`、`30d`、`custom`；學生列表可用 `sortBy=quizAccuracy`。
 
-## 11. Common Error Codes
+## 12. Common Error Codes
 
 目前常見錯誤碼：
 
@@ -630,7 +823,7 @@ Teacher Dashboard 兼容 `frontend-prototype`：`classId` 可使用 `all`、`cla
 - `GENERATED_EXAM_NOT_FOUND`：找不到生成考卷 / 練習題。
 - `INVALID_STARRED_VALUE`：`starred` 不是 boolean。
 
-## 12. Notes for Frontend Integration
+## 13. Notes for Frontend Integration
 
 - 所有 API 預設回傳 JSON。
 - `starred` 欄位會回傳 boolean。

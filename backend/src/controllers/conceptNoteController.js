@@ -5,6 +5,46 @@ function notFound(res) {
   return failure(res, 'CONCEPT_NOTE_NOT_FOUND', 'Concept note not found', 404);
 }
 
+function hasValue(value) {
+  return value !== undefined && value !== null && value !== '';
+}
+
+function missingFields(body, fields) {
+  return fields.filter((field) => !hasValue(body[field]));
+}
+
+function failureFromResult(res, result) {
+  return failure(res, result.error.code, result.error.message, result.error.statusCode);
+}
+
+async function createConceptNote(req, res, next) {
+  try {
+    const missing = missingFields(req.body, [
+      'studentId',
+      'subjectId',
+      'classId',
+      'unitId',
+      'subUnitId',
+      'conceptId',
+      'noteTitle',
+      'noteContent'
+    ]);
+
+    if (missing.length > 0) {
+      return failure(res, 'MISSING_REQUIRED_FIELDS', `Missing required fields: ${missing.join(', ')}`, 400);
+    }
+
+    const result = conceptNoteService.createConceptNote(req.body);
+    if (!result.ok) {
+      return failureFromResult(res, result);
+    }
+
+    return success(res, result.data, 201);
+  } catch (error) {
+    return next(error);
+  }
+}
+
 async function getConceptNoteById(req, res, next) {
   try {
     const note = conceptNoteService.getConceptNoteById(req.params.noteId);
@@ -47,6 +87,7 @@ async function updateConceptNoteStar(req, res, next) {
 }
 
 module.exports = {
+  createConceptNote,
   getConceptNoteById,
   getRelatedMistakes,
   updateConceptNoteStar

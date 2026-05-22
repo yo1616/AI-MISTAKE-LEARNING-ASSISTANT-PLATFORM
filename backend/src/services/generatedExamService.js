@@ -27,6 +27,33 @@ function parseJsonArray(value) {
   }
 }
 
+function mapExamRow(row) {
+  if (!row) {
+    return null;
+  }
+
+  return {
+    id: row.examId,
+    ...row
+  };
+}
+
+function mapQuestionRow(row) {
+  return {
+    id: row.questionId,
+    ...row,
+    options: parseJsonArray(row.options),
+    starred: Boolean(row.starred)
+  };
+}
+
+function mapMistakeRow(row) {
+  return {
+    id: row.mistakeRecordId,
+    ...row
+  };
+}
+
 function getGeneratedExamById(examId) {
   return withDb((db) => {
     const row = db.prepare(`
@@ -59,7 +86,7 @@ function getGeneratedExamById(examId) {
       WHERE ge.id = ?
     `).get(examId);
 
-    return row || null;
+    return mapExamRow(row);
   });
 }
 
@@ -94,11 +121,7 @@ function getGeneratedExamQuestions(examId) {
 
     return {
       examExists: true,
-      data: rows.map((row) => ({
-        ...row,
-        options: parseJsonArray(row.options),
-        starred: Boolean(row.starred)
-      }))
+      data: rows.map(mapQuestionRow)
     };
   });
 }
@@ -139,7 +162,7 @@ function getGeneratedExamSourceMistakes(examId) {
 
     return {
       examExists: true,
-      data: rows
+      data: rows.map(mapMistakeRow)
     };
   });
 }

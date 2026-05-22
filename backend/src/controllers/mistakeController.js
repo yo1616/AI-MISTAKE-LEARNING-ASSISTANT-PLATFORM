@@ -5,6 +5,50 @@ function notFound(res) {
   return failure(res, 'MISTAKE_NOT_FOUND', 'Mistake record not found', 404);
 }
 
+function hasValue(value) {
+  return value !== undefined && value !== null && value !== '';
+}
+
+function missingFields(body, fields) {
+  return fields.filter((field) => !hasValue(body[field]));
+}
+
+function failureFromResult(res, result) {
+  return failure(res, result.error.code, result.error.message, result.error.statusCode);
+}
+
+async function createMistake(req, res, next) {
+  try {
+    const missing = missingFields(req.body, [
+      'studentId',
+      'subjectId',
+      'classId',
+      'unitId',
+      'subUnitId',
+      'conceptId',
+      'questionText',
+      'studentQuestion',
+      'correctAnswer',
+      'aiSummary',
+      'fullExplanation',
+      'inputType'
+    ]);
+
+    if (missing.length > 0) {
+      return failure(res, 'MISSING_REQUIRED_FIELDS', `Missing required fields: ${missing.join(', ')}`, 400);
+    }
+
+    const result = mistakeService.createMistake(req.body);
+    if (!result.ok) {
+      return failureFromResult(res, result);
+    }
+
+    return success(res, result.data, 201);
+  } catch (error) {
+    return next(error);
+  }
+}
+
 async function getMistakeById(req, res, next) {
   try {
     const mistake = mistakeService.getMistakeById(req.params.mistakeRecordId);
@@ -47,6 +91,7 @@ async function updateMistakeStar(req, res, next) {
 }
 
 module.exports = {
+  createMistake,
   getMistakeById,
   getRelatedNotes,
   updateMistakeStar

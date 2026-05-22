@@ -6,6 +6,7 @@ const chatSessionRoutes = require('./routes/chatSessionRoutes');
 const mistakeRoutes = require('./routes/mistakeRoutes');
 const conceptNoteRoutes = require('./routes/conceptNoteRoutes');
 const generatedExamRoutes = require('./routes/generatedExamRoutes');
+const dictionaryRoutes = require('./routes/dictionaryRoutes');
 const teacherRoutes = require('./routes/teacherRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
@@ -17,6 +18,7 @@ function createApp() {
   app.use(express.json());
 
   app.use('/api', healthRoutes);
+  app.use('/api', dictionaryRoutes);
   app.use('/api/students', studentRoutes);
   app.use('/api/chat-sessions', chatSessionRoutes);
   app.use('/api/mistakes', mistakeRoutes);

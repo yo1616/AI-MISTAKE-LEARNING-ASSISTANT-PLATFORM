@@ -83,6 +83,24 @@
 
 ---
 
+## AI 知識點分類流程圖
+
+```mermaid
+flowchart TD
+    A[學生在 HomePage 提問\n文字或圖片] --> B[前端送出問題與對話資訊\ncreateChatSession / addChatMessage]
+    B --> C[AI 回覆產生]
+    C --> D[processAndSaveMistake]
+    D --> E[後端/分類邏輯判定\nsubjectId / unitId / subUnitId / conceptId]
+    E --> F[儲存為 mistake record]
+
+    F --> G[ConceptPage\n依 concept 彙整筆記與錯題數]
+    F --> H[DashboardPage\n統計錯誤分佈與常錯知識點]
+    F --> I[DiagnosticQuizPage\n依單元範圍生成題目]
+    F --> J[ImportantMistakePage\n收藏重點錯題]
+```
+
+---
+
 ## 各頁面功能說明
 
 > 路由定義見 `src/App.js`
@@ -205,7 +223,7 @@ npm install
 ### 2) 啟動開發環境
 
 ```bash
-npm startㄇ
+npm start
 ```
 
 前端預設網址：`http://localhost:3000`

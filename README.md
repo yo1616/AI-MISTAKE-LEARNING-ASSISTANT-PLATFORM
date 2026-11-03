@@ -59,7 +59,10 @@ My primary contributions included:
 
 ## 3. Key Features
 
-### Student Interface
+## Product Preview
+
+### Interface
+![Interface](./screenshots/interface.png)
 
 - Upload and record incorrectly answered questions.
 - AI-assisted knowledge-point classification.

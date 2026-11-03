@@ -1,0 +1,213 @@
+{
+  "teachers": [
+    {
+      "id": "teacher_001",
+      "name": "陳老師",
+      "subject": "biology"
+    }
+  ],
+  "students": [
+    {
+      "id": "student_001",
+      "name": "王小明",
+      "grade": "8",
+      "className": "國二忠"
+    },
+    {
+      "id": "student_002",
+      "name": "林采萱",
+      "grade": "8",
+      "className": "國二忠"
+    },
+    {
+      "id": "student_003",
+      "name": "張宇恩",
+      "grade": "8",
+      "className": "國二孝"
+    }
+  ],
+  "tags": [
+    {
+      "id": "tag_bio_001",
+      "subject": "biology",
+      "chapter": "生物的運輸",
+      "name": "槓桿原理"
+    },
+    {
+      "id": "tag_bio_002",
+      "subject": "biology",
+      "chapter": "人體循環",
+      "name": "血液循環方向"
+    },
+    {
+      "id": "tag_bio_003",
+      "subject": "biology",
+      "chapter": "呼吸作用",
+      "name": "氣體交換"
+    },
+    {
+      "id": "tag_bio_004",
+      "subject": "biology",
+      "chapter": "消化作用",
+      "name": "酵素功能"
+    },
+    {
+      "id": "tag_bio_005",
+      "subject": "biology",
+      "chapter": "神經系統",
+      "name": "反射作用"
+    },
+    {
+      "id": "tag_bio_006",
+      "subject": "biology",
+      "chapter": "細胞",
+      "name": "細胞構造"
+    },
+    {
+      "id": "tag_bio_007",
+      "subject": "biology",
+      "chapter": "遺傳",
+      "name": "顯隱性性狀"
+    },
+    {
+      "id": "tag_bio_008",
+      "subject": "biology",
+      "chapter": "生態系",
+      "name": "食物鏈"
+    }
+  ],
+  "mistakes": [
+    {
+      "id": "mistake_001",
+      "studentId": "student_001",
+      "tagIds": ["tag_bio_001"],
+      "questionText": "手臂彎曲時，前臂與肌肉形成何種槓桿？",
+      "studentAnswer": "第二類槓桿",
+      "correctAnswer": "第三類槓桿",
+      "errorReason": "看反施力點與抗力點",
+      "starred": true,
+      "createdAt": "2026-04-22T19:30:00+08:00"
+    },
+    {
+      "id": "mistake_002",
+      "studentId": "student_001",
+      "tagIds": ["tag_bio_001"],
+      "questionText": "肱二頭肌帶動前臂時屬於哪類槓桿？",
+      "studentAnswer": "第一類槓桿",
+      "correctAnswer": "第三類槓桿",
+      "errorReason": "仍無法判斷施力點位置",
+      "starred": false,
+      "createdAt": "2026-04-28T20:10:00+08:00"
+    },
+    {
+      "id": "mistake_003",
+      "studentId": "student_001",
+      "tagIds": ["tag_bio_002"],
+      "questionText": "血液從心臟送往全身屬於哪一循環？",
+      "studentAnswer": "肺循環",
+      "correctAnswer": "體循環",
+      "errorReason": "循環路徑記錯",
+      "starred": false,
+      "createdAt": "2026-04-29T09:00:00+08:00"
+    },
+    {
+      "id": "mistake_004",
+      "studentId": "student_002",
+      "tagIds": ["tag_bio_003"],
+      "questionText": "肺泡與微血管之間進行何種作用？",
+      "studentAnswer": "消化作用",
+      "correctAnswer": "氣體交換",
+      "errorReason": "名詞混淆",
+      "starred": true,
+      "createdAt": "2026-04-24T18:15:00+08:00"
+    },
+    {
+      "id": "mistake_005",
+      "studentId": "student_002",
+      "tagIds": ["tag_bio_004"],
+      "questionText": "酵素的主要功能為何？",
+      "studentAnswer": "提供能量",
+      "correctAnswer": "加速化學反應",
+      "errorReason": "把養分與酵素功能混淆",
+      "starred": false,
+      "createdAt": "2026-04-25T19:40:00+08:00"
+    },
+    {
+      "id": "mistake_006",
+      "studentId": "student_002",
+      "tagIds": ["tag_bio_005"],
+      "questionText": "手碰到熱物體立刻縮回屬於什麼？",
+      "studentAnswer": "意識控制",
+      "correctAnswer": "反射作用",
+      "errorReason": "神經傳遞概念不清",
+      "starred": false,
+      "createdAt": "2026-04-27T17:20:00+08:00"
+    },
+    {
+      "id": "mistake_007",
+      "studentId": "student_003",
+      "tagIds": ["tag_bio_006"],
+      "questionText": "控制細胞活動的構造為何？",
+      "studentAnswer": "細胞膜",
+      "correctAnswer": "細胞核",
+      "errorReason": "細胞構造功能記反",
+      "starred": false,
+      "createdAt": "2026-04-23T16:00:00+08:00"
+    },
+    {
+      "id": "mistake_008",
+      "studentId": "student_003",
+      "tagIds": ["tag_bio_007"],
+      "questionText": "顯性性狀在遺傳表現上的特徵為何？",
+      "studentAnswer": "一定只會出現在純合子",
+      "correctAnswer": "在異合子也可能表現",
+      "errorReason": "顯隱性定義不熟",
+      "starred": true,
+      "createdAt": "2026-04-26T14:45:00+08:00"
+    },
+    {
+      "id": "mistake_009",
+      "studentId": "student_003",
+      "tagIds": ["tag_bio_008"],
+      "questionText": "草被兔子吃，兔子被狐狸吃，這是什麼？",
+      "studentAnswer": "食物網",
+      "correctAnswer": "食物鏈",
+      "errorReason": "食物鏈與食物網混淆",
+      "starred": false,
+      "createdAt": "2026-04-28T13:05:00+08:00"
+    },
+    {
+      "id": "mistake_010",
+      "studentId": "student_002",
+      "tagIds": ["tag_bio_003"],
+      "questionText": "氧氣進入血液主要發生在哪裡？",
+      "studentAnswer": "支氣管",
+      "correctAnswer": "肺泡",
+      "errorReason": "呼吸構造位置記錯",
+      "starred": false,
+      "createdAt": "2026-04-28T19:10:00+08:00"
+    },
+    {
+      "id": "mistake_011",
+      "studentId": "student_001",
+      "tagIds": ["tag_bio_004"],
+      "questionText": "胃蛋白酶的作用為何？",
+      "studentAnswer": "分解澱粉",
+      "correctAnswer": "分解蛋白質",
+      "errorReason": "酵素對應受質記錯",
+      "starred": false,
+      "createdAt": "2026-04-27T21:00:00+08:00"
+    },
+    {
+      "id": "mistake_012",
+      "studentId": "student_003",
+      "tagIds": ["tag_bio_006"],
+      "questionText": "植物細胞與動物細胞都具有哪個構造？",
+      "studentAnswer": "細胞壁",
+      "correctAnswer": "細胞膜",
+      "errorReason": "共同構造概念不穩",
+      "starred": false,
+      "createdAt": "2026-04-29T08:30:00+08:00"
+    }
+  ]
+}

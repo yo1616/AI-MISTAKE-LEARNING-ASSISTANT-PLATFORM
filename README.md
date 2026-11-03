@@ -1,4 +1,4 @@
-# Mistake Learning System
+# AI LEARNING ASSISTANT PLATFORM 
 
 [**English**](./README.md) | [繁體中文](./README.zh-TW.md)
 

@@ -55,6 +55,10 @@
 
 ## 三、核心功能
 
+## 預覽圖
+
+![Interface](./screenshots/interface.png)
+
 ### 學生端（Student Interface）
 
 - 拍照或上傳錯題並建立學習紀錄。

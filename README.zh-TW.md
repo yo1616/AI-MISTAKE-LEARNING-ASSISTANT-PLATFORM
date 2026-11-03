@@ -1,4 +1,4 @@
-# Mistake Learning System｜補習班個別化學習支援系統
+# AI LEARNING ASSISTANT PLATFORM ｜補習班個別化學習AI支援系統
 
 [English](./README.md) | [**繁體中文**](./README.zh-TW.md)
 

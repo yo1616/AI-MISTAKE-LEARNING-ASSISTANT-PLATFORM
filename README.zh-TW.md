@@ -55,7 +55,7 @@
 
 ## 三、核心功能
 
-## 預覽圖
+### 預覽圖
 
 ![Interface](./screenshots/interface.png)
 

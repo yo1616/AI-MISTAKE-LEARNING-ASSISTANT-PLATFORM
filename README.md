@@ -252,5 +252,3 @@ Future development may focus on user testing, improved AI analysis accuracy, sys
 **Status:** Functional Academic Prototype
 
 ---
-
-*This repository documents a collaborative academic software development project. The system was designed and implemented through team-based research, development, and integration.*
